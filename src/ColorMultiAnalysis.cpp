@@ -1,7 +1,7 @@
 /*
  - copyright (c) 2011 Copenhagen Institute of Interaction Design (CIID)
  - all rights reserved.
- 
+
  + redistribution and use in source and binary forms, with or without
  + modification, are permitted provided that the following conditions
  + are met:
@@ -11,7 +11,7 @@
  +    notice, this list of conditions and the following disclaimer in
  +    the documentation and/or other materials provided with the
  +    distribution.
- 
+
  + THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  + "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  + LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -24,10 +24,10 @@
  + OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  + OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  + SUCH DAMAGE.
- 
+
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  ~ author: dviid
- ~ contact: dviid@labs.ciid.dk 
+ ~ contact: dviid@labs.ciid.dk
  */
 
 #include "ColorMultiAnalysis.h"
@@ -46,57 +46,66 @@ using Poco::Thread;
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
     // HERE IS WHERE WE SETUP THE DIRECTORY FOR ALL THE SAVED IMAGES
+
+    //FOR WINDOWS i HAVE HAD TO REPLACE SPACES WITH UNDERSCORES AND REDUCE THE LENGTH OF THE FOLDER NAME
     time_t rawtime;
     struct tm * timeinfo;
-    
+
     time ( &rawtime );
     timeinfo = localtime ( &rawtime );
     string time = asctime(timeinfo);
-    
-    cout<<"time"<<time<<endl;
-    
-    ofDirectory dir;
-    _whole_file_path= string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+time;
-    
-    //directories have to be created one level at a time hence repeated calls
+    string replaceTime = "";
 
-    
-    if(!dir.doesDirectoryExist(_whole_file_path)){
-        
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/", true,false); 
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/", true,false); 
-        dir.createDirectory(_whole_file_path, true,false);
-        
+    //DON'T INCLUDE THE DAY IN WORDS EG 'TUE' OR THE YEAR EG 2012 THIS MAKES THE DIRECTORY NAME TOO LONG AND CAUSES DIR CREATION TO FAIL
+    for(int i=4;i<time.size()-4;i++){
+        if(time.at(i)==' '||time.at(i)==':'){
+            replaceTime+="_";
+        }
+        else{
+            replaceTime+=time.at(i);
+        }
     }
+
+    ofDirectory dir;
+
+    _whole_file_path= string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+replaceTime ;
+    //directories have to be created one level at a time hence repeated calls
+    if(!dir.doesDirectoryExist(_whole_file_path)){
+        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/", true,false);
+        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/", true,false);
+        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+replaceTime+"/", true,false);
+    }
+
+    //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////
     _frame_cnt = 0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
-    
+
     c = 0;
 }
 
 void ColorMultiAnalysis::synthesize()
 {
-    
+
     Timer* save_timer;
-    
+
     TimerCallback<ColorMultiAnalysis> save_callback(*this, &ColorMultiAnalysis::save_cb);
-    
-    // RUN ROUTINE 
+
+    // RUN ROUTINE
     for(int i = 0; i < NUM_RUN; i++) {
-        
+
         _run_cnt = i;
-        
+
         cout << "RUN NUM = " << i;
-        
+
         save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);        
+        save_timer->start(save_callback);
         _RUN_DONE = false;
         _frame_cnt = 0; _save_cnt = 0;
-        
+
         while(!_RUN_DONE)
             Thread::sleep(3);
-        
-        save_timer->stop();        
+
+        save_timer->stop();
     }
 
 }
@@ -104,30 +113,30 @@ void ColorMultiAnalysis::synthesize()
 void ColorMultiAnalysis::gui_attach(ofxControlPanel* gui)
 {
     gui->addToggle("GO", "GO", 0);
-    gui->addButtonSlider("animation time limit", "ANIMATION_TIME_LIMIT", 10, 1, 3000, TRUE);    
-    
+    gui->addButtonSlider("animation time limit", "ANIMATION_TIME_LIMIT", 10, 1, 3000, TRUE);
+
 }
 
 void ColorMultiAnalysis::gui_detach()
 {
-    
+
 }
 
 void ColorMultiAnalysis::draw()
 {
 
-        
+
         if (_frame_cnt < _frame_cnt_max)
         {
             ofColor aColor;
             aColor.setHsb(c, 255, 255);
             ofSetColor(aColor);
-            ofRect(0, 0, ofGetWidth(), ofGetHeight()); 
+            ofRect(0, 0, ofGetWidth(), ofGetHeight());
             //how far are we as a percent of _frame_count_max
             c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
         }
         _frame_cnt++;
-        
+
 
 }
 
@@ -136,19 +145,19 @@ void ColorMultiAnalysis::draw()
 void ColorMultiAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
-    
+
     // UPDATE THE COLOR ON THE SCREEN
-    //float c_last = c;    
-    
+    //float c_last = c;
+
     cout << "COLORMULTIANALYSIS::saving...\n";
-    cout << "c_last... " << c << endl;    
+    cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
 
     cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
+
     if(_save_cnt >= NUM_SAVE_PER_RUN){
         _RUN_DONE = true;
     }
-    
+
 }
