@@ -46,9 +46,6 @@ public:
     
     void setup(int camWidth, int camHeight);
     void synthesize();
-    void gui_attach(ofxControlPanel* gui);
-    void gui_detach();
-    
     void draw();
     
     void strobe_cb(Poco::Timer& timer);
@@ -57,5 +54,4 @@ protected:
     
     int     _strobe_cnt;  
     bool    _darkness;
-    string _whole_file_path;
 };

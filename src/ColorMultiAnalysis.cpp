@@ -45,41 +45,9 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    // HERE IS WHERE WE SETUP THE DIRECTORY FOR ALL THE SAVED IMAGES
-
-    //FOR WINDOWS i HAVE HAD TO REPLACE SPACES WITH UNDERSCORES AND REDUCE THE LENGTH OF THE FOLDER NAME
-    time_t rawtime;
-    struct tm * timeinfo;
-
-    time ( &rawtime );
-    timeinfo = localtime ( &rawtime );
-    string time = asctime(timeinfo);
-    string replaceTime = "";
-
-    //DON'T INCLUDE THE DAY IN WORDS EG 'TUE' OR THE YEAR EG 2012 THIS MAKES THE DIRECTORY NAME TOO LONG AND CAUSES DIR CREATION TO FAIL
-    for(int i=4;i<time.size()-4;i++){
-        if(time.at(i)==' '||time.at(i)==':'){
-            replaceTime+="_";
-        }
-        else{
-            replaceTime+=time.at(i);
-        }
-    }
-
-    ofDirectory dir;
-
-    _whole_file_path= string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+replaceTime ;
-    //directories have to be created one level at a time hence repeated calls
-    if(!dir.doesDirectoryExist(_whole_file_path)){
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/", true,false);
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/", true,false);
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+replaceTime+"/", true,false);
-    }
-
-    //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////
+    create_dir();
     _frame_cnt = 0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
-
     c = 0;
 }
 
@@ -107,18 +75,6 @@ void ColorMultiAnalysis::synthesize()
 
         save_timer->stop();
     }
-
-}
-
-void ColorMultiAnalysis::gui_attach(ofxControlPanel* gui)
-{
-    gui->addToggle("GO", "GO", 0);
-    gui->addButtonSlider("animation time limit", "ANIMATION_TIME_LIMIT", 10, 1, 3000, TRUE);
-
-}
-
-void ColorMultiAnalysis::gui_detach()
-{
 
 }
 

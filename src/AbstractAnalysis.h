@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include "ofxControlPanel.h"
+#include "ofMain.h"
+#include "ofEvents.h"
+
 #include <string>
 
 //#define ANALYSIS_PATH "data/analysis/"
@@ -20,40 +22,31 @@ public:
     virtual ~AbstractAnalysis(){;}
     
     // generic function to set up the camera
-    virtual void setup(int camWidth, int camHeight){_cam_w = camWidth; _cam_h = camHeight;}    
-    
-    // the runnable function in the thread 
-    virtual void synthesize() = 0;   // this means that this function needs to be overwritten by children that inherit this class       
-    
-    // throwing the 
-    virtual void gui_attach(ofxControlPanel* gui){_gui = gui;}
-    virtual void gui_detach(){;}
-    
-    
-    //    virtual void draw(ofPixels _pixels) = 0;
-    //    virtual void draw(ofPixels)=0;
-    // how to get the pixels into the analysis classes?!?  -j
-    
+    virtual void setup(int camWidth, int camHeight){_cam_w = camWidth; _cam_h = camHeight;}   
+    void do_synthesize();
+                        
     // ofx
     virtual void draw() = 0;    
+        
+protected:
     
-    // this is what's called a Pure Virtual Function - not sure if you can pass ofPixels through this? 
+    virtual void create_dir();
     
-    /*
-     When a virtual function is called, the implementation is chosen based not on the static type of the pointer 
-     or reference, but on the type of the object being pointed to, which can vary at run time
-     So this Pure Virtual Function will be called based on the kind of object or class that instantiated it(?) 
-     */
+    // the runnable function in the thread 
+    virtual void synthesize() = 0;   
+    // this means that this function needs to be overwritten by children that inherit this class   
     
     
 public:
     string  _name;    
+    
+    // event
+    ofEvent<string> _synthesize_cb;    
 
 protected:    
-    ofxControlPanel*    _gui;
-    int                 _cam_w, _cam_h;  
-    
-    int             _state;
+    int                 _cam_w, _cam_h;      
+    int                 _state;    
+    string              _whole_file_path;
     
     friend class AnalysisAdaptor;
 };

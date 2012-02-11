@@ -21,7 +21,7 @@ public:
     
     void start()
     {
-        _runnable = new RunnableAdapter<AbstractAnalysis>(*_analysis, &AbstractAnalysis::synthesize);
+        _runnable = new RunnableAdapter<AbstractAnalysis>(*_analysis, &AbstractAnalysis::do_synthesize);
         _worker.start(*_runnable);
     }
     

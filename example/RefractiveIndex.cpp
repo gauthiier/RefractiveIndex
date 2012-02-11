@@ -1,4 +1,8 @@
 /*
+ 
+ todo:
+ (1) Look at warinings about the #define which get over written
+ 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  ~ author: dviid
  ~ contact: dviid@labs.ciid.dk
@@ -16,9 +20,21 @@
 #include "LatencyTestAnalysis.h"
 #include "DiffNoiseAnalysis.h"
 
+#include "ofxXmlSettings.h"
+
 #define CAMERA_ID           1
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
+
+#define LOCATION            "MIDDLESBOROUGH"
+
+#define ISTATE_UNDEF        0xEEEE
+#define ISTATE_START        0xAAAA
+#define ISTATE_STOP         0xBBBB
+#define ISTATE_TRANSITION   0xCCCC
+#define ISTATE_END          0xDDDD
+
+int _state = ISTATE_UNDEF;
 
 ofPixels         RefractiveIndex::_pixels;
 ofVideoGrabber   RefractiveIndex::_vidGrabber;
@@ -27,60 +43,136 @@ bool             RefractiveIndex::_vid_stream_open;
 bool             RefractiveIndex::_vid_toggle_on;
 string           RefractiveIndex::_location;
 
+ofxXmlSettings   XML;
+
 void RefractiveIndex::setup()
 {
-    // rate
-    ofSetFrameRate(30);
-    ofSetVerticalSync(TRUE);
+    bool save_config = false;
+    
+    cout << "Loading configuration..." << endl;
+    if(!XML.loadFile("../data/config.refindx")) {
+        ofLog(OF_LOG_ERROR) << "error loading config - using default.";
+        save_config = true;                
+    }
+        
+    // <camera>
+    _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
+    _vid_w = XML.getValue("config:camera:width", CAMERA_ACQU_WIDTH);
+    _vid_h = XML.getValue("config:camera:width", CAMERA_ACQU_HEIGHT);
+    
+    // <display>
+    int fps = XML.getValue("config:display:fps", 30);
+            
+    // <location>
+    _location = XML.getValue("config:locale:name", LOCATION);
+        
+    cout << "Configuring..." << endl;
 
+    // display
+    cout << "> display" << endl;
+    ofSetFrameRate(fps);
+    if(fps > 30) {
+        ofSetVerticalSync(FALSE);            
+    } else {        
+        ofSetVerticalSync(TRUE);
+    }
+    cout << "* fps = " << fps << endl;
+    
     // camera
-    _vid_w  = CAMERA_ACQU_WIDTH;
-    _vid_h  = CAMERA_ACQU_HEIGHT;
-    _vid_id = CAMERA_ID;
-    _vid_stream_open = false;
-    _vid_toggle_on = false;
+    cout << "> camera" << endl;
+    cout << "* cam id = " << _vid_id << endl;
+    cout << "* cam width = " << _vid_w << endl;
+    cout << "* cam height = " << _vid_h << endl;
+    
+    _vid_stream_open = false;    
+    setup_camera();
+    
+    cout << "RRRRRREADY!" << endl;        
 
-    // gui
-    _gui.loadFont("MONACO.TTF", 8);
-	_gui.setup("REFRACTIVE INDEX", 0, 0, ofGetWidth(), ofGetHeight());
-
-    // -> PANEL #0
-    _gui.addPanel("configuration", 4, false);
-    _gui.setWhichPanel(0);
-    // --> COLUMN #0
-    _gui.setWhichColumn(0);
-
-    //GET THE INPUT NAMES FROM THE QT VIDEO GRABBER
-
-    _gui.addToggle("more cam settings", "SETTINGS", 0);
-
-    _gui.addToggle("turn on camera", "CAM_IS_GO", 0);
-    _gui.addButtonSlider("camera width", "CAM_WIDTH", _vid_w, CAMERA_ACQU_WIDTH, 1920, true);
-	_gui.addButtonSlider("camera height", "CAM_HEIGHT", _vid_h, CAMERA_ACQU_HEIGHT, 1080, true);
-
-    _gui.setWhichColumn(1);
-    _gui.addToggle("run", "RUN", 0);
-
-    _gui.setupEvents();
-	_gui.enableEvents();
-    //  -- this gives you back an ofEvent for all events in this control panel object
-	ofAddListener(_gui.guiEvent, this, &RefractiveIndex::eventsIn);
-
-    _currentAnalysis = NULL;
     _analysisAdapator = NULL;
 
     //getting a warning from the OFlog that the pixels aren't allocated
-    // void ofPixels::allocate(int w, int h, ofImageType type)
+    // void ofPixels::allocate(int w, int h, ofImageType type)    
+    
+    
+    // setup analysis
+    
+    _analysisVector.push_back(new ShadowScapesAnalysis());
+    _analysisVector.push_back(new StrobeAnalysis());
+    _analysisVector.push_back(new IResponseAnalysis());
+    _analysisVector.push_back(new ColorMultiAnalysis());
+    _analysisVector.push_back(new CamFrameRateAnalysis());
+    _analysisVector.push_back(new CamNoiseAnalysis());
+    _analysisVector.push_back(new ColorSingleAnalysis());
+    _analysisVector.push_back(new LatencyTestAnalysis());
+    _analysisVector.push_back(new DiffNoiseAnalysis());
+    
+    _currentAnalysisIndx = 0;
+    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 
+    
+    _state = ISTATE_START;
+    
+}
 
-    //_pixels.allocate(
-    _location="MIDDLESBOROUGH";
-    //setup_camera();
+void RefractiveIndex::analysis_cb(string & analysis)
+{
+    assert(analysis == _currentAnalysis->_name);
+    
+    _state = ISTATE_STOP;    
+}
 
+void RefractiveIndex::start_analysis()
+{
+    ofAddListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::analysis_cb);
+    _analysisAdapator = new AnalysisAdaptor(_currentAnalysis);
+    _currentAnalysis->setup(_vid_w, _vid_h);
+    _analysisAdapator->start();    
+}
+
+void RefractiveIndex::stop_analysis()
+{
+    if(_analysisAdapator == NULL) return;
+    
+    _analysisAdapator->stop(); //blocking
+    ofRemoveListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::analysis_cb);
+    _currentAnalysis = NULL;
+    delete _analysisAdapator;
+    _analysisAdapator = NULL;    
+}
+
+void RefractiveIndex::state_analysis()
+{
+    switch (_state) {
+        case ISTATE_START:
+            start_analysis();    
+            _state = ISTATE_UNDEF;
+            break;
+        case ISTATE_TRANSITION:            
+            if(_currentAnalysisIndx >= _analysisVector.size()) {
+                _currentAnalysisIndx = 0;
+                _state = ISTATE_END;
+            } else {
+                _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
+                _state = ISTATE_START;
+            }
+            break;
+        case ISTATE_STOP:
+            stop_analysis(); // blocking
+            _state = ISTATE_TRANSITION;
+            break;
+        case ISTATE_END:
+            break;
+        case ISTATE_UNDEF:
+            break;            
+        default:
+            break;
+    }
 }
 
 void RefractiveIndex::update()
 {
-    _gui.update();
+    state_analysis();
+    
     RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
 
     if (_vidGrabber.isFrameNew())
@@ -92,26 +184,8 @@ void RefractiveIndex::update()
 void RefractiveIndex::draw()
 {
     ofBackground(0, 0, 0);
-
-
     if(_currentAnalysis)
-
         _currentAnalysis->draw();
-
-    // i would like to pass the pixels we've just got from the camera into the draw function for the current analysis here
-    // but the way that 'draw' functino in _currentAnalysis, which is an AbstractAnalysis, is as a "Pure Virtual Function"
-    // which i think means it can't be passed any arguments or data???
-
-    //_currentAnalysis->draw(_pixels);
-
-    else
-        _gui.draw();
-
-    // if there is a new frame in the camera
-   /* if (_vidGrabber.isFrameNew())
-    {
-       _vidGrabber.draw(0,0); //get ofPixels from the camera
-    }*/
 }
 
 void RefractiveIndex::setup_camera()
@@ -136,80 +210,4 @@ void RefractiveIndex::keyPressed  (int key)
 {
     if( key =='f')
         ofToggleFullscreen();
-
-    else if( key =='s') {
-        if(_currentAnalysis && _analysisAdapator) {
-            _analysisAdapator->stop();
-            delete _currentAnalysis;
-            delete _analysisAdapator;
-            _currentAnalysis = NULL;
-            _analysisAdapator = NULL;
-            cout << "bingo!\n\n";   //bingo means 'stop analysis'?
-        }
-    }
 }
-
-void RefractiveIndex::mouseDragged(int x, int y, int button)
-{
-    _gui.mouseDragged(x, y, button);
-}
-
-
-void RefractiveIndex::mousePressed(int x, int y, int button)
-{
-    _gui.mousePressed(x, y, button);
-}
-
-
-void RefractiveIndex::mouseReleased(int x, int y, int button)
-{
-    _gui.mouseReleased();
-}
-
-
-void RefractiveIndex::eventsIn(guiCallbackData& data)
-{
-    if(data.getDisplayName() == "run"){
-
-        ofLog(OF_LOG_VERBOSE) << "run...";
-
-        //_currentAnalysis = new ShadowScapesAnalysis();  // create an analysis and give it an adaptor
-        //_currentAnalysis = new StrobeAnalysis();  // create an analysis and give it an adaptor
-        //_currentAnalysis = new IResponseAnalysis();  // create an analysis and give it an adaptor
-        //_currentAnalysis = new ColorMultiAnalysis();
-        //_currentAnalysis = new CamFrameRateAnalysis();
-        //_currentAnalysis = new CamNoiseAnalysis();
-        _currentAnalysis = new ColorSingleAnalysis();
-        //_currentAnalysis = new LatencyTestAnalysis();
-        //_currentAnalysis = new DiffNoiseAnalysis();
-
-        _analysisAdapator = new AnalysisAdaptor(_currentAnalysis);  //Adaptors start and stop
-        _currentAnalysis->setup(_vid_w, _vid_h);
-        _analysisAdapator->start();
-    }
-
-    if(data.getDisplayName() == "turn on camera" ){
-
-        _vid_toggle_on=!_vid_toggle_on;
-
-        if (_vid_toggle_on)
-        {
-            setup_camera();
-        } else if (!_vid_toggle_on) {
-            _vidGrabber.close();
-        }
-    }
-
-    //more cam settings", "SETTINGS"
-    if( data.getDisplayName() == "more cam settings" ){
-        _vidGrabber.videoSettings();
-    }
-
-}
-
-void RefractiveIndex::grabBackgroundEvent(guiCallbackData & data)
-{
-
-}
-
-

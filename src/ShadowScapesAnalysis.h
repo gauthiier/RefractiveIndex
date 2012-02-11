@@ -44,15 +44,13 @@ class ShadowScapesAnalysis : public AbstractAnalysis
 {
 public:
     ShadowScapesAnalysis(shadow_type dir): AbstractAnalysis("SHADOWSCAPE"), _dir(dir){;}
+    ShadowScapesAnalysis(): AbstractAnalysis("SHADOWSCAPE"), _dir(H){;}
     virtual ~ShadowScapesAnalysis(){;}
     
 public:
     
     void setup(int camWidth, int camHeight);
     void synthesize();
-    void gui_attach(ofxControlPanel* gui);
-    void gui_detach();
-    
     void draw();
     
     void scan_cb(Poco::Timer& timer);
@@ -63,7 +61,5 @@ protected:
     int     _speed; // pix per second
     int     _step;
     shadow_type _dir;
-    
-    string _whole_file_path;
     
 };

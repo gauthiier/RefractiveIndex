@@ -24,10 +24,7 @@ public:
 public:
     
     void setup(int camWidth, int camHeight);
-    void synthesize();
-    void gui_attach(ofxControlPanel* gui);
-    void gui_detach();
-    
+    void synthesize();    
     void draw();
     
     void save_cb(Poco::Timer& timer);
@@ -37,6 +34,5 @@ protected:
     bool    _RUN_DONE;
     int     _run_cnt, _save_cnt;
     float   r,g,b, _frame_cnt, _frame_cnt_max;
-    string _whole_file_path;
     
 };

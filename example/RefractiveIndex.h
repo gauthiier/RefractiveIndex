@@ -7,7 +7,8 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxControlPanel.h"
+#include "ofEvents.h"
+//#include "ofxControlPanel.h"
 
 #include "AbstractAnalysis.h"
 #include "AnalysisAdaptor.h"
@@ -24,6 +25,10 @@ public:
     
     // refindx
     void setup_camera();
+    void analysis_cb(string & analysis);
+    void start_analysis();
+    void stop_analysis();
+    void state_analysis();
     
     // ofx
     void keyPressed  (int key);
@@ -36,23 +41,27 @@ public:
     
 protected:
     
-    void eventsIn(guiCallbackData & data);
-    void grabBackgroundEvent(guiCallbackData & data);
+    //void eventsIn(guiCallbackData & data);
+    //void grabBackgroundEvent(guiCallbackData & data);
     
     // gui
-    ofxControlPanel     _gui;   
+    //ofxControlPanel     _gui;   
     
-    AbstractAnalysis*   _currentAnalysis;  
-    AnalysisAdaptor*    _analysisAdapator;
+    AbstractAnalysis*           _currentAnalysis;
+    int                         _currentAnalysisIndx;
+    AnalysisAdaptor*            _analysisAdapator;
+    vector<AbstractAnalysis*>   _analysisVector;    
     
 public:    
     // acquisition
     static ofPixels         _pixels;    
     static ofVideoGrabber   _vidGrabber;
-    vector<string>          videoSourceList;
+    vector<string>          videoSourceList;    
     static int              _vid_w, _vid_h, _vid_id;
     static bool             _vid_stream_open;
     static bool             _vid_toggle_on;
+    
+    // this should be in xml
     static string           _location;
     
     
