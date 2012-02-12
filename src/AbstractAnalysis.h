@@ -7,10 +7,8 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
-
 #include <string>
 
-//#define ANALYSIS_PATH "data/analysis/"
 #define ANALYSIS_PATH "analysis/"
 
 #define STATE_STOP  0xDEADBEEF
@@ -34,9 +32,8 @@ protected:
     
     // the runnable function in the thread 
     virtual void synthesize() = 0;   
-    // this means that this function needs to be overwritten by children that inherit this class   
-    
-    
+    // this means that this function needs to be overwritten by children that inherit this class  
+        
 public:
     string  _name;    
     
@@ -47,6 +44,11 @@ protected:
     int                 _cam_w, _cam_h;      
     int                 _state;    
     string              _whole_file_path;
+    
+    float   DELTA_T_SAVE;
+    int     NUM_PHASE;
+    int     NUM_RUN;
+    int     NUM_SAVE_PER_RUN;    
     
     friend class AnalysisAdaptor;
 };

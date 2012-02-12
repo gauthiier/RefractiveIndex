@@ -18,6 +18,11 @@ using Poco::Thread;
 
 void CamFrameRateAnalysis::setup(int camWidth, int camHeight)
 {
+    DELTA_T_SAVE = 1000/30;
+    NUM_PHASE = 1;
+    NUM_RUN = 1;
+    NUM_SAVE_PER_RUN = 100;    
+    
     create_dir();
     
     _frame_cnt = 0;

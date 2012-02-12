@@ -1,7 +1,3 @@
-#define DELTA_T_SAVE        100  //the milisecond timing 
-#define NUM_PHASE           1
-#define NUM_RUN             1
-#define NUM_SAVE_PER_RUN    100
 #pragma once
 
 #include "AbstractAnalysis.h"

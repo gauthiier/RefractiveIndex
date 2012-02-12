@@ -8,15 +8,9 @@
 #include "AbstractAnalysis.h"
 
 #include "Poco/Timer.h"
-
-#define DELTA_T_SAVE        100  //the milisecond timing 
-#define NUM_PHASE           1
-#define NUM_RUN             1
-#define NUM_SAVE_PER_RUN    100
-
-
+   
 class LatencyTestAnalysis : public AbstractAnalysis
-{
+{   
 public:
     LatencyTestAnalysis(): AbstractAnalysis("LATENCY_TEST"){;}
     virtual ~LatencyTestAnalysis(){;}

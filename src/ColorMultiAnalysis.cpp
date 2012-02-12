@@ -45,6 +45,11 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
+    DELTA_T_SAVE = 100;
+    NUM_PHASE = 1;
+    NUM_RUN = 1;
+    NUM_SAVE_PER_RUN = 100;    
+    
     create_dir();
     _frame_cnt = 0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
@@ -81,19 +86,15 @@ void ColorMultiAnalysis::synthesize()
 void ColorMultiAnalysis::draw()
 {
 
-
-        if (_frame_cnt < _frame_cnt_max)
-        {
-            ofColor aColor;
-            aColor.setHsb(c, 255, 255);
-            ofSetColor(aColor);
-            ofRect(0, 0, ofGetWidth(), ofGetHeight());
-            //how far are we as a percent of _frame_count_max
-            c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
-        }
-        _frame_cnt++;
-
-
+    if (_frame_cnt < _frame_cnt_max) {
+        ofColor aColor;
+        aColor.setHsb(c, 255, 255);
+        ofSetColor(aColor);
+        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+        //how far are we as a percent of _frame_count_max
+        c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+    }
+    _frame_cnt++;
 }
 
 

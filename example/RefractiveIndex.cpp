@@ -58,7 +58,7 @@ void RefractiveIndex::setup()
     // <camera>
     _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
     _vid_w = XML.getValue("config:camera:width", CAMERA_ACQU_WIDTH);
-    _vid_h = XML.getValue("config:camera:width", CAMERA_ACQU_HEIGHT);
+    _vid_h = XML.getValue("config:camera:height", CAMERA_ACQU_HEIGHT);
     
     // <display>
     int fps = XML.getValue("config:display:fps", 30);
@@ -92,7 +92,7 @@ void RefractiveIndex::setup()
     _analysisAdapator = NULL;
 
     //getting a warning from the OFlog that the pixels aren't allocated
-    // void ofPixels::allocate(int w, int h, ofImageType type)    
+    //void ofPixels::allocate(int w, int h, ofImageType type)    
     
     
     // setup analysis
@@ -161,6 +161,8 @@ void RefractiveIndex::state_analysis()
             _state = ISTATE_TRANSITION;
             break;
         case ISTATE_END:
+            stop_camera();
+            ::exit(1);
             break;
         case ISTATE_UNDEF:
             break;            
@@ -190,10 +192,7 @@ void RefractiveIndex::draw()
 
 void RefractiveIndex::setup_camera()
 {
-    if(_vid_stream_open) {
-        _vidGrabber.close();
-        _vid_stream_open = false;
-    }
+    stop_camera();
 
     if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
@@ -206,8 +205,21 @@ void RefractiveIndex::setup_camera()
 
 }
 
+void RefractiveIndex::stop_camera()
+{
+    if(_vid_stream_open) {
+        _vidGrabber.close();
+        _vid_stream_open = false;
+    }    
+}
+
 void RefractiveIndex::keyPressed  (int key)
 {
     if( key =='f')
         ofToggleFullscreen();
+}
+
+void RefractiveIndex::exit()
+{
+    stop_camera();
 }
