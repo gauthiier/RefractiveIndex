@@ -31,10 +31,8 @@ public:
         _worker.join();
     }
     
-public:    
+protected:
     AbstractAnalysis*                   _analysis;
-    
-protected:    
     Thread                              _worker;    //   
     RunnableAdapter<AbstractAnalysis>*  _runnable;    
 };

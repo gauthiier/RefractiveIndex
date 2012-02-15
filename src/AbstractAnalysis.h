@@ -28,20 +28,16 @@ public:
         
 protected:
     
-    // creates working directory 
-    virtual void create_dir();    
- 
-    // acquire images from camera and display patters on screen
-    virtual void pattern_acquire() = 0;
+    virtual void create_dir();
     
-    // analyses and sythesizes images acquired
-    virtual void synthesize() = 0;       
-            
+    // the runnable function in the thread 
+    virtual void synthesize() = 0;   
+    // this means that this function needs to be overwritten by children that inherit this class  
+        
 public:
     string  _name;    
     
-    // event notification / callbacks
-    ofEvent<string> _acquire_cb;
+    // event
     ofEvent<string> _synthesize_cb;    
 
 protected:    

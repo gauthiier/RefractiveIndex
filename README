@@ -6,6 +6,5 @@ configuring OpenFrameworks
 these files are configured according to OpenFrameworks addons - http://ofxaddons.com/howto
 
 (1) drag-drop "ReflectiveIndex" folder into your OpenFrameworks project
-(2) Install depedencies: {ofxDirList, ofxXmlSettings};  
-(3) Make sure that the config file config/config.refindx is in your "data" folder
-(4) Press Play!
+(2) Install depedencies: {ofxDirList, ofxControlPanel, ofxXmlSettings};  
+(3) Press Play!

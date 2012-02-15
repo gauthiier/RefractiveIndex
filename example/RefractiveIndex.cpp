@@ -26,20 +26,15 @@
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
 
-#define LOCATION            "????-not-config-???"
+#define LOCATION            "MIDDLESBOROUGH"
 
-#define ISTATE_ACQU_START       0xAAAA
-#define ISTATE_ACQU_STOP        0xBBBB
-#define ISTATE_SYNTH_START      0xCCCC
-#define ISTATE_SYNTH_STOP       0xDDDD
-
-#define ISTATE_TRANSITION       0xFFFF
-#define ISTATE_UNDEF            0xEEEE
-#define ISTATE_END              0x1111
+#define ISTATE_UNDEF        0xEEEE
+#define ISTATE_START        0xAAAA
+#define ISTATE_STOP         0xBBBB
+#define ISTATE_TRANSITION   0xCCCC
+#define ISTATE_END          0xDDDD
 
 int _state = ISTATE_UNDEF;
-
-bool _in_acquisition = true;
 
 ofPixels         RefractiveIndex::_pixels;
 ofVideoGrabber   RefractiveIndex::_vidGrabber;
@@ -94,119 +89,77 @@ void RefractiveIndex::setup()
     
     cout << "RRRRRREADY!" << endl;        
 
+    _analysisAdapator = NULL;
+
     //getting a warning from the OFlog that the pixels aren't allocated
     //void ofPixels::allocate(int w, int h, ofImageType type)    
     
     
     // setup analysis
-    AnalysisAdaptor* adpt;
     
-    adpt = new AnalysisAdaptor(new ShadowScapesAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new StrobeAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new IResponseAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new ColorMultiAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new CamFrameRateAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new CamNoiseAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new ColorSingleAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new LatencyTestAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
-    adpt = new AnalysisAdaptor(new DiffNoiseAnalysis());
-    _acquisitionMap[adpt->_analysis->_name];
+    _analysisVector.push_back(new ShadowScapesAnalysis());
+    _analysisVector.push_back(new StrobeAnalysis());
+    _analysisVector.push_back(new IResponseAnalysis());
+    _analysisVector.push_back(new ColorMultiAnalysis());
+    _analysisVector.push_back(new CamFrameRateAnalysis());
+    _analysisVector.push_back(new CamNoiseAnalysis());
+    _analysisVector.push_back(new ColorSingleAnalysis());
+    _analysisVector.push_back(new LatencyTestAnalysis());
+    _analysisVector.push_back(new DiffNoiseAnalysis());
     
-    _currentAnalysisIndx = _acquisitionMap.begin();
-    _currentAnalysisAdaptor = _currentAnalysisIndx->second;
-    _currentAnalysis = _currentAnalysisAdaptor->_analysis;
+    _currentAnalysisIndx = 0;
+    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 
     
-    _state = ISTATE_ACQU_START;
+    _state = ISTATE_START;
     
 }
 
-void RefractiveIndex::acquire_cb(string & analysis)
+void RefractiveIndex::analysis_cb(string & analysis)
 {
-    assert(analysis == _currentAnalysis->_name);    
-    _state = ISTATE_ACQU_STOP;    
-}
-
-void RefractiveIndex::synthesize_cb(string & analysis)
-{
-    TAnalysisMap::iterator it = _synthesisMap.find(analysis);
-    if(it != _synthesisMap.end()) {
-        AnalysisAdaptor* adpt = it->second;
-        AbstractAnalysis* a = adpt->_analysis;        
-        adpt->stop();
-        ofRemoveListener(a->_acquire_cb, this, &RefractiveIndex::acquire_cb);
-        ofRemoveListener(a->_synthesize_cb, this, &RefractiveIndex::synthesize_cb);                
-    }
+    assert(analysis == _currentAnalysis->_name);
     
-    //_state = ISTATE_SYNTH_STOP;    
+    _state = ISTATE_STOP;    
 }
-
 
 void RefractiveIndex::start_analysis()
 {
-    ofAddListener(_currentAnalysis->_acquire_cb, this, &RefractiveIndex::acquire_cb);
-    ofAddListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::synthesize_cb);
+    ofAddListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::analysis_cb);
+    _analysisAdapator = new AnalysisAdaptor(_currentAnalysis);
     _currentAnalysis->setup(_vid_w, _vid_h);
-    _currentAnalysisAdaptor->start();    
+    _analysisAdapator->start();    
 }
 
 void RefractiveIndex::stop_analysis()
 {
-    if(_currentAnalysisAdaptor == NULL) return;
+    if(_analysisAdapator == NULL) return;
     
-    _currentAnalysisAdaptor->stop(); //blocking
-    ofRemoveListener(_currentAnalysis->_acquire_cb, this, &RefractiveIndex::acquire_cb);
-    ofRemoveListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::synthesize_cb);
+    _analysisAdapator->stop(); //blocking
+    ofRemoveListener(_currentAnalysis->_synthesize_cb, this, &RefractiveIndex::analysis_cb);
     _currentAnalysis = NULL;
-    _currentAnalysisAdaptor = NULL;    
+    delete _analysisAdapator;
+    _analysisAdapator = NULL;    
 }
 
-void RefractiveIndex::state_machine_analysis()
+void RefractiveIndex::state_analysis()
 {
-    static int synth_cnt = 0;
-    
     switch (_state) {
-        case ISTATE_ACQU_START:
+        case ISTATE_START:
             start_analysis();    
             _state = ISTATE_UNDEF;
             break;
-        case ISTATE_ACQU_STOP:
-            // continue to synthesis        
-            _acquisitionMap.erase(_currentAnalysisIndx);
-            _synthesisMap[_currentAnalysis->_name] = _currentAnalysisAdaptor;            
-            _state = ISTATE_TRANSITION;
-            break;                        
-        case ISTATE_TRANSITION:          
-            if(_currentAnalysisIndx != _acquisitionMap.end()) {
-                _currentAnalysisIndx++;
-                _currentAnalysisAdaptor = _currentAnalysisIndx->second;
-                _currentAnalysis = _currentAnalysisAdaptor->_analysis;                
+        case ISTATE_TRANSITION:            
+            if(_currentAnalysisIndx >= _analysisVector.size()) {
+                _currentAnalysisIndx = 0;
+                _state = ISTATE_END;
             } else {
-                if(_synthesisMap.size() > 0) {
-                    if(_in_acquisition) {
-                        _currentAnalysisIndx = _synthesisMap.begin();
-                        _in_acquisition = false;
-                    }
-                    if(!_acquisitionMap.empty() && _currentAnalysisIndx != _synthesisMap.end()) {
-                        _currentAnalysisIndx++;
-                        _currentAnalysisAdaptor = _currentAnalysisIndx->second;
-                        _currentAnalysis = _currentAnalysisAdaptor->_analysis; 
-                        _state = ISTATE_UNDEF;
-                    } else if(_acquisitionMap.empty()) {
-                        _state = ISTATE_END;
-                    }
-                }
+                _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
+                _state = ISTATE_START;
             }
-            break;  
-        case ISTATE_SYNTH_STOP:
-            
+            break;
+        case ISTATE_STOP:
+            stop_analysis(); // blocking
+            _state = ISTATE_TRANSITION;
+            break;
         case ISTATE_END:
             stop_camera();
             ::exit(1);
@@ -220,7 +173,7 @@ void RefractiveIndex::state_machine_analysis()
 
 void RefractiveIndex::update()
 {
-    state_machine_analysis();
+    state_analysis();
     
     RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
 
@@ -266,7 +219,7 @@ void RefractiveIndex::keyPressed  (int key)
         ofToggleFullscreen();
 }
 
-void RefractiveIndex::exit()    
+void RefractiveIndex::exit()
 {
     stop_camera();
 }

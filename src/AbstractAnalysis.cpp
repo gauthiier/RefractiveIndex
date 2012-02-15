@@ -34,13 +34,7 @@
 #include "RefractiveIndex.h"
 
 void AbstractAnalysis::do_synthesize() {
-    // acquire images + pattern on display
-    pattern_acquire();
-    // acquire notify obeservers
-    ofNotifyEvent(_acquire_cb, _name);
-    // analysis and synthesis of acquired images
     synthesize();
-    // synthesize notify obeservers
     ofNotifyEvent(_synthesize_cb, _name);
 }
 
