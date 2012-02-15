@@ -31,7 +31,7 @@ void CamFrameRateAnalysis::setup(int camWidth, int camHeight)
 }
 
 
-void CamFrameRateAnalysis::synthesize()
+void CamFrameRateAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -57,30 +57,59 @@ void CamFrameRateAnalysis::synthesize()
     }
 }
 
+void CamFrameRateAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
 // this runs at frame rate = 33 ms for 30 FPS
 void CamFrameRateAnalysis::draw()
 {
-    /// *** TODO  *** ///
-    // still need to deal with latency frames here - i.e.: there are frames
-    /// *** TODO  *** ///
-    float totalTime=_frame_cnt_max/2;
-
-    float numSteps=10;
-
-    vector<float>stepLengths;
-
-
-    //c must increase until frame_cnt_max * 0.5 and then decrease afterwards
-
-
-    if (_frame_cnt < _frame_cnt_max)
-    {
-        ofSetColor(c, c, c);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-        c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
-        cout<<_frame_cnt<<endl;
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            /// *** TODO  *** ///
+            // still need to deal with latency frames here - i.e.: there are frames
+            /// *** TODO  *** ///
+            float totalTime=_frame_cnt_max/2;
+            
+            float numSteps=10;
+            
+            vector<float>stepLengths;
+            
+            
+            //c must increase until frame_cnt_max * 0.5 and then decrease afterwards
+            
+            
+            if (_frame_cnt < _frame_cnt_max)
+            {
+                ofSetColor(c, c, c);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+                cout<<_frame_cnt<<endl;
+            }
+            _frame_cnt++;            
+            break;
+        }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-    _frame_cnt++;
+
 
 
 }
@@ -93,9 +122,12 @@ void CamFrameRateAnalysis::save_cb(Timer& timer)
     //cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     string thisLocation = RefractiveIndex::_location;
+    
+    string file = _whole_file_path+"/"+file_name;
 
-
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    ofSaveImage(RefractiveIndex::_pixels, file, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(file);
 
     if(_save_cnt >= NUM_SAVE_PER_RUN)
         _RUN_DONE = true;

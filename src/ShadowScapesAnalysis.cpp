@@ -50,7 +50,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     _speed = 300;
 }
 
-void ShadowScapesAnalysis::synthesize()
+void ShadowScapesAnalysis::acquire()
 {
     int w;
     if(_dir == H) w = ofGetWidth();
@@ -79,29 +79,59 @@ void ShadowScapesAnalysis::synthesize()
 
 }
 
+void ShadowScapesAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 // the animation draw - and the output draw
 void ShadowScapesAnalysis::draw()
 {
-
-    static int _pos;
-
-    if(_state == STATE_ANALYSIS) {
-        ofSetColor(0, 200, 0);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-        return;
-    }
-
-    if(_state == STATE_SCAN) {
-        if(_pos != _line) {
-            //take snap??
-            _pos = _line;
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            static int _pos;
+            
+            if(_state == STATE_ANALYSIS) {
+                ofSetColor(0, 200, 0);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                return;
+            }
+            
+            if(_state == STATE_SCAN) {
+                if(_pos != _line) {
+                    //take snap??
+                    _pos = _line;
+                }
+                ofSetColor(255, 255,  255);
+                
+                if(_dir == H) ofRect(_pos, 0, 50, ofGetHeight());
+                else if(_dir == V) ofRect(0, _pos, ofGetWidth(), 50);
+                
+            }
+           
+            
+            break;
         }
-        ofSetColor(255, 255,  255);
-
-        if(_dir == H) ofRect(_pos, 0, 50, ofGetHeight());
-        else if(_dir == V) ofRect(0, _pos, ofGetWidth(), 50);
-
-    }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
+    }        
 
 
 }

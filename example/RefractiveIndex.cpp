@@ -11,7 +11,6 @@
 #include "RefractiveIndex.h"
 
 #include "IResponseAnalysis.h"
-#include "StrobeAnalysis.h"
 #include "ShadowScapesAnalysis.h"
 #include "ColorMultiAnalysis.h"
 #include "ColorSingleAnalysis.h"
@@ -98,7 +97,6 @@ void RefractiveIndex::setup()
     // setup analysis
     
     _analysisVector.push_back(new ShadowScapesAnalysis());
-    _analysisVector.push_back(new StrobeAnalysis());
     _analysisVector.push_back(new IResponseAnalysis());
     _analysisVector.push_back(new ColorMultiAnalysis());
     _analysisVector.push_back(new CamFrameRateAnalysis());

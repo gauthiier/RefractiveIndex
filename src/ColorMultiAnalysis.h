@@ -13,7 +13,8 @@ public:
 public:
     
     void setup(int camWidth, int camHeight);
-    void synthesize();    
+    void acquire();
+    void synthesise();    
     void draw();
     
     void save_cb(Poco::Timer& timer);

@@ -50,7 +50,8 @@ public:
 public:
     
     void setup(int camWidth, int camHeight);
-    void synthesize();
+    void acquire();
+    void synthesise();    
     void draw();
     
     void scan_cb(Poco::Timer& timer);

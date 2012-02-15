@@ -29,7 +29,7 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
 }
 
 
-void IResponseAnalysis::synthesize()
+void IResponseAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -55,22 +55,52 @@ void IResponseAnalysis::synthesize()
     }
 }
 
+void IResponseAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 
 // this runs at frame rate = 33 ms for 30 FPS
 void IResponseAnalysis::draw()
 {
-    /// *** TODO  *** ///
-    // still need to deal with latency frames here - i.e.: there are frames
-    /// *** TODO  *** ///
-
-    if (_frame_cnt < _frame_cnt_max)
-    {
-        ofSetColor(c, c, c);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-        c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            /// *** TODO  *** ///
+            // still need to deal with latency frames here - i.e.: there are frames
+            /// *** TODO  *** ///
+            
+            if (_frame_cnt < _frame_cnt_max)
+            {
+                ofSetColor(c, c, c);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+            }
+            
+            _frame_cnt++;
+            
+            break;
+        }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-    _frame_cnt++;
-
 
 }
 
@@ -90,8 +120,12 @@ void IResponseAnalysis::save_cb(Timer& timer)
     //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
     //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
+    
+    string file = _whole_file_path+"/"+file_name;
 
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(file);
 
     if(_save_cnt >= NUM_SAVE_PER_RUN)
         _RUN_DONE = true;

@@ -33,8 +33,13 @@
 #include "AbstractAnalysis.h"
 #include "RefractiveIndex.h"
 
+// this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
-    synthesize();
+    _state = STATE_ACQUIRING;
+    acquire();
+    _state = STATE_SYNTHESISING;
+    synthesise();
+    _state = STATE_DISPLAY_RESULTS;
     ofNotifyEvent(_synthesize_cb, _name);
 }
 

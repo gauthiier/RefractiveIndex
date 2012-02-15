@@ -56,7 +56,7 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     c = 0;
 }
 
-void ColorMultiAnalysis::synthesize()
+void ColorMultiAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -83,18 +83,48 @@ void ColorMultiAnalysis::synthesize()
 
 }
 
+void ColorMultiAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 void ColorMultiAnalysis::draw()
 {
-
-    if (_frame_cnt < _frame_cnt_max) {
-        ofColor aColor;
-        aColor.setHsb(c, 255, 255);
-        ofSetColor(aColor);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-        //how far are we as a percent of _frame_count_max
-        c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            if (_frame_cnt < _frame_cnt_max) {
+                ofColor aColor;
+                aColor.setHsb(c, 255, 255);
+                ofSetColor(aColor);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                //how far are we as a percent of _frame_count_max
+                c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+            }
+            _frame_cnt++;
+            
+            break;
+        }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-    _frame_cnt++;
+    
 }
 
 
@@ -109,9 +139,12 @@ void ColorMultiAnalysis::save_cb(Timer& timer)
     cout << "COLORMULTIANALYSIS::saving...\n";
     cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    
+    string file = _whole_file_path+"/"+file_name;    
 
-    cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(file);
 
     if(_save_cnt >= NUM_SAVE_PER_RUN){
         _RUN_DONE = true;

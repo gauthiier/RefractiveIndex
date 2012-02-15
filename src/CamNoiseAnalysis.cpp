@@ -31,7 +31,7 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
 }
 
 
-void CamNoiseAnalysis::synthesize()
+void CamNoiseAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -57,34 +57,61 @@ void CamNoiseAnalysis::synthesize()
     }
 }
 
+void CamNoiseAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 
 // this runs at frame rate = 33 ms for 30 FPS
 void CamNoiseAnalysis::draw()
 {
-    /// *** TODO  *** ///
-    // still need to deal with latency frames here - i.e.: there are frames
-    /// *** TODO  *** ///
-
-    float _number_of_grey_levels=5;
-
-    float _frames_per_level = _frame_cnt_max / _number_of_grey_levels;
-    ofColor someColor;
-
-    for(int i=0;i<=_number_of_grey_levels;i++){
-        if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
-            //set colour to current grey level
-            c=255-( 255.0 * ( i /_number_of_grey_levels));
-            someColor.set(c);
-
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            /// *** TODO  *** ///
+            // still need to deal with latency frames here - i.e.: there are frames
+            /// *** TODO  *** ///
+            
+            float _number_of_grey_levels=5;
+            
+            float _frames_per_level = _frame_cnt_max / _number_of_grey_levels;
+            ofColor someColor;
+            
+            for(int i=0;i<=_number_of_grey_levels;i++){
+                if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
+                    //set colour to current grey level
+                    c=255-( 255.0 * ( i /_number_of_grey_levels));
+                    someColor.set(c);
+                    
+                }
+                ofSetColor(someColor);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            }
+            _frame_cnt++;
+            
+            break;
         }
-        ofSetColor(someColor);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-
-
-
-    _frame_cnt++;
-
+    
 
 }
 
@@ -95,9 +122,12 @@ void CamNoiseAnalysis::save_cb(Timer& timer)
 
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     string thisLocation = RefractiveIndex::_location;
-
+    
+    string file = _whole_file_path+"/"+file_name;
 
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(file);
 
     if(_save_cnt >= NUM_SAVE_PER_RUN)
         _RUN_DONE = true;

@@ -32,7 +32,7 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 }
 
 
-void ColorSingleAnalysis::synthesize()
+void ColorSingleAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -58,34 +58,63 @@ void ColorSingleAnalysis::synthesize()
     }
 }
 
+void ColorSingleAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 void ColorSingleAnalysis::draw()
 {
-
-    float one_third_of_frame_count_max=_frame_cnt_max/3;
-    if (_frame_cnt < one_third_of_frame_count_max){
-        r=255.0;
-        g=0.0;
-        b=0.0;
-        ofSetColor(r,g,b);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+    
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            float one_third_of_frame_count_max=_frame_cnt_max/3;
+            if (_frame_cnt < one_third_of_frame_count_max){
+                r=255.0;
+                g=0.0;
+                b=0.0;
+                ofSetColor(r,g,b);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            }
+            if (_frame_cnt >= one_third_of_frame_count_max && _frame_cnt < 2*one_third_of_frame_count_max){
+                r=0.0;
+                g=255.0;
+                b=0.0;
+                ofSetColor(r,g,b);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            }
+            if (_frame_cnt >= 2*one_third_of_frame_count_max && _frame_cnt < _frame_cnt_max){
+                r=0.0;
+                g=0.0;
+                b=255.0;
+                ofSetColor(r,g,b);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            }
+            
+            _frame_cnt++;
+            
+            break;
+        }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-    if (_frame_cnt >= one_third_of_frame_count_max && _frame_cnt < 2*one_third_of_frame_count_max){
-        r=0.0;
-        g=255.0;
-        b=0.0;
-        ofSetColor(r,g,b);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-    }
-    if (_frame_cnt >= 2*one_third_of_frame_count_max && _frame_cnt < _frame_cnt_max){
-        r=0.0;
-        g=0.0;
-        b=255.0;
-        ofSetColor(r,g,b);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-    }
-
-    _frame_cnt++;
-
+    
 
 }
 
@@ -98,8 +127,12 @@ void ColorSingleAnalysis::save_cb(Timer& timer)
     cout << "ColorSingleAnalysis::saving...\n";
     string file_name =ofToString(_frame_cnt,2)+"_"+ofToString((int)r,2)+"_"+ofToString((int)g,2)+"_"+ofToString((int)b,2)+"_"+ofToString(_run_cnt,2)+".jpg";
 
+    string file = _whole_file_path+"/"+file_name;
 
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(file);
+    
     cout<<_whole_file_path+"/"+file_name<<endl;
 
     if(_save_cnt >= NUM_SAVE_PER_RUN)

@@ -30,7 +30,7 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 }
 
 
-void DiffNoiseAnalysis::synthesize()
+void DiffNoiseAnalysis::acquire()
 {
 
     Timer* save_timer;
@@ -56,24 +56,52 @@ void DiffNoiseAnalysis::synthesize()
     }
 }
 
+void DiffNoiseAnalysis::synthesise()
+{
+    // _saved_filenames has all the file names of all the saved images
+}
+
+
 // this runs at frame rate = 33 ms for 30 FPS
 void DiffNoiseAnalysis::draw()
 {
-    /// *** TODO  *** ///
-    // still need to deal with latency frames here - i.e.: there are frames
-    /// *** TODO  *** ///
-    ofColor aColour;
-
-    c = ofRandom(0,255);
-    aColour.setHsb(c, 255, 255);
-    if (_frame_cnt < _frame_cnt_max)
-    {
-        ofSetColor(aColour);
-        ofRect(0, 0, ofGetWidth(), ofGetHeight());
-
+    switch (_state) {
+        case STATE_ACQUIRING:
+        {
+            /// *** TODO  *** ///
+            // still need to deal with latency frames here - i.e.: there are frames
+            /// *** TODO  *** ///
+            ofColor aColour;
+            
+            c = ofRandom(0,255);
+            aColour.setHsb(c, 255, 255);
+            if (_frame_cnt < _frame_cnt_max)
+            {
+                ofSetColor(aColour);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                
+            }
+            _frame_cnt++;
+            
+            break;
+        }
+            
+        case STATE_SYNTHESISING:
+        {
+            // display animation of something while the synthesis in on-going...
+            break;
+        }
+            
+        case STATE_DISPLAY_RESULTS:
+        {
+            // display results of the synthesis
+            break;
+        }
+            
+            
+        default:
+            break;
     }
-    _frame_cnt++;
-
 
 }
 
@@ -96,8 +124,12 @@ void DiffNoiseAnalysis::save_cb(Timer& timer)
     //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
     //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
+        
+    string file = _whole_file_path+"/"+file_name;
 
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+        
+    _saved_filenames.push_back(file);
 
     }
     _save_cnt++;
