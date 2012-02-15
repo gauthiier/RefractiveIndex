@@ -8,11 +8,13 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
-//#include "ofxControlPanel.h"
 
 #include "AbstractAnalysis.h"
 #include "AnalysisAdaptor.h"
 
+
+typedef map<string, AnalysisAdaptor*>   TAnalysisMap;
+typedef vector<AnalysisAdaptor*>        TAnalysisVec;
 
 class RefractiveIndex : public ofBaseApp
 {
@@ -24,13 +26,22 @@ public:
     void draw();
     void exit();
     
-    // refindx
+    // camera
     void setup_camera();
     void stop_camera();
-    void analysis_cb(string & analysis);
+    
+    // starts the whole process
     void start_analysis();
+    
+    // stops the whole process
     void stop_analysis();
-    void state_analysis();
+        
+    // callbacks
+    void acquire_cb(string & analysis);
+    void synthesize_cb(string & analysis);
+    
+    // state machine
+    void state_machine_analysis();
     
     // ofx
     void keyPressed  (int key);
@@ -42,17 +53,17 @@ public:
     void windowResized(int w, int h){;}  
     
 protected:
-    
-    //void eventsIn(guiCallbackData & data);
-    //void grabBackgroundEvent(guiCallbackData & data);
-    
-    // gui
-    //ofxControlPanel     _gui;   
-    
+        
     AbstractAnalysis*           _currentAnalysis;
-    int                         _currentAnalysisIndx;
-    AnalysisAdaptor*            _analysisAdapator;
-    vector<AbstractAnalysis*>   _analysisVector;    
+    AnalysisAdaptor*            _currentAnalysisAdaptor;
+    AnalysisAdaptor*            _currentSynthesisAdaptor;
+    TAnalysisMap::iterator      _currentAnalysisIndx;
+    
+    TAnalysisMap                _acquisitionMap;
+    TAnalysisMap                _synthesisMap;
+    
+    TAnalysisVec                _display_results_vector;
+        
     
 public:    
     // acquisition
@@ -64,7 +75,6 @@ public:
     static bool             _vid_toggle_on;
     
     // this should be in xml
-    static string           _location;
-    
+    static string           _location;            
     
 };
