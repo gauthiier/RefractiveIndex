@@ -28,6 +28,7 @@ protected:
     
     bool    _RUN_DONE;
     int     _run_cnt, _save_cnt;
-    float   c, _frame_cnt, _frame_cnt_max;
+    float   c, _frame_cnt, _frame_cnt_max,_save_cnt_max ;
+
     
 };

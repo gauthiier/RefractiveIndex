@@ -32,6 +32,7 @@
 
 #include "AbstractAnalysis.h"
 #include "RefractiveIndex.h"
+#include "ofxFileHelper.h"
 
 // this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
@@ -65,15 +66,16 @@ void AbstractAnalysis::create_dir()
             replaceTime+=time.at(i);
         }
     }
+
+    ofxFileHelper fileHelper;
+    _whole_file_path = ANALYSIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime ;
+    //cout << "_whole_file_path = " << _whole_file_path << endl;
     
-    ofDirectory dir;
-    
-    _whole_file_path= string(ANALYSIS_PATH)+ RefractiveIndex::_location+"/"+ _name+"/"+replaceTime ;
-    //directories have to be created one level at a time hence repeated calls
-    if(!dir.doesDirectoryExist(_whole_file_path)){
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/", true,false);
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/", true,false);
-        dir.createDirectory(string(ANALYSIS_PATH)+RefractiveIndex::_location+"/"+ _name+"/"+replaceTime+"/", true,false);
+    if(!fileHelper.doesDirectoryExist(_whole_file_path)){
+        fileHelper.makeDirectory(ANALYSIS_PATH);
+        fileHelper.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location);
+        fileHelper.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name);
+        fileHelper.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
     }
     
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////    

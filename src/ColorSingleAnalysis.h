@@ -25,9 +25,9 @@ public:
     void save_cb(Poco::Timer& timer);
     
 protected:
-    
+
     bool    _RUN_DONE;
-    int     _run_cnt, _save_cnt;
+    string  fileNameTag;
+    int     _run_cnt, _save_cnt, _fade_cnt;
     float   r,g,b, _frame_cnt, _frame_cnt_max;
-    
 };

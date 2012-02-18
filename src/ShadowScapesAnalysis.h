@@ -54,13 +54,17 @@ public:
     void synthesise();    
     void draw();
     
-    void scan_cb(Poco::Timer& timer);
+    void save_cb(Poco::Timer& timer);
     
 protected:
     
-    int     _line;  
-    int     _speed; // pix per second
-    int     _step;
+    bool    _RUN_DONE;
+    float     _line;  
+    float    _speed; // pix per second
+    float    _scanLineWidth; // pix per second
+    float     _step;
     shadow_type _dir;
+    int     _run_cnt, _save_cnt;
+    float   c, _frame_cnt, _frame_cnt_max;
     
 };

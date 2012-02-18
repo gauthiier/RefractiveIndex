@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void CamNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;
+    DELTA_T_SAVE = 200;
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
@@ -67,7 +67,6 @@ void CamNoiseAnalysis::synthesise()
 // this runs at frame rate = 33 ms for 30 FPS
 void CamNoiseAnalysis::draw()
 {
-    
     switch (_state) {
         case STATE_ACQUIRING:
         {
@@ -75,22 +74,47 @@ void CamNoiseAnalysis::draw()
             // still need to deal with latency frames here - i.e.: there are frames
             /// *** TODO  *** ///
             
-            float _number_of_grey_levels=5;
+            ofEnableAlphaBlending();
+            ofColor aColour;
+            
+            int _fade_in_frames = _frame_cnt_max/10;
+            float _number_of_grey_levels=10;
             
             float _frames_per_level = _frame_cnt_max / _number_of_grey_levels;
             ofColor someColor;
             
-            for(int i=0;i<=_number_of_grey_levels;i++){
-                if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
-                    //set colour to current grey level
-                    c=255-( 255.0 * ( i /_number_of_grey_levels));
-                    someColor.set(c);
-                    
-                }
-                ofSetColor(someColor);
+            if (_frame_cnt < _fade_in_frames) {
+                aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                ofSetColor(aColour);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                //cout <<  "FADE IN STROBE TIME " << endl;    
             }
+            
+            if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+                
+    
+                for(int i=0;i<_number_of_grey_levels;i++){
+                    if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
+                        //set colour to current grey level
+                        c=255-( 255.0 * ( i /_number_of_grey_levels));
+                        someColor.set(c);
+                    }
+                    ofSetColor(someColor);
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                }
+                
+            }
+            
+            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                    aColour.set(0, 0, 0, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                    ofSetColor(aColour);
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                    // cout <<  "FADE OUT STROBE TIME " << endl;
+            }         
+            
+            
             _frame_cnt++;
+            ofDisableAlphaBlending();
             
             break;
         }

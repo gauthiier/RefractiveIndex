@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;
+    DELTA_T_SAVE = 300;
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
@@ -29,6 +29,9 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     r = 0;
     g = 0;
     b = 0;
+    
+    _fade_cnt=0;
+    fileNameTag = "";
 }
 
 
@@ -71,26 +74,50 @@ void ColorSingleAnalysis::draw()
         case STATE_ACQUIRING:
         {
             float one_third_of_frame_count_max=_frame_cnt_max/3;
-            if (_frame_cnt < one_third_of_frame_count_max){
+            
+            int _fade_in_frames = one_third_of_frame_count_max/10;
+            
+            if (_frame_cnt < _fade_in_frames){
+                ofSetColor(ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255), 0, 0);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                fileNameTag = "FADING";
+            }
+            
+            if (_frame_cnt >= _fade_in_frames && _frame_cnt < one_third_of_frame_count_max){
                 r=255.0;
                 g=0.0;
                 b=0.0;
                 ofSetColor(r,g,b);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                fileNameTag = "RED";
             }
+            
             if (_frame_cnt >= one_third_of_frame_count_max && _frame_cnt < 2*one_third_of_frame_count_max){
                 r=0.0;
                 g=255.0;
                 b=0.0;
                 ofSetColor(r,g,b);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                fileNameTag = "GREEN";
             }
-            if (_frame_cnt >= 2*one_third_of_frame_count_max && _frame_cnt < _frame_cnt_max){
+            
+            if (_frame_cnt >= 2*one_third_of_frame_count_max && _frame_cnt < (_frame_cnt_max-_fade_in_frames) ){
                 r=0.0;
                 g=0.0;
                 b=255.0;
                 ofSetColor(r,g,b);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                fileNameTag = "BLUE";
+            }
+            
+            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max){
+                
+                ofSetColor(0, 0, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
+                cout << "255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255)"<< 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255) << endl;
+                
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                _fade_cnt++;
+                fileNameTag = "FADING";
             }
             
             _frame_cnt++;
@@ -122,19 +149,15 @@ void ColorSingleAnalysis::draw()
 void ColorSingleAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
-
-
-    cout << "ColorSingleAnalysis::saving...\n";
-    string file_name =ofToString(_frame_cnt,2)+"_"+ofToString((int)r,2)+"_"+ofToString((int)g,2)+"_"+ofToString((int)b,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-
-    string file = _whole_file_path+"/"+file_name;
-
+    
+    //    cout << "ColorSingleAnalysis::saving...\n";
+    
+    string file_name =ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";
+    
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(file);
+    //cout<<_whole_file_path+"/"+file_name<<endl;
     
-    cout<<_whole_file_path+"/"+file_name<<endl;
-
     if(_save_cnt >= NUM_SAVE_PER_RUN)
         _RUN_DONE = true;
 

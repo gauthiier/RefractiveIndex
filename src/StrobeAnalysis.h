@@ -10,11 +10,11 @@
 #include "Poco/Timer.h"
 
 
-class CamFrameRateAnalysis : public AbstractAnalysis
+class StrobeAnalysis : public AbstractAnalysis
 {
 public:
-    CamFrameRateAnalysis(): AbstractAnalysis("CAM_NOISE"){;}
-    virtual ~CamFrameRateAnalysis(){;}
+    StrobeAnalysis(): AbstractAnalysis("STROBE"){;}
+    virtual ~StrobeAnalysis(){;}
     
 public:
     
@@ -28,7 +28,10 @@ public:
 protected:
     
     bool    _RUN_DONE;
-    int     _run_cnt, _save_cnt;
-    float   c, _frame_cnt, _frame_cnt_max;   
+    int     _strobe_cnt, _run_cnt, _strobe_cnt_max;
+    int     _save_cnt;
     
+    int     _frame_cnt, _frame_cnt_max, _save_cnt_max ;
+    int     _strobe_interval;
+    bool    _strobe_on;
 };

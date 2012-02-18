@@ -10,13 +10,14 @@
 
 #include "RefractiveIndex.h"
 
-#include "IResponseAnalysis.h"
 #include "ShadowScapesAnalysis.h"
-#include "ColorMultiAnalysis.h"
-#include "ColorSingleAnalysis.h"
-#include "CamFrameRateAnalysis.h"
+#include "RelaxRateAnalysis.h"
+#include "IResponseAnalysis.h"
+#include "ShapeFromShadingAnalysis.h"
+#include "StrobeAnalysis.h"
 #include "CamNoiseAnalysis.h"
-#include "LatencyTestAnalysis.h"
+#include "ColorSingleAnalysis.h"
+#include "ColorMultiAnalysis.h"
 #include "DiffNoiseAnalysis.h"
 
 #include "ofxXmlSettings.h"
@@ -94,17 +95,29 @@ void RefractiveIndex::setup()
     //void ofPixels::allocate(int w, int h, ofImageType type)    
     
     
-    // setup analysis
+    //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis());
-    _analysisVector.push_back(new IResponseAnalysis());
-    _analysisVector.push_back(new ColorMultiAnalysis());
-    _analysisVector.push_back(new CamFrameRateAnalysis());
-    _analysisVector.push_back(new CamNoiseAnalysis());
-    _analysisVector.push_back(new ColorSingleAnalysis());
-    _analysisVector.push_back(new LatencyTestAnalysis());
+   // _analysisVector.push_back(new ShadowScapesAnalysis(V));
+   // _analysisVector.push_back(new ShadowScapesAnalysis(H));
+   // _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    
+   // _analysisVector.push_back(new RelaxRateAnalysis());
+    
+   // _analysisVector.push_back(new IResponseAnalysis());
+    
+    _analysisVector.push_back(new ShapeFromShadingAnalysis());
+    
+   // _analysisVector.push_back(new StrobeAnalysis());
+    
+   // _analysisVector.push_back(new CamNoiseAnalysis());
+    
+   // _analysisVector.push_back(new ColorSingleAnalysis());
+    
+   // _analysisVector.push_back(new ColorMultiAnalysis());
+    
     _analysisVector.push_back(new DiffNoiseAnalysis());
-    
+        
+
     _currentAnalysisIndx = 0;
     _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 
     

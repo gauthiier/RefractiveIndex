@@ -46,36 +46,44 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
+    DELTA_T_SAVE = 100;
+    NUM_PHASE = 1;
+    NUM_RUN = 1;
+    NUM_SAVE_PER_RUN = 100;  
+    
     create_dir();
-    _speed = 300;
+    _speed = 900.0;  // 900.0 is the correct number
+    _scanLineWidth = 100.0;
+    _run_cnt = 0;
+    _save_cnt = 0;
 }
 
 void ShadowScapesAnalysis::acquire()
 {
     int w;
-    if(_dir == H) w = ofGetWidth();
-    else if(_dir == V) w = ofGetHeight();
-    _step = ((w / _speed) * 1000) / 50;
+    if (_dir == V) w = ofGetHeight();
+    if (_dir == H) w = ofGetWidth();
+    if (_dir == D) w = ofGetHeight();
+    
+    _step = ((w/_speed) * 1000.0) / 500.0;
     _line = 0;
-    Timer scan_timer(0, 50);
-
-    TimerCallback<ShadowScapesAnalysis> strobe_callback(*this, &ShadowScapesAnalysis::scan_cb);
-
-    _state = STATE_SCAN;
-
-    scan_timer.start(strobe_callback);
-
-    while(_state != STATE_ANALYSIS)
-        Thread::sleep(5);
-
-    scan_timer.stop();
-    // do analysis here
-    // go back to the files i've saved and do the math here -
-
-    /*
-    while(_state != STATE_STOP)
-        Thread::sleep(100);
-     */
+    
+    // RUN ROUTINE
+    for(int i = 0; i < NUM_RUN; i++) {
+        
+        Timer save_timer(0, DELTA_T_SAVE);  
+        TimerCallback<ShadowScapesAnalysis> save_callback(*this, &ShadowScapesAnalysis::save_cb);
+        
+        _RUN_DONE = false;
+        _frame_cnt = 0; _save_cnt = 0;
+        
+        save_timer.start(save_callback);
+        
+        while(!_RUN_DONE)
+            Thread::sleep(3);
+        
+        save_timer.stop();
+    }
 
 }
 
@@ -92,33 +100,98 @@ void ShadowScapesAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            static int _pos;
+            _line += _step;
             
-            if(_state == STATE_ANALYSIS) {
-                ofSetColor(0, 200, 0);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                return;
+            //cout << "* _line:" << _line << endl;
+            
+            if(_dir == V) {
+                
+                ofEnableAlphaBlending();
+                
+                ofSetColor(255, 255, 255);
+                ofRect(0, (_line-2*_scanLineWidth), ofGetWidth(), _scanLineWidth);            
+                
+                for (float i=0; i<25; i++)
+                { 
+                    ofSetColor(255, 255, 255, i*5.0);
+                    ofRect(0, (_line-2*_scanLineWidth)+(2*_scanLineWidth/(i+1)), ofGetWidth(), _scanLineWidth);
+                    ofRect(0, (_line-2*_scanLineWidth)-(2*_scanLineWidth/(i+1)), ofGetWidth(), _scanLineWidth);
+                }        
+                
+                ofDisableAlphaBlending();
+                
             }
             
-            if(_state == STATE_SCAN) {
-                if(_pos != _line) {
-                    //take snap??
-                    _pos = _line;
-                }
-                ofSetColor(255, 255,  255);
+            if(_dir == H) {
                 
-                if(_dir == H) ofRect(_pos, 0, 50, ofGetHeight());
-                else if(_dir == V) ofRect(0, _pos, ofGetWidth(), 50);
+                ofEnableAlphaBlending();
+                
+                ofSetColor(255, 255, 255);
+                ofRect( (_line-2*_scanLineWidth), 0, _scanLineWidth, ofGetHeight());
+                
+                for (float i=0; i<25; i++)
+                { 
+                    ofSetColor(255, 255, 255, i*5);
+                    ofRect( (_line-2*_scanLineWidth)+(2*_scanLineWidth/(i+1)), 0, _scanLineWidth, ofGetHeight());
+                    ofRect( (_line-2*_scanLineWidth)-(2*_scanLineWidth/(i+1)), 0, _scanLineWidth, ofGetHeight());
+                }        
+                ofDisableAlphaBlending();
                 
             }
-           
             
+            if(_dir == D) {
+                
+                ofEnableAlphaBlending();
+                
+                ofPushMatrix();  
+                
+                ofTranslate(-ofGetWidth(), 0);
+                ofRotate(-45);
+                
+                ofSetColor(255, 255, 255);
+                ofRect(0, (_line-_scanLineWidth)+ofGetHeight()-_scanLineWidth, 2*ofGetWidth(), _scanLineWidth);  
+                
+                for (float i=0; i<25; i++)
+                { 
+                    ofSetColor(255, 255, 255, i*5);
+                    ofRect(0, (_line-_scanLineWidth)+ofGetHeight()-_scanLineWidth+(2*_scanLineWidth/(i+1)), 2*ofGetWidth(), _scanLineWidth);
+                    ofRect(0, (_line-_scanLineWidth)+ofGetHeight()-_scanLineWidth-(2*_scanLineWidth/(i+1)), 2*ofGetWidth(), _scanLineWidth);
+                }        
+                
+                ofPopMatrix();  
+                ofDisableAlphaBlending();
+            }
+            
+            
+            
+            if(_dir == V && int(_line) >= (ofGetHeight()+4*_scanLineWidth)){
+                cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
+                _state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
+            }
+            
+            if(_dir == H && int(_line) >= (ofGetWidth()+4*_scanLineWidth)) {
+                
+                //cout << "HORIZONTAL IS DONE -  _line >= (ofGetWidth()+4*_scanLineWidth)) is TRUE" << endl;
+                _state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
+                
+            }
+            
+            if(_dir == D && int(_line) >= (1.5*ofGetHeight()+4*_scanLineWidth)) {
+                //cout << "DIAGONAL IS DONE - _line >= (1.5*ofGetHeight()+4*_scanLineWidth)) is TRUE" << endl;
+                _state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
+            }
+        
             break;
         }
             
         case STATE_SYNTHESISING:
         {
             // display animation of something while the synthesis in on-going...
+            
+            _state = STATE_DISPLAY_RESULTS;
             break;
         }
             
@@ -128,21 +201,32 @@ void ShadowScapesAnalysis::draw()
             break;
         }
             
-            
         default:
             break;
     }        
 
-
 }
 
 
-void ShadowScapesAnalysis::scan_cb(Timer& timer)
+void ShadowScapesAnalysis::save_cb(Timer& timer)
 {
-    _line += _step;
-
-    if((_dir == H && _line >= ofGetWidth()) ||
-       (_dir == V && _line >= ofGetHeight())) {
-        _state = STATE_ANALYSIS;
+    
+    cout << "ShadowScapesAnalysis::saving...\n";
+    string file_name;
+    
+    if(_dir == H) {
+        file_name = ofToString(_save_cnt, 2)+"_H_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
+    
+    if(_dir == V) {
+        file_name = ofToString(_save_cnt, 2)+"_V_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    }
+    
+    if(_dir == D) {
+        file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    }
+    
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    _save_cnt++;    
+
 }

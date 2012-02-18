@@ -8,12 +8,13 @@
 #include "AbstractAnalysis.h"
 
 #include "Poco/Timer.h"
-   
-class LatencyTestAnalysis : public AbstractAnalysis
-{   
+
+
+class RelaxRateAnalysis : public AbstractAnalysis
+{
 public:
-    LatencyTestAnalysis(): AbstractAnalysis("LATENCY_TEST"){;}
-    virtual ~LatencyTestAnalysis(){;}
+    RelaxRateAnalysis(): AbstractAnalysis("RELAXRATE"){;}
+    virtual ~RelaxRateAnalysis(){;}
     
 public:
     
@@ -27,6 +28,7 @@ public:
 protected:
     
     bool    _RUN_DONE;
+    float     _flip, _level;
     int     _run_cnt, _save_cnt;
     float   c, _frame_cnt, _frame_cnt_max;
     

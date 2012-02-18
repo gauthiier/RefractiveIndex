@@ -45,13 +45,14 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;
+    DELTA_T_SAVE = 150; // the right number is about 300
     NUM_PHASE = 1;
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 100;    
+    NUM_SAVE_PER_RUN = 300;    
     
     create_dir();
     _frame_cnt = 0;
+    _fade_cnt=0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
 }
@@ -95,15 +96,46 @@ void ColorMultiAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            if (_frame_cnt < _frame_cnt_max) {
+            int _fade_in_frames = _frame_cnt_max/50;
+            
+            if (_frame_cnt < _fade_in_frames) {
+                ofColor aColor;
+                
+                aColor.setHsb(c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255), ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                
+                ofSetColor(aColor);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                
+                cout << "FADING IN..." << endl;
+            }
+            
+            if (_frame_cnt >= _fade_in_frames && _frame_cnt < _frame_cnt_max-_fade_in_frames){
+                
                 ofColor aColor;
                 aColor.setHsb(c, 255, 255);
                 ofSetColor(aColor);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                //how far are we as a percent of _frame_count_max
+                
+                //how far are we as a percent of _frame_count_max * 360 HUE VALUES
                 c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+                
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
             }
-            _frame_cnt++;
+            
+            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                
+                ofColor aColor;
+                
+                aColor.setHsb(c, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255), 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
+                
+                ofSetColor(aColor);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                
+                _fade_cnt++;
+                cout << "FADING OUT..." << endl;
+                
+            }
+            
+            _frame_cnt++;            
             
             break;
         }
@@ -132,22 +164,18 @@ void ColorMultiAnalysis::draw()
 void ColorMultiAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
-
+    
     // UPDATE THE COLOR ON THE SCREEN
     //float c_last = c;
-
-    cout << "COLORMULTIANALYSIS::saving...\n";
-    cout << "c_last... " << c << endl;
+    
+    // cout << "COLORMULTIANALYSIS::saving...\n";
+    // cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
-    string file = _whole_file_path+"/"+file_name;    
-
+    // cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(file);
-
     if(_save_cnt >= NUM_SAVE_PER_RUN){
         _RUN_DONE = true;
     }
-
 }

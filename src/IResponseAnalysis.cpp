@@ -67,6 +67,7 @@ void IResponseAnalysis::draw()
 {
     
     switch (_state) {
+            
         case STATE_ACQUIRING:
         {
             /// *** TODO  *** ///
@@ -77,11 +78,11 @@ void IResponseAnalysis::draw()
             {
                 ofSetColor(c, c, c);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+                c  = 255.0 * (_frame_cnt_max*_frame_cnt_max - _frame_cnt*_frame_cnt)/(_frame_cnt_max*_frame_cnt_max);
             }
             
             _frame_cnt++;
-            
+
             break;
         }
             
@@ -108,26 +109,18 @@ void IResponseAnalysis::draw()
 void IResponseAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
-
-    // UPDATE THE COLOR ON THE SCREEN
-    //float c_last = c;
-
+    
     cout << "IResponseAnalysis::saving...\n";
-    cout << "c_last... " << c << endl;
+    //cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     string thisLocation = RefractiveIndex::_location;
-
+    
     //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
     //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
     
-    string file = _whole_file_path+"/"+file_name;
-
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(file);
-
     if(_save_cnt >= NUM_SAVE_PER_RUN)
         _RUN_DONE = true;
-
 }

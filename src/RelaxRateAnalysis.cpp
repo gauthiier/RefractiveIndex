@@ -3,7 +3,7 @@
  ~ contact: dviid@labs.ciid.dk
  */
 
-#include "LatencyTestAnalysis.h"
+#include "RelaxRateAnalysis.h"
 #include "ofMain.h"
 
 #include "Poco/Timer.h"
@@ -16,26 +16,29 @@ using Poco::TimerCallback;
 using Poco::Thread;
 
 
-void LatencyTestAnalysis::setup(int camWidth, int camHeight)
+void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;
+    DELTA_T_SAVE = 300;
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
     
     create_dir();
+    
+    _level = 0;
+    _flip = 1;
     _frame_cnt = 0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
 }
 
 
-void LatencyTestAnalysis::acquire()
+void RelaxRateAnalysis::acquire()
 {
 
     Timer* save_timer;
 
-    TimerCallback<LatencyTestAnalysis> save_callback(*this, &LatencyTestAnalysis::save_cb);
+    TimerCallback<RelaxRateAnalysis> save_callback(*this, &RelaxRateAnalysis::save_cb);
 
     // RUN ROUTINE
     for(int i = 0; i < NUM_RUN; i++) {
@@ -56,14 +59,13 @@ void LatencyTestAnalysis::acquire()
     }
 }
 
-void LatencyTestAnalysis::synthesise()
+void RelaxRateAnalysis::synthesise()
 {
     // _saved_filenames has all the file names of all the saved images
 }
 
-
 // this runs at frame rate = 33 ms for 30 FPS
-void LatencyTestAnalysis::draw()
+void RelaxRateAnalysis::draw()
 {
     
     switch (_state) {
@@ -72,32 +74,30 @@ void LatencyTestAnalysis::draw()
             /// *** TODO  *** ///
             // still need to deal with latency frames here - i.e.: there are frames
             /// *** TODO  *** ///
+           
+            if (_frame_cnt <= _frame_cnt_max)
+            {
+                
+                float lightLevel=pow(_level,2);
+                
+                ofSetColor(c, c, c);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                
+                c = ofMap(lightLevel, 0, pow(_frame_cnt_max/2,2), 0, 255);
+                
+                if (_frame_cnt <= (_frame_cnt_max/2)) {
+                    _level+=1;
+                } else {
+                    _level-=1;
+                }
+                
+            } else {
+                cout << "RELAXRATE RUN COMPLETED" << endl;
+                _state = STATE_SYNTHESISING;
+            }
             
-            if (_frame_cnt < _frame_cnt_max/3)
-            {
-                c  = 0;
-                
-                ofSetColor(c, c, c);
-                cout<<"1st third"<<endl;
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-            }
-            if (_frame_cnt >= _frame_cnt_max/3 && _frame_cnt < 2*( _frame_cnt_max/3))
-            {
-                c  = 255;
-                cout<<"2nd third"<<endl;
-                
-                ofSetColor(c, c, c);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-            }
-            if (_frame_cnt >= 2*( _frame_cnt_max/3) && _frame_cnt < _frame_cnt_max)
-            {
-                c  = 0;
-                cout<<"3rd third"<<endl;
-                
-                ofSetColor(c, c, c);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-            }
-            _frame_cnt++;            
+            _frame_cnt++;
+            cout << "_frame_cnt:" << _frame_cnt << endl;
             
             break;
         }
@@ -117,30 +117,24 @@ void LatencyTestAnalysis::draw()
             
         default:
             break;
-    }    
+    }
+
+
 
 }
 
 // this runs at save_cb timer rate = DELTA_T_SAVE
-void LatencyTestAnalysis::save_cb(Timer& timer)
+void RelaxRateAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
-
-    // UPDATE THE COLOR ON THE SCREEN
-    //float c_last = c;
-
-    cout << "LatencyTestAnalysis::saving...\n";
-    cout << "c_last... " << c << endl;
+    cout << "RelaxRateAnalysis::saving...\n";
+    //cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     string thisLocation = RefractiveIndex::_location;
-
-    //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
-    //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
-    //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
     
     string file = _whole_file_path+"/"+file_name;
 
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    ofSaveImage(RefractiveIndex::_pixels, file, OF_IMAGE_QUALITY_BEST);
     
     _saved_filenames.push_back(file);
 
