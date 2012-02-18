@@ -137,12 +137,10 @@ void ColorSingleAnalysis::draw()
             break;
         }
             
-            
         default:
             break;
     }
     
-
 }
 
 // this runs at save_cb timer rate = DELTA_T_SAVE
