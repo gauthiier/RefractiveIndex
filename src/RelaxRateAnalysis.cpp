@@ -18,9 +18,9 @@ using Poco::Thread;
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 300;
+    DELTA_T_SAVE = 100;  //300 is the correct number 
     NUM_PHASE = 1;
-    NUM_RUN = 3;
+    NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
     
     create_dir();
@@ -98,7 +98,7 @@ void RelaxRateAnalysis::draw()
             }
             
             _frame_cnt++;
-            cout << "_frame_cnt:" << _frame_cnt << endl;
+            //cout << "_frame_cnt:" << _frame_cnt << endl;
             
             break;
         }

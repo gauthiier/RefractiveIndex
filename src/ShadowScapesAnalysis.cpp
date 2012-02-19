@@ -46,13 +46,15 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
+    
+    
     DELTA_T_SAVE = 100;
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;  
     
     create_dir();
-    _speed = 900.0;  // 900.0 is the correct number
+    _speed = 100.0;  // 900.0 is the correct number
     _scanLineWidth = 100.0;
     _run_cnt = 0;
     _save_cnt = 0;
@@ -60,12 +62,12 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 
 void ShadowScapesAnalysis::acquire()
 {
-    int w;
-    if (_dir == V) w = ofGetHeight();
-    if (_dir == H) w = ofGetWidth();
-    if (_dir == D) w = ofGetHeight();
+    int screenSpan;
+    if (_dir == V) screenSpan = ofGetHeight();
+    if (_dir == H) screenSpan = ofGetWidth();
+    if (_dir == D) screenSpan = ofGetHeight();
     
-    _step = ((w/_speed) * 1000.0) / 500.0;
+    _step = ((screenSpan/_speed) * 1000.0) / 500.0;
     _line = 0;
     
     // RUN ROUTINE

@@ -48,7 +48,7 @@ void StrobeAnalysis::acquire()
         _save_cnt = 0;
         _frame_cnt = 0;
 
-        cout << "RUN NUM = " << i;
+        //cout << "RUN NUM = " << i;
 
         save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
         save_timer->start(save_callback);

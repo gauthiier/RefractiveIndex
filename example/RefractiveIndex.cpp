@@ -71,6 +71,7 @@ void RefractiveIndex::setup()
     // display
     cout << "> display" << endl;
     ofSetFrameRate(fps);
+    
     if(fps > 30) {
         ofSetVerticalSync(FALSE);            
     } else {        
@@ -228,6 +229,85 @@ void RefractiveIndex::keyPressed  (int key)
 {
     if( key =='f')
         ofToggleFullscreen();
+    
+    /*  TODO:  complete the below... would be good to trigger the Analysis from keypresses if needed... */
+    // currently this doesn't work... the save_cb's in the individual 
+    // tried to add a  stop_analysis(); call but it blocks the whole programme
+    
+    // i.e.: ask david how to shut off the prior Analysis if it's not finished running from here? 
+    
+    /*
+    if(key == '1')
+    {
+        // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(0);
+        _state = ISTATE_START;
+    }
+
+    if(key == '2')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(1);
+        _state = ISTATE_START;
+    }
+
+    if(key == '3')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(2);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '4')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(3);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '5')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(4);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '6')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(5);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '7')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(6);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '8')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(7);
+        _state = ISTATE_START;
+    }
+    
+    if(key == '9')
+    {
+     
+     // something needs to go here to cancel the prior analysis
+        _currentAnalysis = _analysisVector.at(8);
+        _state = ISTATE_START;
+    }
+     */
 }
 
 void RefractiveIndex::exit()

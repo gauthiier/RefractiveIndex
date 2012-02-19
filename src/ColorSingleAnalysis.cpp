@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 300;
+    DELTA_T_SAVE = 300;  //300 is the right number here
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    

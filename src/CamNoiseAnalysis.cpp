@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void CamNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 200;
+    DELTA_T_SAVE = 200; 
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
@@ -153,7 +153,7 @@ void CamNoiseAnalysis::save_cb(Timer& timer)
   
     _save_cnt++;
     
-    cout << "ColorSingleAnalysis::saving...\n";
+    cout << "CamNoiseAnalysis::saving...\n";
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
