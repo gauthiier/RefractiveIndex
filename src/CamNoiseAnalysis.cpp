@@ -59,7 +59,7 @@ void CamNoiseAnalysis::acquire()
 
 void CamNoiseAnalysis::synthesise()
 {
-    // _saved_filenames has all the file names of all the saved images
+
 }
 
 
