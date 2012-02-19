@@ -69,66 +69,76 @@ void DiffNoiseAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            ofColor aColour;
-            int rectSize = 5;
-            ofEnableAlphaBlending();
             
-            int _fade_in_frames = _frame_cnt_max/10;
-            
-            if (_frame_cnt < _fade_in_frames) {
+            if (_frame_cnt < _frame_cnt_max)
+            {
+      
+                ofColor aColour;
+                int rectSize = 5;
+                ofEnableAlphaBlending();
                 
-                for (int i=1; i < ofGetHeight() ; i=i+rectSize)
-                {
-                    for (int j=1; j < ofGetWidth(); j=j+rectSize)
+                int _fade_in_frames = _frame_cnt_max/10;
+                
+                if (_frame_cnt < _fade_in_frames) {
+                    
+                    for (int i=1; i < ofGetHeight() ; i=i+rectSize)
                     {
-                        c = ofRandom(0,255);
-                        aColour.set(c, c, c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
-                        ofSetColor(aColour);
-                        ofRect(j, i, rectSize, rectSize);
-                    }
-                }        
-                
-                cout << "FADING IN..." << endl;
-            }
-            
-            
-            
-            if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
-                
-                for (int i=1; i < ofGetHeight() ; i=i+rectSize)
-                {
-                    for (int j=1; j < ofGetWidth(); j=j+rectSize)
-                    {
-                        c = ofRandom(0,255);
-                        aColour.set(c, c, c, 255);
-                        ofSetColor(aColour);
-                        ofRect(j, i, rectSize, rectSize);
-                        
-                    }
-                }        
-            }
-            
-            
-            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                
-                for (int i=1; i < ofGetHeight() ; i=i+rectSize)
-                {
-                    for (int j=1; j < ofGetWidth(); j=j+rectSize)
-                    {
-                        c = ofRandom(0,255);
-                        aColour.set(c, c, c, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
-                        ofSetColor(aColour);
-                        ofRect(j, i, rectSize, rectSize);
-                    } 
+                        for (int j=1; j < ofGetWidth(); j=j+rectSize)
+                        {
+                            c = ofRandom(0,255);
+                            aColour.set(c, c, c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                            ofSetColor(aColour);
+                            ofRect(j, i, rectSize, rectSize);
+                        }
+                    }        
+                    
+                    cout << "FADING IN..." << endl;
                 }
                 
-                _fade_cnt++;
-                cout << "FADING OUT..." << endl;
                 
+                
+                if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+                    
+                    for (int i=1; i < ofGetHeight() ; i=i+rectSize)
+                    {
+                        for (int j=1; j < ofGetWidth(); j=j+rectSize)
+                        {
+                            c = ofRandom(0,255);
+                            aColour.set(c, c, c, 255);
+                            ofSetColor(aColour);
+                            ofRect(j, i, rectSize, rectSize);
+                            
+                        }
+                    }        
+                }
+                
+                
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                    
+                    for (int i=1; i < ofGetHeight() ; i=i+rectSize)
+                    {
+                        for (int j=1; j < ofGetWidth(); j=j+rectSize)
+                        {
+                            c = ofRandom(0,255);
+                            aColour.set(c, c, c, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                            ofSetColor(aColour);
+                            ofRect(j, i, rectSize, rectSize);
+                        } 
+                    }
+                    
+                    _fade_cnt++;
+                    cout << "FADING OUT..." << endl;
+                    
+                }
+                
+                
+                ofDisableAlphaBlending();
+           
+            } else {
+            
+               _RUN_DONE = true;
+            
             }
-            
-            
-            ofDisableAlphaBlending();
             
             _frame_cnt++;
             
@@ -182,7 +192,7 @@ void DiffNoiseAnalysis::save_cb(Timer& timer)
 
     }
     _save_cnt++;
-    if(_save_cnt >= NUM_SAVE_PER_RUN)
-        _RUN_DONE = true;
+    //if(_save_cnt >= NUM_SAVE_PER_RUN)
+    //    _RUN_DONE = true;
 
 }

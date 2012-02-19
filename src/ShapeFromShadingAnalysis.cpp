@@ -89,7 +89,7 @@ void ShapeFromShadingAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            if (_frame_cnt <= _frame_cnt_max)
+            if (_frame_cnt < _frame_cnt_max)
             {
                 
                 ofEnableAlphaBlending();
@@ -344,7 +344,7 @@ void ShapeFromShadingAnalysis::save_cb(Timer& timer)
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     _save_cnt++;
     
-    if(_save_cnt >= NUM_SAVE_PER_RUN)
-        _RUN_DONE = true;
+    //if(_save_cnt >= NUM_SAVE_PER_RUN)
+    //    _RUN_DONE = true;
 
 }

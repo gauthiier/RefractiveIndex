@@ -79,6 +79,8 @@ void IResponseAnalysis::draw()
                 ofSetColor(c, c, c);
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
                 c  = 255.0 * (_frame_cnt_max*_frame_cnt_max - _frame_cnt*_frame_cnt)/(_frame_cnt_max*_frame_cnt_max);
+            } else {
+                _RUN_DONE = true;
             }
             
             _frame_cnt++;
@@ -121,6 +123,6 @@ void IResponseAnalysis::save_cb(Timer& timer)
     
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    if(_save_cnt >= NUM_SAVE_PER_RUN)
-        _RUN_DONE = true;
+    //if(_save_cnt >= NUM_SAVE_PER_RUN)
+    //    _RUN_DONE = true;
 }

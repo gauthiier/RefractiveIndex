@@ -74,51 +74,58 @@ void StrobeAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            ofEnableAlphaBlending();
-            ofColor aColour;
-            int _fade_in_frames = _frame_cnt_max/10;
-            cout<< "_fade_in_frames" << _fade_in_frames<< endl;
             
-            if (_frame_cnt < _fade_in_frames) {
+            if (_frame_cnt < _frame_cnt_max)
+            {
+                ofEnableAlphaBlending();
+                ofColor aColour;
+                int _fade_in_frames = _frame_cnt_max/10;
+                cout<< "_fade_in_frames" << _fade_in_frames<< endl;
                 
-                aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
-                ofSetColor(aColour);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                //cout <<  "FADE IN STROBE TIME " << endl;
-                
-                
-            }
-            
-            if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
-                
-                //cout <<  "_frame_cnt: " << _frame_cnt << endl;
-                //cout <<  "frame_cnt % 15: " << _frame_cnt%15 << endl;
-                //cout <<  "MAIN STROBE TIME " << endl;
-                
-                if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) < (ofGetFrameRate()*_strobe_interval/1000)/2)
-                {
-                    ofSetColor(255, 255, 255);
+                if (_frame_cnt < _fade_in_frames) {
+                    
+                    aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                    ofSetColor(aColour);
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                    _strobe_cnt++;
-                    _strobe_on = 1;
-                } else if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) >= (ofGetFrameRate()*_strobe_interval/1000)/2)
-                {
-                    ofSetColor(0, 0, 0);
-                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                    _strobe_on = 0;
+                    //cout <<  "FADE IN STROBE TIME " << endl;
+                    
+                    
                 }
                 
+                if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+                    
+                    //cout <<  "_frame_cnt: " << _frame_cnt << endl;
+                    //cout <<  "frame_cnt % 15: " << _frame_cnt%15 << endl;
+                    //cout <<  "MAIN STROBE TIME " << endl;
+                    
+                    if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) < (ofGetFrameRate()*_strobe_interval/1000)/2)
+                    {
+                        ofSetColor(255, 255, 255);
+                        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                        _strobe_cnt++;
+                        _strobe_on = 1;
+                    } else if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) >= (ofGetFrameRate()*_strobe_interval/1000)/2)
+                    {
+                        ofSetColor(0, 0, 0);
+                        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                        _strobe_on = 0;
+                    }
+                    
+                }
+                
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                    aColour.set(255, 255, 255, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                    ofSetColor(aColour);
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                    // cout <<  "FADE OUT STROBE TIME " << endl;
+                }         
+            
+                ofDisableAlphaBlending();
+            } else {
+                _RUN_DONE = true;
             }
             
-            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                aColour.set(255, 255, 255, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
-                ofSetColor(aColour);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                // cout <<  "FADE OUT STROBE TIME " << endl;
-            }         
-        
             _frame_cnt++;
-            ofDisableAlphaBlending();
             
             break;
         }
@@ -154,8 +161,8 @@ void StrobeAnalysis::save_cb(Timer& timer)
     cout << "_save_cnt_max" << _save_cnt_max << endl;
     
     //TODO:  something fucked here with my calc of _save_cnt_max - new structure should fix it?   
-    if(_save_cnt >= _save_cnt_max-10) {
-        _RUN_DONE = true;
-    }
+    //if(_save_cnt >= _save_cnt_max-10) {
+    //    _RUN_DONE = true;
+    //}
 
 }

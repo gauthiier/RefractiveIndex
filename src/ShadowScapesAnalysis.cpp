@@ -166,21 +166,21 @@ void ShadowScapesAnalysis::draw()
             
             if(_dir == V && int(_line) >= (ofGetHeight()+4*_scanLineWidth)){
                 cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
             }
             
             if(_dir == H && int(_line) >= (ofGetWidth()+4*_scanLineWidth)) {
                 
                 //cout << "HORIZONTAL IS DONE -  _line >= (ofGetWidth()+4*_scanLineWidth)) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
                 
             }
             
             if(_dir == D && int(_line) >= (1.5*ofGetHeight()+4*_scanLineWidth)) {
                 //cout << "DIAGONAL IS DONE - _line >= (1.5*ofGetHeight()+4*_scanLineWidth)) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
             }
         
