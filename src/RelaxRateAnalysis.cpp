@@ -20,7 +20,7 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
     DELTA_T_SAVE = 300;
     NUM_PHASE = 1;
-    NUM_RUN = 1;
+    NUM_RUN = 3;
     NUM_SAVE_PER_RUN = 100;    
     
     create_dir();

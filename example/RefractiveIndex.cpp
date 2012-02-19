@@ -97,23 +97,23 @@ void RefractiveIndex::setup()
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-   // _analysisVector.push_back(new ShadowScapesAnalysis(V));
-   // _analysisVector.push_back(new ShadowScapesAnalysis(H));
-   // _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    _analysisVector.push_back(new ShadowScapesAnalysis(V));
+    _analysisVector.push_back(new ShadowScapesAnalysis(H));
+    _analysisVector.push_back(new ShadowScapesAnalysis(D));
     
-   // _analysisVector.push_back(new RelaxRateAnalysis());
+    _analysisVector.push_back(new RelaxRateAnalysis());
     
-   // _analysisVector.push_back(new IResponseAnalysis());
+    _analysisVector.push_back(new IResponseAnalysis());
     
     _analysisVector.push_back(new ShapeFromShadingAnalysis());
     
-   // _analysisVector.push_back(new StrobeAnalysis());
+    _analysisVector.push_back(new StrobeAnalysis());
     
-   // _analysisVector.push_back(new CamNoiseAnalysis());
+    _analysisVector.push_back(new CamNoiseAnalysis());
     
-   // _analysisVector.push_back(new ColorSingleAnalysis());
+    _analysisVector.push_back(new ColorSingleAnalysis());
     
-   // _analysisVector.push_back(new ColorMultiAnalysis());
+    _analysisVector.push_back(new ColorMultiAnalysis());
     
     _analysisVector.push_back(new DiffNoiseAnalysis());
         
