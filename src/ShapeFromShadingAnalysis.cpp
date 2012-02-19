@@ -306,9 +306,7 @@ void ShapeFromShadingAnalysis::draw()
                 }
                 
                 ofDisableAlphaBlending();
-            } else {
-                _RUN_DONE = true;
-            }
+            } 
             
             _frame_cnt++;
             //cout << "_frame_cnt:" << _frame_cnt << endl;            
@@ -341,16 +339,10 @@ void ShapeFromShadingAnalysis::save_cb(Timer& timer)
 {
     //cout << "ShapeFromShadingAnalysis::saving...\n";
     
-    
-    _save_cnt++;
-    
-    cout << "ShapeFromShadingAnalysis::saving...\n";
-    
     string file_name = ofToString(_save_cnt,2)+"_"+ quad +"_"+ofToString(_run_cnt,2)+".jpg";
     
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+    _save_cnt++;
     
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
     //    _RUN_DONE = true;

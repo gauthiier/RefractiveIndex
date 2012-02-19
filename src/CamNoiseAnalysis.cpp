@@ -59,7 +59,7 @@ void CamNoiseAnalysis::acquire()
 
 void CamNoiseAnalysis::synthesise()
 {
-
+    // _saved_filenames has all the file names of all the saved images
 }
 
 
@@ -152,13 +152,14 @@ void CamNoiseAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
 
-    cout << "ColorSingleAnalysis::saving...\n";
-    
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    string thisLocation = RefractiveIndex::_location;
     
+    string file = _whole_file_path+"/"+file_name;
+
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+    _saved_filenames.push_back(file);
 
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
     //    _RUN_DONE = true;

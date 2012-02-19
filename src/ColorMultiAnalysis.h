@@ -24,5 +24,4 @@ protected:
     bool    _RUN_DONE;
     int     _run_cnt, _save_cnt, _fade_cnt;
     float   c, _frame_cnt, _frame_cnt_max;
-    ofImage image1;
 };

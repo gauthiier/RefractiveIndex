@@ -40,9 +40,6 @@ protected:
     // analysis + synthesize images - all the children (see - do_synthesize)
     virtual void synthesise() = 0;   
     
-    virtual ofPixels calculateListOfZValues(ofImage image1, ofImage image2, int whichComparison);
-    
-    virtual void setMeshFromPixels(ofPixels somePixels, ofImage currentSecondImage, ofMesh * someMesh);
         
 public:
     string  _name;    
@@ -62,12 +59,5 @@ protected:
     int             NUM_RUN;
     int             NUM_SAVE_PER_RUN;    
     
-    //added Tom S 19/2/12
-    //each mesh in the vector is a seperate 3D point cloud which is coloured with pixel data and shifted in the z plane according to the specified type of colour difference eg red value or hue
-    vector<ofMesh>meshes;
-    //how fast to move from one mesh to the next
-    float speed;
-    //the index (inside the vector of meshes) of the current mesh being displayed
-    float whichMesh;
     friend class AnalysisAdaptor;
 };

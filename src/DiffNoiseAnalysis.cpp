@@ -167,16 +167,30 @@ void DiffNoiseAnalysis::draw()
 // this runs at save_cb timer rate = DELTA_T_SAVE
 void DiffNoiseAnalysis::save_cb(Timer& timer)
 {
-    _save_cnt++;
-    
-    cout << "DiffNoiseAnalysis::saving...\n";
-    
-    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-    
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
 
+
+    float rand10 = ofRandom(0,10);
+
+    if (rand10 > 5.0) {
+
+    cout << "DiffNoiseAnalysis::saving...\n";
+    cout << "c_last... " << c << endl;
+    cout<<"rand10... " <<rand10<<endl;
+
+    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    string thisLocation = RefractiveIndex::_location;
+
+    //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
+    //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
+        
+    string file = _whole_file_path+"/"+file_name;
+
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+        
+    _saved_filenames.push_back(file);
+
+    }
     _save_cnt++;
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
     //    _RUN_DONE = true;

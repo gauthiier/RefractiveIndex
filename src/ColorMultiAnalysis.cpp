@@ -41,18 +41,14 @@ using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
 
-#define COMPARE_RED 1
-#define COMPARE_BLUE 2
-#define COMPARE_GREEN 3
-#define  COMPARE_HUE 4
-#define COMPARE_BRIGHTNESS 5
+
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 50;//150; // the right number is about 300
+    DELTA_T_SAVE = 150; // the right number is about 300
     NUM_PHASE = 1;
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 100;//;    
+    NUM_SAVE_PER_RUN = 300;    
     
     create_dir();
     _frame_cnt = 0;
@@ -70,7 +66,7 @@ void ColorMultiAnalysis::acquire()
 
     // RUN ROUTINE
     for(int i = 0; i < NUM_RUN; i++) {
-             
+
         _run_cnt = i;
 
         cout << "RUN NUM = " << i;
@@ -90,31 +86,7 @@ void ColorMultiAnalysis::acquire()
 
 void ColorMultiAnalysis::synthesise()
 {
-    cout<<"SYNTHESISING MULTI";
     // _saved_filenames has all the file names of all the saved images
-    // _saved_filenames has all the file names of all the saved images
-    //incrementer to whichMesh
-    speed=0.2;
-    //whichMesh is the index in the vector of meshes
-    whichMesh=0;
-
-    cout<<"image loaded ";
-    //there is a problem with natural vs alphabetical order when loading the files - we need to make a fix for this
-    int shift=0;
-    cout<<_saved_filenames.size()<<" image filenames ";
-    int index=0;
-    //for(int i=shift;i<_saved_filenames.size()-2;i+=2){
-       // cout<<_saved_filenames[i]<<endl;
-
-        meshes.push_back(ofMesh());
-    image1.loadImage("/Users/tomschofield/of_preRelease_v007_osx/apps/refracitveGitRepoFeb/RefractiveIndex/src/macro.png");
-        /*ofImage image2;
-        image2.loadImage(_saved_filenames[i+1]);
-        
-        setMeshFromPixels( calculateListOfZValues(image1,image2, COMPARE_BLUE), image2, &meshes[index]);            
-        */
-    index++;
-    //}
 }
 
 
@@ -204,24 +176,17 @@ void ColorMultiAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
     
-    cout << "ColorMultiAnalysis::saving...\n";
-
+    // UPDATE THE COLOR ON THE SCREEN
+    //float c_last = c;
+    
+    // cout << "COLORMULTIANALYSIS::saving...\n";
+    // cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
+    // cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-<<<<<<< HEAD
-
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
-
+    
     //if(_save_cnt >= NUM_SAVE_PER_RUN){
     //    _RUN_DONE = true;
     //}
-=======
-   // _saved_filenames.push_back("/Users/tomschofield/of_preRelease_v007_osx/apps/myApps/refractiveIndexDavidFeb/bin/data/"+_whole_file_path+"/"+file_name);
-    _saved_filenames.push_back("fish.jpg");
-
-    if(_save_cnt >= NUM_SAVE_PER_RUN){
-        _RUN_DONE = true;
-    }
->>>>>>> added image loading and display results stuff- changes all commented in code
 }
