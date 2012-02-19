@@ -77,7 +77,7 @@ void ColorSingleAnalysis::synthesise()
     int index=0;
     
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=true;
+    bool debug=false;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
@@ -93,7 +93,7 @@ void ColorSingleAnalysis::synthesise()
         image1.setUseTexture(false);
         image2.setUseTexture(false);
         //some of the textures are not loading correctly so only make mesh if both the images load
-        if(image1.loadImage(_saved_filenames[1]) && image2.loadImage(_saved_filenames[i+1])){
+        if(image1.loadImage(_saved_filenames[i]) && image2.loadImage(_saved_filenames[i+1])){
             
             if(i<_saved_filenames.size()/3){
                 setMeshFromPixels( calculateListOfZValues(image1,image2, COMPARE_RED), image2, &meshes[index]);
