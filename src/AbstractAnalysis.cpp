@@ -80,4 +80,88 @@ void AbstractAnalysis::create_dir()
     
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////    
 }
+ofPixels AbstractAnalysis::calculateListOfZValues(ofImage image1, ofImage image2, int whichComparison){
+    //zScale is the mapping factor from pixel difference to shift on the zPlane
+    int zScale=200;
+    
+    ofPixels imagePixels1 = image1.getPixelsRef();
+    ofPixels imagePixels2 = image2.getPixelsRef();
+    
+    ofPixels difference;
+    //this unsigned char should be unnecessary - I would have thought - can't you just address the pixel locations in ofPixels directly? 
+    unsigned char * thesePixels = new unsigned char[ imagePixels1.getWidth()*imagePixels1.getHeight()*3];
+    
+    //where are we in the image pixel array
+    int x=0;
+    int y=0;
+    
+    //for each pixel...
+    for(int i=0;i<imagePixels1.size();i+=3){
+        
+        //get the colour of each image at this x y location - we will use these colours for comparison according to the below criteria
+        ofColor colourImage1 = imagePixels1.getColor(x, y);
+        ofColor colourImage2 = imagePixels2.getColor(x, y);
+        
+        //COMPARE THIS PIXEL'S VALUES with the first image in the sequence
+        int thisDiff;
+        //compare Red
+        if (whichComparison==1) {
+            thisDiff=ofMap((colourImage1.r-colourImage2.r),-255,255,0,zScale);
+        }
+        //compare blue
+        if (whichComparison==2) {
+            thisDiff=ofMap((colourImage1.g-colourImage2.g),-255,255,0,zScale);
+        }
+        //compare green
+        if (whichComparison==3) {
+            thisDiff=ofMap((colourImage1.b-colourImage2.b),-255,255,0,zScale);
+        }
+        //compare hue
+        if (whichComparison==4) {
+            thisDiff=ofMap((colourImage1.getHue()-colourImage2.getHue()),-255,255,0,zScale);
+        }
+        //compare brightness
+        if (whichComparison==5) {
+            thisDiff=ofMap((colourImage1.getBrightness()-colourImage2.getBrightness()),-255,255,0,zScale);
+        }
+        thesePixels[i]=thisDiff;
+        thesePixels[i+1]=thisDiff;
+        thesePixels[i+2]=thisDiff;
+        
+        x++;
+        //new line
+        if(x>imagePixels1.getWidth()){
+            x=0;
+            y++;
+            
+        }
+    }
+    
+    difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
+    
+    return difference;
+    
+}
 
+void AbstractAnalysis:: setMeshFromPixels(ofPixels somePixels, ofImage currentSecondImage, ofMesh * someMesh){
+    int x=0;
+    int y=0;
+    
+    //get rid of all previous vectors and colours - uncomment if re-setting the mesh on the fly - ie live rather than saving it first
+    //someMesh->clear();
+    
+    unsigned char * thesePixels =currentSecondImage.getPixels();
+    
+    for(int i=0;i<somePixels.size();i+=3){
+        someMesh->addVertex(ofVec3f(x,y,- somePixels.getColor(x, y).getBrightness()   ));
+        // add colour from current second image of two 
+        someMesh->addColor(  currentSecondImage.getColor(x, y)   );
+        x++;
+        if(x>somePixels.getWidth()){
+            x=0;
+            y++;
+        }
+        
+    }
+    
+}
