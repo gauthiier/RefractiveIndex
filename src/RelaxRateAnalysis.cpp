@@ -128,17 +128,15 @@ void RelaxRateAnalysis::draw()
 void RelaxRateAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
+
     cout << "RelaxRateAnalysis::saving...\n";
-    //cout << "c_last... " << c << endl;
+    
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-    string thisLocation = RefractiveIndex::_location;
+   
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    string file = _whole_file_path+"/"+file_name;
-
-    ofSaveImage(RefractiveIndex::_pixels, file, OF_IMAGE_QUALITY_BEST);
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
     
-    _saved_filenames.push_back(file);
-
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
      //   _RUN_DONE = true;
 

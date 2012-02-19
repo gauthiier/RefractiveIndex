@@ -211,7 +211,10 @@ void ShadowScapesAnalysis::draw()
 void ShadowScapesAnalysis::save_cb(Timer& timer)
 {
     
+    _save_cnt++;
+    
     cout << "ShadowScapesAnalysis::saving...\n";
+    
     string file_name;
     
     if(_dir == H) {
@@ -227,6 +230,8 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
     }
     
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    _save_cnt++;    
+    
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+    
 
 }

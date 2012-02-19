@@ -152,13 +152,17 @@ void StrobeAnalysis::draw()
 // this runs at save_cb timer rate = DELTA_T_SAVE
 void StrobeAnalysis::save_cb(Timer& timer)
 {
-    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+   
     _save_cnt++;
     
-    cout << "_save_cnt" << _save_cnt << endl;
+    cout << "StrobeAnalysis::saving...\n";
     
-    cout << "_save_cnt_max" << _save_cnt_max << endl;
+    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
+    
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+
     
     //TODO:  something fucked here with my calc of _save_cnt_max - new structure should fix it?   
     //if(_save_cnt >= _save_cnt_max-10) {

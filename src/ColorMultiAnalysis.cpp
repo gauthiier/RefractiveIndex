@@ -176,16 +176,14 @@ void ColorMultiAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
     
-    // UPDATE THE COLOR ON THE SCREEN
-    //float c_last = c;
-    
-    // cout << "COLORMULTIANALYSIS::saving...\n";
-    // cout << "c_last... " << c << endl;
+    cout << "ColorMultiAnalysis::saving...\n";
+
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
-    // cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
+
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+
     //if(_save_cnt >= NUM_SAVE_PER_RUN){
     //    _RUN_DONE = true;
     //}
