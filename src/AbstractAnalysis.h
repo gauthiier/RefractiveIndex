@@ -39,11 +39,19 @@ protected:
     
     // analysis + synthesize images - all the children (see - do_synthesize)
     virtual void synthesise() = 0;   
+   
+    //added tom s 19/2 function runs a call back exactly like acquire.
+    virtual void display_results() = 0;   
     
+    //returns ofPixels which contain the color differences between the two images. Is overloaded to include comparison with values written in to file names for some analyses
     virtual ofPixels calculateListOfZValues(ofImage image1, ofImage image2, int whichComparison);
+    virtual ofPixels calculateListOfZValues(ofImage image1, ofImage image2, int whichComparison, int colourValue);
     
+    //uses the returned pixels from make3DZmap to make a mesh of points whose Z positions are set by the brightness values in ofPixels - ofPixels is being used as a convenient container for a bunch of z coordinates
     virtual void setMeshFromPixels(ofPixels somePixels, ofImage currentSecondImage, ofMesh * someMesh);
-        
+    
+    //this is purely for debug purposes and loads old images from middlesborough test 
+    virtual vector<string> getListOfImageFilePaths(string location, string whichAnalysis);
 public:
     string  _name;    
     

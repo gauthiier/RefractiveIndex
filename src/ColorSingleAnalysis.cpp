@@ -77,7 +77,7 @@ void ColorSingleAnalysis::synthesise()
     int index=0;
     
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=false;
+    bool debug=true;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
