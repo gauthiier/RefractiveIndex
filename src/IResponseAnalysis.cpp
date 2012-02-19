@@ -113,16 +113,10 @@ void IResponseAnalysis::save_cb(Timer& timer)
     _save_cnt++;
     
     cout << "IResponseAnalysis::saving...\n";
-    //cout << "c_last... " << c << endl;
-    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-    string thisLocation = RefractiveIndex::_location;
     
-    //RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
-    //    fileName = imageSaveFolderPath+whichAnalysis+"_"+ofToString(100.0*i*scanLineSpeed/ofGetHeight(),2)+"%_"+ofToString(i)+".jpg";
-    //ofSaveImage(vectorOfPixels[i], fileName, OF_IMAGE_QUALITY_BEST);
+    string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    //if(_save_cnt >= NUM_SAVE_PER_RUN)
-    //    _RUN_DONE = true;
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
 }

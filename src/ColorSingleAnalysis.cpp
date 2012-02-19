@@ -156,15 +156,13 @@ void ColorSingleAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
     
-    //    cout << "ColorSingleAnalysis::saving...\n";
+    cout << "ColorSingleAnalysis::saving...\n";
     
     string file_name =ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";
     
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    //cout<<_whole_file_path+"/"+file_name<<endl;
-    
-    //if(_save_cnt >= NUM_SAVE_PER_RUN)
-    //    _RUN_DONE = true;
+    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+
 
 }
