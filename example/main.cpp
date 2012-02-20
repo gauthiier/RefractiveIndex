@@ -4,6 +4,14 @@
 
 #define SCREEN_WIDTH        800
 #define SCREEN_HEIGHT       600
+/////////////////////////dis is the new shit///////////
+
+/////////////////////////dis is the new shit///////////
+
+/////////////////////////dis is the new shit///////////
+
+/////////////////////////dis is the new shit///////////
+
 
 int main() {
 	ofAppGlutWindow window;

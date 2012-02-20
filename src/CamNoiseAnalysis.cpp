@@ -73,50 +73,58 @@ void CamNoiseAnalysis::draw()
             /// *** TODO  *** ///
             // still need to deal with latency frames here - i.e.: there are frames
             /// *** TODO  *** ///
-            
-            ofEnableAlphaBlending();
-            ofColor aColour;
-            
-            int _fade_in_frames = _frame_cnt_max/10;
-            float _number_of_grey_levels=10;
-            
-            float _frames_per_level = _frame_cnt_max / _number_of_grey_levels;
-            ofColor someColor;
-            
-            if (_frame_cnt < _fade_in_frames) {
-                aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
-                ofSetColor(aColour);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                //cout <<  "FADE IN STROBE TIME " << endl;    
-            }
-            
-            if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+              
+            if (_frame_cnt < _frame_cnt_max)
+            {
                 
-    
-                for(int i=0;i<_number_of_grey_levels;i++){
-                    if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
-                        //set colour to current grey level
-                        c=255-( 255.0 * ( i /_number_of_grey_levels));
-                        someColor.set(c);
-                    }
-                    ofSetColor(someColor);
-                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                }
+                ofEnableAlphaBlending();
+                ofColor aColour;
                 
-            }
-            
-            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                    aColour.set(0, 0, 0, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                int _fade_in_frames = _frame_cnt_max/10;
+                float _number_of_grey_levels=10;
+                
+                float _frames_per_level = _frame_cnt_max / _number_of_grey_levels;
+                ofColor someColor;
+                
+                if (_frame_cnt < _fade_in_frames) {
+                    aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
                     ofSetColor(aColour);
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                    // cout <<  "FADE OUT STROBE TIME " << endl;
-            }         
-            
+                    //cout <<  "FADE IN STROBE TIME " << endl;    
+                }
+                
+                if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+                    
+        
+                    for(int i=0;i<_number_of_grey_levels;i++){
+                        if (_frame_cnt>= _frames_per_level *( i-1) && +_frame_cnt < _frames_per_level * (i) ) {
+                            //set colour to current grey level
+                            c=255-( 255.0 * ( i /_number_of_grey_levels));
+                            someColor.set(c);
+                        }
+                        ofSetColor(someColor);
+                        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                    }
+                    
+                }
+                
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                        aColour.set(0, 0, 0, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                        ofSetColor(aColour);
+                        ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                        // cout <<  "FADE OUT STROBE TIME " << endl;
+                }         
+                
+                ofDisableAlphaBlending();
+                
+    
+            } else {
+                _RUN_DONE = true;
+            }
             
             _frame_cnt++;
-            ofDisableAlphaBlending();
-            
             break;
+       
         }
             
         case STATE_SYNTHESISING:
@@ -153,7 +161,7 @@ void CamNoiseAnalysis::save_cb(Timer& timer)
     
     _saved_filenames.push_back(file);
 
-    if(_save_cnt >= NUM_SAVE_PER_RUN)
-        _RUN_DONE = true;
+    //if(_save_cnt >= NUM_SAVE_PER_RUN)
+    //    _RUN_DONE = true;
 
 }

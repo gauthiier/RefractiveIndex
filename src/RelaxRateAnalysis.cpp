@@ -20,7 +20,7 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
     DELTA_T_SAVE = 300;
     NUM_PHASE = 1;
-    NUM_RUN = 1;
+    NUM_RUN = 3;
     NUM_SAVE_PER_RUN = 100;    
     
     create_dir();
@@ -75,7 +75,7 @@ void RelaxRateAnalysis::draw()
             // still need to deal with latency frames here - i.e.: there are frames
             /// *** TODO  *** ///
            
-            if (_frame_cnt <= _frame_cnt_max)
+            if (_frame_cnt < _frame_cnt_max)
             {
                 
                 float lightLevel=pow(_level,2);
@@ -93,7 +93,8 @@ void RelaxRateAnalysis::draw()
                 
             } else {
                 cout << "RELAXRATE RUN COMPLETED" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
             }
             
             _frame_cnt++;
@@ -138,7 +139,7 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
     
     _saved_filenames.push_back(file);
 
-    if(_save_cnt >= NUM_SAVE_PER_RUN)
-        _RUN_DONE = true;
+    //if(_save_cnt >= NUM_SAVE_PER_RUN)
+     //   _RUN_DONE = true;
 
 }

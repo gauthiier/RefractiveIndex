@@ -124,43 +124,54 @@ void ColorMultiAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            int _fade_in_frames = _frame_cnt_max/50;
             
-            if (_frame_cnt < _fade_in_frames) {
-                ofColor aColor;
+            if (_frame_cnt < _frame_cnt_max)
+            {
+
                 
-                aColor.setHsb(c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255), ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                int _fade_in_frames = _frame_cnt_max/50;
                 
-                ofSetColor(aColor);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                if (_frame_cnt < _fade_in_frames) {
+                    ofColor aColor;
+                    
+                    aColor.setHsb(c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255), ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                    
+                    ofSetColor(aColor);
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                    
+                    cout << "FADING IN..." << endl;
+                }
                 
-                cout << "FADING IN..." << endl;
-            }
+                if (_frame_cnt >= _fade_in_frames && _frame_cnt < _frame_cnt_max-_fade_in_frames){
+                    
+                    ofColor aColor;
+                    aColor.setHsb(c, 255, 255);
+                    ofSetColor(aColor);
+                    
+                    //how far are we as a percent of _frame_count_max * 360 HUE VALUES
+                    c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
+                    
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                }
+                
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                    
+                    ofColor aColor;
+                    
+                    aColor.setHsb(c, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255), 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
+                    
+                    ofSetColor(aColor);
+                    ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                    
+                    _fade_cnt++;
+                    cout << "FADING OUT..." << endl;
+                    
+                }
+                
+            } else {
+                 
+                _RUN_DONE = true;
             
-            if (_frame_cnt >= _fade_in_frames && _frame_cnt < _frame_cnt_max-_fade_in_frames){
-                
-                ofColor aColor;
-                aColor.setHsb(c, 255, 255);
-                ofSetColor(aColor);
-                
-                //how far are we as a percent of _frame_count_max * 360 HUE VALUES
-                c  = 255.0 * (_frame_cnt_max - _frame_cnt)/(_frame_cnt_max);
-                
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-            }
-            
-            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                
-                ofColor aColor;
-                
-                aColor.setHsb(c, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255), 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
-                
-                ofSetColor(aColor);
-                ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                
-                _fade_cnt++;
-                cout << "FADING OUT..." << endl;
-                
             }
             
             _frame_cnt++;            
@@ -202,10 +213,17 @@ void ColorMultiAnalysis::save_cb(Timer& timer)
     
     // cout<<_whole_file_path<<endl;
     ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+<<<<<<< HEAD
    // _saved_filenames.push_back("/Users/tomschofield/of_preRelease_v007_osx/apps/myApps/refractiveIndexDavidFeb/bin/data/"+_whole_file_path+"/"+file_name);
     _saved_filenames.push_back("fish.jpg");
 
     if(_save_cnt >= NUM_SAVE_PER_RUN){
         _RUN_DONE = true;
     }
+=======
+    
+    //if(_save_cnt >= NUM_SAVE_PER_RUN){
+    //    _RUN_DONE = true;
+    //}
+>>>>>>> 88fa0375934e9ad87053542e88a0f9fe61af0a66
 }
