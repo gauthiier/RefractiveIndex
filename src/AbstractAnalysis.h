@@ -16,6 +16,12 @@
 #define STATE_DISPLAY_RESULTS   0x3333
 #define STATE_STOP              0xDEADBEEF
 
+#define COMPARE_RED 1
+#define COMPARE_BLUE 2
+#define COMPARE_GREEN 3
+#define  COMPARE_HUE 4
+#define COMPARE_BRIGHTNESS 5
+
 class AbstractAnalysis {
     
 public:
@@ -49,9 +55,15 @@ protected:
     
     //uses the returned pixels from make3DZmap to make a mesh of points whose Z positions are set by the brightness values in ofPixels - ofPixels is being used as a convenient container for a bunch of z coordinates
     virtual void setMeshFromPixels(ofPixels somePixels, ofImage currentSecondImage, ofMesh * someMesh);
+    //HELPER FUNCTIONS
     
-    //this is purely for debug purposes and loads old images from middlesborough test 
+    //this is purely for debug/viewing purposes and loads old images from middlesborough test
     virtual vector<string> getListOfImageFilePaths(string location, string whichAnalysis);
+    
+    //splits up the filename and returns the recorded value eg brightness
+    //EG FILENAME : DIFF_NOISE_7_85.7322.jpg RETURNS : 85.7322
+    virtual int getRecordedValueFromFileName(string str);
+    
 public:
     string  _name;    
     

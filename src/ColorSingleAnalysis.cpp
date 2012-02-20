@@ -15,11 +15,6 @@ using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
 
-#define COMPARE_RED 1
-#define COMPARE_BLUE 2
-#define COMPARE_GREEN 3
-#define  COMPARE_HUE 4
-#define COMPARE_BRIGHTNESS 5
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
@@ -77,15 +72,15 @@ void ColorSingleAnalysis::synthesise()
     int index=0;
     
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=false;
+    bool debug=true;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
     }
-    
+    //clear vector so we don't add to it on successive runs
+    meshes.clear();
     for(int i=1;i<_saved_filenames.size()-2;i+=2){
         
-        meshes.push_back(ofMesh());
         ofImage image1;
         ofImage image2;
         
@@ -94,7 +89,8 @@ void ColorSingleAnalysis::synthesise()
         image2.setUseTexture(false);
         //some of the textures are not loading correctly so only make mesh if both the images load
         if(image1.loadImage(_saved_filenames[i]) && image2.loadImage(_saved_filenames[i+1])){
-            
+            meshes.push_back(ofMesh());
+
             if(i<_saved_filenames.size()/3){
                 setMeshFromPixels( calculateListOfZValues(image1,image2, COMPARE_RED), image2, &meshes[index]);
             }
@@ -116,7 +112,7 @@ void ColorSingleAnalysis::display_results(){
     TimerCallback<ColorSingleAnalysis> display_results_callback(*this, &ColorSingleAnalysis::display_results_cb);
     // display results of the synthesis
     
-    display_results_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+    display_results_timer = new Timer(0, 20); // timing interval for saving files
     display_results_timer->start(display_results_callback);
     _RUN_DONE = false;
     _results_cnt=0;

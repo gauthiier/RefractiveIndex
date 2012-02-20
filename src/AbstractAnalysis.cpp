@@ -233,8 +233,8 @@ void AbstractAnalysis::setMeshFromPixels(ofPixels somePixels, ofImage currentSec
 vector<string>AbstractAnalysis:: getListOfImageFilePaths(string location, string whichAnalysis){
     
     string path = ofToDataPath("")+"debug_analysis/"+location+"/"+whichAnalysis;
-    ofxDirList dirList;
-    
+    //ofxDirList dirList;
+    ofDirectory dirList;
     int numDirs = dirList.listDir(path);
     
     vector<string>directoryNames;
@@ -281,3 +281,35 @@ vector<string>AbstractAnalysis:: getListOfImageFilePaths(string location, string
     
     return fileNamesToReturn;
 }
+int AbstractAnalysis::getRecordedValueFromFileName(string str){
+    //split filename by underscore - there HAS to be a quicker way of doing things - its ONE LINE in java :(
+    char * cstr, *p;
+    vector<char *>tokens;
+    //string str ("Please split this phrase into tokens");
+    
+    //make char pointer array
+    cstr = new char [str.size()+1];
+    //copy string to char pointer array
+    strcpy (cstr, str.c_str());
+    
+    //tokenise char p array and put first results into pointer?
+    p=strtok (cstr,"_");
+    
+    while (p!=NULL)
+    {
+        p=strtok(NULL,"_");
+        //push tokenised char into vector
+        tokens.push_back(p);
+        
+    }
+    delete[] cstr; 
+    char *p1;
+    //cstr = new char [str.size()+1];
+    //strcpy (cstr, str.c_str());
+    
+    p1=strtok (tokens[tokens.size()-2],".");
+    
+    return ofToInt(p1);
+}
+
+
