@@ -26,7 +26,6 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     _step = (screenSpan/acq_run_time)/(ofGetFrameRate());
             // pixel per frame = (pixels / sec) / (frame / sec)
     
-            
     // 40 pixels per second should give us a 20 second scan at 800 pixels wide
 
     DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
