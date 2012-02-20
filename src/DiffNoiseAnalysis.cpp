@@ -254,6 +254,13 @@ void DiffNoiseAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
     
+    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
+    
+    if (RefractiveIndex::_vidGrabber.isFrameNew())
+    {
+        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    }
+    
     cout << "DiffNoiseAnalysis::saving...\n";
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";

@@ -189,13 +189,15 @@ void RefractiveIndex::state_analysis()
 void RefractiveIndex::update()
 {
     state_analysis();
-    
+    /*
     RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
 
     if (_vidGrabber.isFrameNew())
     {
         _pixels = _vidGrabber.getPixelsRef(); //get ofPixels from the camera
     }
+     */
+    
 }
 
 void RefractiveIndex::draw()
@@ -213,7 +215,8 @@ void RefractiveIndex::setup_camera()
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
         return;
     }
-    
+
+    _vidGrabber.setUseTexture(false);
     _vidGrabber.listDevices();
 	_vidGrabber.setVerbose(true);
     _vid_stream_open = true;

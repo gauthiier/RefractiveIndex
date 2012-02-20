@@ -427,6 +427,13 @@ void ShapeFromShadingAnalysis::draw()
 void ShapeFromShadingAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
+        
+    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
+    
+    if (RefractiveIndex::_vidGrabber.isFrameNew())
+    {
+        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    }
     
     cout << "ShapeFromShadingAnalysis::saving...\n";
     
