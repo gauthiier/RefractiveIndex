@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 300;  //300 is the right number here
+    DELTA_T_SAVE = 100;  //300 is the right number here
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
@@ -115,10 +115,10 @@ void ColorSingleAnalysis::draw()
                 }
                 
                 if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max){
-                    
-                    ofSetColor(0, 0, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
-                    cout << "255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255)"<< 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255) << endl;
-                    
+                   
+                    int fade = ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255);
+                    ofSetColor(0, 0, 255-fade);
+        
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                     _fade_cnt++;
                     fileNameTag = "FADING";

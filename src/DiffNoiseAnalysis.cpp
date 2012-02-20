@@ -18,13 +18,13 @@ using Poco::Thread;
 
 void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 600;  // right number is about 450
+    DELTA_T_SAVE = 100;  // right number is about 600
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 50;    
     
     create_dir();
-    _fade_cnt=0;
+    //_fade_cnt=0;
     _frame_cnt = 0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
@@ -92,12 +92,12 @@ void DiffNoiseAnalysis::draw()
                         }
                     }        
                     
-                    cout << "FADING IN..." << endl;
+                    //cout << "FADING IN..." << endl;
                 }
                 
                 
                 
-                if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
+                if (_frame_cnt >= _fade_in_frames && _frame_cnt <= (_frame_cnt_max-_fade_in_frames)){
                     
                     for (int i=1; i < ofGetHeight() ; i=i+rectSize)
                     {
@@ -113,25 +113,23 @@ void DiffNoiseAnalysis::draw()
                 }
                 
                 
-                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt <= _frame_cnt_max) {
                     
                     for (int i=1; i < ofGetHeight() ; i=i+rectSize)
                     {
                         for (int j=1; j < ofGetWidth(); j=j+rectSize)
                         {
                             c = ofRandom(0,255);
-                            aColour.set(c, c, c, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                            aColour.set(c, c, c, 255-ofMap(_frame_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255));
                             ofSetColor(aColour);
                             ofRect(j, i, rectSize, rectSize);
                         } 
                     }
                     
-                    _fade_cnt++;
-                    cout << "FADING OUT..." << endl;
-                    
+                    //_fade_cnt++;
+                    //cout << "FADING OUT..." << endl;
                 }
-                
-                
+            
                 ofDisableAlphaBlending();
            
             } else {

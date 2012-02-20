@@ -117,7 +117,6 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new ColorMultiAnalysis());
     
     _analysisVector.push_back(new DiffNoiseAnalysis());
-        
 
     _currentAnalysisIndx = 0;
     _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 

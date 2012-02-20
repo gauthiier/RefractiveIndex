@@ -58,6 +58,9 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     _scanLineWidth = 100.0;
     _run_cnt = 0;
     _save_cnt = 0;
+
+    int anim_time = 5;   // 5 seconds
+    _anim_cnt_max = 5*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
 }
 
 void ShadowScapesAnalysis::acquire()
@@ -69,6 +72,7 @@ void ShadowScapesAnalysis::acquire()
     
     _step = ((screenSpan/_speed) * 1000.0) / 500.0;
     _line = 0;
+
     
     // RUN ROUTINE
     for(int i = 0; i < NUM_RUN; i++) {
@@ -77,7 +81,7 @@ void ShadowScapesAnalysis::acquire()
         TimerCallback<ShadowScapesAnalysis> save_callback(*this, &ShadowScapesAnalysis::save_cb);
         
         _RUN_DONE = false;
-        _frame_cnt = 0; _save_cnt = 0;
+        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
         
         save_timer.start(save_callback);
         
@@ -165,25 +169,22 @@ void ShadowScapesAnalysis::draw()
             }
             
             
-            
             if(_dir == V && int(_line) >= (ofGetHeight()+4*_scanLineWidth)){
-                cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
-                _RUN_DONE = true;
+                //cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
+                _state = STATE_SYNTHESISING;
+                
             }
             
             if(_dir == H && int(_line) >= (ofGetWidth()+4*_scanLineWidth)) {
                 
                 //cout << "HORIZONTAL IS DONE -  _line >= (ofGetWidth()+4*_scanLineWidth)) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
-                _RUN_DONE = true;
+                _state = STATE_SYNTHESISING;
                 
             }
             
             if(_dir == D && int(_line) >= (1.5*ofGetHeight()+4*_scanLineWidth)) {
                 //cout << "DIAGONAL IS DONE - _line >= (1.5*ofGetHeight()+4*_scanLineWidth)) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
-                _RUN_DONE = true;
+                _state = STATE_SYNTHESISING;
             }
         
             break;
@@ -191,15 +192,93 @@ void ShadowScapesAnalysis::draw()
             
         case STATE_SYNTHESISING:
         {
+            cout << "ShadowScapesAnalysis = STATE_SYNTHESISING...\n";
+
             // display animation of something while the synthesis in on-going...
+            ofEnableAlphaBlending();
+            ofSetRectMode(OF_RECTMODE_CENTER);
             
-            _state = STATE_DISPLAY_RESULTS;
+            if(_anim_cnt < _anim_cnt_max){
+                
+                ofColor aColour;
+                int rectSizeW = ofGetWidth()/4;
+                int rectSizeH = ofGetWidth()/4;
+                int _fade_in_frames = _anim_cnt_max/10;
+                
+                int c_anim = 10;
+                int fade;
+                if (_anim_cnt < _fade_in_frames) {
+                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                    
+                    fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
+                    cout << "fade up = " << fade << endl;
+                    for (int i=0; i < ofGetHeight() ; i=i+rectSizeH)
+                    {
+                        for (int j=0; j < ofGetWidth(); j=j+rectSizeW)
+                        {
+                            c_anim = ofRandom(150,255);
+
+                            aColour.set(c_anim, c_anim, c_anim, fade);
+                            ofSetColor(aColour);
+                            ofRect(ofGetWidth()/2, ofGetHeight()/2, rectSizeW, rectSizeH);
+                        }
+                    }        
+                }
+            
+                if (_anim_cnt >= _fade_in_frames && _anim_cnt <= (_anim_cnt_max-_fade_in_frames)){
+                    
+                    for (int i=0; i < ofGetHeight() ; i=i+rectSizeH)
+                    {
+                        for (int j=0; j < ofGetWidth(); j=j+rectSizeW)
+                        { 
+                            c_anim = ofRandom(150,255);
+
+                            //c = ofRandom(0,255);
+                            aColour.set(c_anim, c_anim, c_anim, 255);
+                            ofSetColor(aColour);
+                            ofRect(ofGetWidth()/2, ofGetHeight()/2, rectSizeW, rectSizeH);
+                            
+                        }
+                    }        
+                }
+                
+                if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _frame_cnt <= _anim_cnt_max) {
+                    
+                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+                    fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
+                    cout << "fade down = " << fade << endl;
+                   
+                    for (int i=0; i < ofGetHeight() ; i=i+rectSizeH)
+                    {
+                        for (int j=0; j < ofGetWidth(); j=j+rectSizeW)
+                        {
+                            c_anim = ofRandom(150,255);
+                            //c = ofRandom(0,255);
+                            
+                            aColour.set(c_anim, c_anim, c_anim, 255-fade);
+                            ofSetColor(aColour);
+                            ofRect(ofGetWidth()/2, ofGetHeight()/2, rectSizeW, rectSizeH);
+                        } 
+                    }
+        
+                }
+                _anim_cnt++;
+                
+            } else {
+                _state = STATE_DISPLAY_RESULTS;
+                _anim_cnt=0;
+            }
+            ofSetRectMode(OF_RECTMODE_CORNER);
+            ofDisableAlphaBlending();
             break;
+      
         }
             
         case STATE_DISPLAY_RESULTS:
         {
             // display results of the synthesis
+            cout << "ShadowScapesAnalysis = STATE_DISPLAY_RESULTS...\n";
+            _RUN_DONE = true;
             break;
         }
             

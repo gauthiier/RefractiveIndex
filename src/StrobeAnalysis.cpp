@@ -22,7 +22,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     
     _strobe_cnt = 0;
     _strobe_cnt_max = 20;  // 40 x 500 ms = 20000 ms = 20 seconds run time
-    _strobe_interval = 1000;  //every 0.5seconds = 15 frames
+    _strobe_interval = 1500;  //every 0.5seconds = 15 frames
     _frame_cnt_max = _strobe_cnt_max * _strobe_interval * ofGetFrameRate()/1000;
     
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
@@ -114,7 +114,7 @@ void StrobeAnalysis::draw()
                 }
                 
                 if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                    aColour.set(255, 255, 255, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                    aColour.set(255, 255, 255, 255-ofMap(_frame_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255));
                     ofSetColor(aColour);
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                     // cout <<  "FADE OUT STROBE TIME " << endl;

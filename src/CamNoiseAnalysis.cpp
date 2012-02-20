@@ -109,7 +109,7 @@ void CamNoiseAnalysis::draw()
                 }
                 
                 if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
-                        aColour.set(0, 0, 0, 255-ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                        aColour.set(0, 0, 0, 255-ofMap(_frame_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255));
                         ofSetColor(aColour);
                         ofRect(0, 0, ofGetWidth(), ofGetHeight());
                         // cout <<  "FADE OUT STROBE TIME " << endl;
