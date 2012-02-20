@@ -39,6 +39,7 @@ public:
 protected:
     
     virtual void create_dir();
+    virtual void saveimage(string filename);
     
     // acquire images - all the children (see - do_synthesize)
     virtual void acquire() = 0;   

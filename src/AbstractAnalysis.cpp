@@ -316,3 +316,13 @@ int AbstractAnalysis::getRecordedValueFromFileName(string str){
 }
 
 
+void AbstractAnalysis::saveimage(string filename) 
+{
+    if(RefractiveIndex::_pixels.isAllocated()) {
+        ofSaveImage(RefractiveIndex::_pixels, filename, OF_IMAGE_QUALITY_BEST);
+        _saved_filenames.push_back(filename);
+    } else {
+        ofLog(OF_LOG_ERROR) << "RefractiveIndex::_pixels NOT allocated...";
+    }
+}
+

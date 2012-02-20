@@ -419,10 +419,10 @@ void ShapeFromShadingAnalysis::save_cb(Timer& timer)
 {
     //cout << "ShapeFromShadingAnalysis::saving...\n";
     
-    string file_name = ofToString(_save_cnt,2)+"_"+ quad +"_"+ofToString(_run_cnt,2)+".jpg";
-    _saved_filenames.push_back(ofToDataPath("")+_whole_file_path+"/"+file_name);
-
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    string file_name = ofToString(_save_cnt,2)+"_"+ quad +"_"+ofToString(_run_cnt,2)+".jpg";    
+    
+    saveimage(file_name);
+    
     _save_cnt++;
     
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
