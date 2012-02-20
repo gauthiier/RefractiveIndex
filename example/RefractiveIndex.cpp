@@ -8,6 +8,9 @@
  ~ contact: dviid@labs.ciid.dk
  */
 
+////also the new shit////
+
+
 #include "RefractiveIndex.h"
 
 #include "ShadowScapesAnalysis.h"
@@ -94,13 +97,14 @@ void RefractiveIndex::setup()
 
     //getting a warning from the OFlog that the pixels aren't allocated
     //void ofPixels::allocate(int w, int h, ofImageType type)    
+    _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR); 
     
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-   // _analysisVector.push_back(new ShadowScapesAnalysis(V));
-   // _analysisVector.push_back(new ShadowScapesAnalysis(H));
-   // _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    _analysisVector.push_back(new ShadowScapesAnalysis(V));
+    _analysisVector.push_back(new ShadowScapesAnalysis(H));
+    _analysisVector.push_back(new ShadowScapesAnalysis(D));
     
     _analysisVector.push_back(new RelaxRateAnalysis());
     
@@ -205,10 +209,11 @@ void RefractiveIndex::setup_camera()
 {
     stop_camera();
 
-    if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
+        if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
         return;
     }
+    
     _vidGrabber.listDevices();
 	_vidGrabber.setVerbose(true);
     _vid_stream_open = true;

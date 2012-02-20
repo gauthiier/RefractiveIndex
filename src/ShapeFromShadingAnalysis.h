@@ -48,6 +48,6 @@ protected:
     int _animation_cnt16;
     int _animation_reset;  // this reset part didn't get working - so using 16 different counters! yay! 
    
-    int     _run_cnt, _save_cnt, _fade_cnt, _anim_cnt;
+    int     _run_cnt, _save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
 };

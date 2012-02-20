@@ -14,16 +14,26 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
-    
-    DELTA_T_SAVE = 50;
-    NUM_PHASE = 1;
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 100;  
     
+    int acq_run_time = 15;   // 10 seconds of acquiring per run
+    
+    int screenSpan;
+    if (_dir == V) screenSpan = ofGetHeight();
+    if (_dir == H) screenSpan = ofGetWidth();
+    if (_dir == D) screenSpan = ofGetHeight();
+    
+    _step = (screenSpan/acq_run_time)/(ofGetFrameRate());
+            // pixel per frame = (pixels / sec) / (frame / sec)
+    
+            
+    // 40 pixels per second should give us a 20 second scan at 800 pixels wide
+
+    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+    // or 10 times per second = every 100 ms
+        
     create_dir();
 
-    
-    _speed = 100.0;  // 900.0 is the correct number
     _scanLineWidth = 100.0;
     _run_cnt = 0;
     _save_cnt = 0;
@@ -34,14 +44,8 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 
 void ShadowScapesAnalysis::acquire()
 {
-    int screenSpan;
-    if (_dir == V) screenSpan = ofGetHeight();
-    if (_dir == H) screenSpan = ofGetWidth();
-    if (_dir == D) screenSpan = ofGetHeight();
-    
-    _step = ((screenSpan/_speed) * 1000.0) / 500.0;
-    _line = 0;
 
+    _line = 0;
     
     // RUN ROUTINE
     for(int i = 0; i < NUM_RUN; i++) {
@@ -58,6 +62,8 @@ void ShadowScapesAnalysis::acquire()
             Thread::sleep(3);
         
         save_timer.stop();
+        
+        _RUN_DONE = false;
     }
 
 }
@@ -65,6 +71,8 @@ void ShadowScapesAnalysis::acquire()
 void ShadowScapesAnalysis::synthesise()
 {
     // _saved_filenames has all the file names of all the saved images
+    while(!_RUN_DONE)
+        Thread::sleep(3);
 }
 
 
@@ -140,20 +148,23 @@ void ShadowScapesAnalysis::draw()
             
             if(_dir == V && int(_line) >= (ofGetHeight()+4*_scanLineWidth)){
                 //cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
                 
             }
             
             if(_dir == H && int(_line) >= (ofGetWidth()+4*_scanLineWidth)) {
                 
                 //cout << "HORIZONTAL IS DONE -  _line >= (ofGetWidth()+4*_scanLineWidth)) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
                 
             }
             
             if(_dir == D && int(_line) >= (1.5*ofGetHeight()+4*_scanLineWidth)) {
                 //cout << "DIAGONAL IS DONE - _line >= (1.5*ofGetHeight()+4*_scanLineWidth)) is TRUE" << endl;
-                _state = STATE_SYNTHESISING;
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
             }
         
             break;
@@ -229,7 +240,9 @@ void ShadowScapesAnalysis::draw()
                 _anim_cnt++;
                 
             } else {
-                _state = STATE_DISPLAY_RESULTS;
+                
+                _RUN_DONE = true;
+                //_state = STATE_DISPLAY_RESULTS;
                 _anim_cnt=0;
             }
             ofPopMatrix();

@@ -12,14 +12,19 @@ using Poco::Thread;
 
 void IResponseAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 50;  //150 is about right
-    NUM_PHASE = 1;
+    
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 100;    
+    
+    int acq_run_time = 20;   // 20 seconds of acquiring per run
+    
+    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+    // or 10 times per second = every 100 ms
+    
+    _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
     create_dir();
+    
     _frame_cnt = 0;
-    _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
     
     int anim_time = 5;   // 10 seconds
@@ -51,12 +56,17 @@ void IResponseAnalysis::acquire()
             Thread::sleep(3);
 
         save_timer->stop();
+        
+        _RUN_DONE = false;
+        
     }
 }
 
 void IResponseAnalysis::synthesise()
 {
     // _saved_filenames has all the file names of all the saved images
+    while(!_RUN_DONE)
+        Thread::sleep(3);
 }
 
 
@@ -79,9 +89,8 @@ void IResponseAnalysis::draw()
                 ofRect(0, 0, ofGetWidth(), ofGetHeight());
                 c  = 255.0 * (_frame_cnt_max*_frame_cnt_max - _frame_cnt*_frame_cnt)/(_frame_cnt_max*_frame_cnt_max);
             } else {
-                _state = STATE_SYNTHESISING;
-                //_RUN_DONE = true;
                 
+                _RUN_DONE = true;
             }
             
             _frame_cnt++;
@@ -161,7 +170,8 @@ void IResponseAnalysis::draw()
                 _anim_cnt++;
                 
             } else {
-                _state = STATE_DISPLAY_RESULTS;
+                
+                _RUN_DONE = true;
                 _anim_cnt=0;
             }
             ofPopMatrix();
@@ -170,6 +180,7 @@ void IResponseAnalysis::draw()
             
             break;
         }
+         
             
         case STATE_DISPLAY_RESULTS:
         {
@@ -177,8 +188,7 @@ void IResponseAnalysis::draw()
             _RUN_DONE = true;
             break;
         }
-            
-            
+        
         default:
             break;
     }

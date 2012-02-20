@@ -4,21 +4,15 @@
 
 #define SCREEN_WIDTH        800
 #define SCREEN_HEIGHT       600
-/////////////////////////dis is the new shit///////////
 
-/////////////////////////dis is the new shit///////////
-
-/////////////////////////dis is the new shit///////////
-
-/////////////////////////dis is the new shit///////////
-
+////also the new shit////
 
 int main() {
 	ofAppGlutWindow window;
     
     ofxXmlSettings   XML;
     XML.loadFile("../data/config.refindx");
-    bool fullscreen = (XML.getValue("config:display:fullscreen", "false") == "true" ? true : false);
+    bool fullscreen = (XML.getValue("config:display:fullscreen", "true") == "true" ? true : false);
     int screen_w = XML.getValue("config:display:width", SCREEN_WIDTH);
     int screen_h = XML.getValue("config:display:height", SCREEN_HEIGHT);     
     

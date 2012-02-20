@@ -1,7 +1,3 @@
-/*
- ~ author: dviid
- ~ contact: dviid@labs.ciid.dk 
- */
 
 #pragma once
 
@@ -29,6 +25,6 @@ protected:
     
     bool    _RUN_DONE;
     float     _flip, _level;
-    int     _run_cnt, _save_cnt, _fade_cnt, _anim_cnt;
+    int     _run_cnt, _save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
 };

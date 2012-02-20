@@ -12,20 +12,22 @@ using Poco::Thread;
 
 void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;
     NUM_RUN = 1;
     
-    _strobe_cnt = 0;
-    _strobe_cnt_max = 20;  // 40 x 500 ms = 20000 ms = 20 seconds run time
-    _strobe_interval = 1500;  //every 0.5seconds = 15 frames
-    _frame_cnt_max = _strobe_cnt_max * _strobe_interval * ofGetFrameRate()/1000;
+    int acq_run_time = 20;   // 20 seconds of acquiring per run
     
+    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+                                      // or 10 times per second = every 100 ms
+   
+    _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
+    
+    _strobe_interval = 1500;  //every 1 seconds, or every thirty frames 30 frames
+
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
     create_dir();
     
-    
-    int anim_time = 10;   // 10 seconds
+    int anim_time = 5;   // 5 seconds for the animation
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
 
 }
@@ -51,18 +53,22 @@ void StrobeAnalysis::acquire()
         save_timer->start(save_callback);
         _RUN_DONE = false;
         
-        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0;
 
         while(!_RUN_DONE)
             Thread::sleep(3);
 
         save_timer->stop();
+        
+        _RUN_DONE = false;
     }
 }
 
 void StrobeAnalysis::synthesise()
 {
     // _saved_filenames has all the file names of all the saved images
+    while(!_RUN_DONE)
+        Thread::sleep(3);
 }
 
 // this runs at frame rate = 33 ms for 30 FPS
@@ -120,8 +126,8 @@ void StrobeAnalysis::draw()
             
                 ofDisableAlphaBlending();
             } else {
-                _state = STATE_SYNTHESISING;
-                //_RUN_DONE = true;
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
             }
             
             _frame_cnt++;
@@ -201,7 +207,8 @@ void StrobeAnalysis::draw()
                 _anim_cnt++;
                 
             } else {
-                _state = STATE_DISPLAY_RESULTS;
+                _RUN_DONE = true;
+                //_state = STATE_DISPLAY_RESULTS;
                 _anim_cnt=0;
             }
             ofPopMatrix();

@@ -33,6 +33,6 @@ protected:
     int     _strobe_interval;
     bool    _strobe_on;
     
-    int     _run_cnt, _save_cnt, _fade_cnt, _anim_cnt;
+    int     _run_cnt, _save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
 };

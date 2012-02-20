@@ -13,19 +13,26 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 150; // the right number is about 300
-    NUM_PHASE = 1;
+    
+    
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 300;    
+    
+    int acq_run_time = 35;  
+    
+    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+    // or 10 times per second = every 100 ms
+    
+    _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
     create_dir();
+    
     _frame_cnt = 0;
-    _fade_cnt=0;
-    _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
     
-    int anim_time = 10;   // 10 seconds
+    int anim_time = 5;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
+    
+    create_dir();
 
 }
 
@@ -53,8 +60,9 @@ void ColorMultiAnalysis::acquire()
             Thread::sleep(3);
 
         save_timer->stop();
+        _RUN_DONE = false;
+        
     }
-
 }
 
 void ColorMultiAnalysis::synthesise()
@@ -69,15 +77,16 @@ void ColorMultiAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
+            ofEnableAlphaBlending();
             
             if (_frame_cnt < _frame_cnt_max)
             {
 
-                
                 int _fade_in_frames = _frame_cnt_max/50;
+                ofColor aColor;
                 
                 if (_frame_cnt < _fade_in_frames) {
-                    ofColor aColor;
+                   
                     
                     aColor.setHsb(c, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255), ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
                     
@@ -87,9 +96,10 @@ void ColorMultiAnalysis::draw()
                     cout << "FADING IN..." << endl;
                 }
                 
+                
+                
                 if (_frame_cnt >= _fade_in_frames && _frame_cnt < _frame_cnt_max-_fade_in_frames){
                     
-                    ofColor aColor;
                     aColor.setHsb(c, 255, 255);
                     ofSetColor(aColor);
                     
@@ -99,29 +109,26 @@ void ColorMultiAnalysis::draw()
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                 }
                 
-                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt <= _frame_cnt_max) {
                     
-                    ofColor aColor;
+                    aColor.set(c, c, c, 255-int(ofMap(_frame_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255)));
                     
-                    aColor.setHsb(c, 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255), 255-ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255));
+                    //aColor.setHsb(c, 255-ofMap(_fade_cnt- (_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255), 255-(ofMap(_fade_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255)));
                     
                     ofSetColor(aColor);
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
-                    
-                    _fade_cnt++;
                     cout << "FADING OUT..." << endl;
                     
                 }
                 
+                
             } else {
-                _state = STATE_SYNTHESISING;
-                 
-                //_RUN_DONE = true;
-            
+                //_state = STATE_SYNTHESISING;
+                _RUN_DONE = true;
             }
             
             _frame_cnt++;            
-            
+            ofDisableAlphaBlending();
             break;
         }
             
