@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 1300;
+    DELTA_T_SAVE = 130;
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;    
@@ -67,17 +67,22 @@ void RelaxRateAnalysis::synthesise()
     whichMesh=0;
     
     int index=0;
-    
-    //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
+    float iterator=1;
     bool debug=false;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
+        
+        //hack to limit number of meshes.
+        if(_saved_filenames.size()>100){
+            iterator= _saved_filenames.size() /100;
+        }
+        
     }
     //clear vector so we don't add to it on successive runs
     meshes.clear();
     
-    for(int i=0;i<_saved_filenames.size()-1;i++){
+    for(float i=0;i<_saved_filenames.size()-1;i+=iterator){
         
         
         ofImage image1;

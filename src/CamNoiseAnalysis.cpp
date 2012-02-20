@@ -65,17 +65,23 @@ void CamNoiseAnalysis::synthesise()
     whichMesh=0;
     
     int index=0;
-    
+    float iterator=1;
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=false;
+    bool debug=true;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
+        
+        //hack to limit number of meshes.
+        if(_saved_filenames.size()>100){
+            iterator= _saved_filenames.size() /100;
+        }
+        
     }
     //clear vector so we don't add to it on successive runs
     meshes.clear();
     
-    for(int i=0;i<_saved_filenames.size()-1;i++){
+    for(float i=0;i<_saved_filenames.size()-1;i+=iterator){
         
         
         ofImage image1;
