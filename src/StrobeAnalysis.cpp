@@ -1,8 +1,3 @@
-/*
- ~ author: dviid
- ~ contact: dviid@labs.ciid.dk
- */
-
 #include "StrobeAnalysis.h"
 #include "ofMain.h"
 
@@ -27,10 +22,12 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
-    //or 20 times, every one second... 
-    _save_cnt_max = _strobe_cnt_max*_strobe_interval/DELTA_T_SAVE;
-    
     create_dir();
+    
+    
+    int anim_time = 10;   // 10 seconds
+    _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
+
 }
 
 
@@ -53,7 +50,8 @@ void StrobeAnalysis::acquire()
         save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
         save_timer->start(save_callback);
         _RUN_DONE = false;
-        _frame_cnt = 0; _save_cnt = 0;
+        
+        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
 
         while(!_RUN_DONE)
             Thread::sleep(3);
@@ -98,13 +96,13 @@ void StrobeAnalysis::draw()
                     //cout <<  "frame_cnt % 15: " << _frame_cnt%15 << endl;
                     //cout <<  "MAIN STROBE TIME " << endl;
                     
-                    if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) < (ofGetFrameRate()*_strobe_interval/1000)/2)
+                    if (int(_frame_cnt)%int(ofGetFrameRate()*_strobe_interval/1000) < (ofGetFrameRate()*_strobe_interval/1000)/2)
                     {
                         ofSetColor(255, 255, 255);
                         ofRect(0, 0, ofGetWidth(), ofGetHeight());
                         _strobe_cnt++;
                         _strobe_on = 1;
-                    } else if (_frame_cnt%int(ofGetFrameRate()*_strobe_interval/1000) >= (ofGetFrameRate()*_strobe_interval/1000)/2)
+                    } else if (int(_frame_cnt)%int(ofGetFrameRate()*_strobe_interval/1000) >= (ofGetFrameRate()*_strobe_interval/1000)/2)
                     {
                         ofSetColor(0, 0, 0);
                         ofRect(0, 0, ofGetWidth(), ofGetHeight());
@@ -122,7 +120,8 @@ void StrobeAnalysis::draw()
             
                 ofDisableAlphaBlending();
             } else {
-                _RUN_DONE = true;
+                _state = STATE_SYNTHESISING;
+                //_RUN_DONE = true;
             }
             
             _frame_cnt++;
@@ -133,12 +132,89 @@ void StrobeAnalysis::draw()
         case STATE_SYNTHESISING:
         {
             // display animation of something while the synthesis in on-going...
+            
+            cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
+            
+            // display animation of something while the synthesis in on-going...
+            ofEnableAlphaBlending();
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofPushMatrix();
+            ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+            
+            if(_anim_cnt < _anim_cnt_max){
+                
+                ofColor aColour;
+                int rectSizeW = ofGetWidth()/4;
+                int rectSizeH = ofGetHeight()/4;
+                int _fade_in_frames = _anim_cnt_max/2;
+                
+                int c_anim = 10;
+                int fade;
+                
+                //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
+                
+                if (_anim_cnt < _fade_in_frames) {
+                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                    
+                    fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
+                    
+                    for (int i=0; i <= 15; i++){
+                        c_anim = 0+17*i;
+                        
+                        aColour.set(c_anim, c_anim, c_anim, fade);
+                        ofSetColor(aColour);
+                        
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                }
+                
+                if (_anim_cnt >= _fade_in_frames && _anim_cnt <= (_anim_cnt_max-_fade_in_frames)){
+                    
+                    for (int i=0; i <= 15; i++){
+                        c_anim = 255;
+                        aColour.set(c_anim, c_anim, c_anim, 255);
+                        ofSetColor(aColour);
+                        
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                }
+                
+                if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _anim_cnt <= _anim_cnt_max) {
+                    
+                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+                    fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
+                    cout << "fade down = " << fade << endl;
+                    
+                    for (int i=0; i <= 15; i++){
+                        
+                        c_anim = (17*i);
+                        
+                        aColour.set(c_anim, c_anim, c_anim, 255-fade);
+                        ofSetColor(aColour);
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                    
+                }
+                _anim_cnt++;
+                
+            } else {
+                _state = STATE_DISPLAY_RESULTS;
+                _anim_cnt=0;
+            }
+            ofPopMatrix();
+            ofSetRectMode(OF_RECTMODE_CORNER);
+            ofDisableAlphaBlending();
+            
             break;
         }
             
         case STATE_DISPLAY_RESULTS:
         {
             // display results of the synthesis
+            _RUN_DONE = true;
             break;
         }
             

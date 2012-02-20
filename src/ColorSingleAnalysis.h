@@ -28,6 +28,8 @@ protected:
 
     bool    _RUN_DONE;
     string  fileNameTag;
-    int     _run_cnt, _save_cnt, _fade_cnt;
-    float   r,g,b, _frame_cnt, _frame_cnt_max;
+    float   r,g,b;
+    
+    int     _run_cnt, _save_cnt, _fade_cnt, _anim_cnt;
+    float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
 };

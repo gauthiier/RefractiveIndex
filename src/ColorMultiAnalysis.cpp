@@ -1,35 +1,3 @@
-/*
- - copyright (c) 2011 Copenhagen Institute of Interaction Design (CIID)
- - all rights reserved.
-
- + redistribution and use in source and binary forms, with or without
- + modification, are permitted provided that the following conditions
- + are met:
- +  > redistributions of source code must retain the above copyright
- +    notice, this list of conditions and the following disclaimer.
- +  > redistributions in binary form must reproduce the above copyright
- +    notice, this list of conditions and the following disclaimer in
- +    the documentation and/or other materials provided with the
- +    distribution.
-
- + THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- + "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- + LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- + FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- + COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- + INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- + BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- + OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- + AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- + OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- + OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- + SUCH DAMAGE.
-
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ author: dviid
- ~ contact: dviid@labs.ciid.dk
- */
-
 #include "ColorMultiAnalysis.h"
 #include "ofMain.h"
 
@@ -55,6 +23,10 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     _fade_cnt=0;
     _frame_cnt_max = ofGetFrameRate() * ((DELTA_T_SAVE * NUM_SAVE_PER_RUN) / 1000);
     c = 0;
+    
+    int anim_time = 10;   // 10 seconds
+    _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
+
 }
 
 void ColorMultiAnalysis::acquire()
@@ -74,7 +46,8 @@ void ColorMultiAnalysis::acquire()
         save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
         save_timer->start(save_callback);
         _RUN_DONE = false;
-        _frame_cnt = 0; _save_cnt = 0;
+     
+         _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
 
         while(!_RUN_DONE)
             Thread::sleep(3);
@@ -141,8 +114,9 @@ void ColorMultiAnalysis::draw()
                 }
                 
             } else {
+                _state = STATE_SYNTHESISING;
                  
-                _RUN_DONE = true;
+                //_RUN_DONE = true;
             
             }
             
@@ -154,12 +128,89 @@ void ColorMultiAnalysis::draw()
         case STATE_SYNTHESISING:
         {
             // display animation of something while the synthesis in on-going...
+            
+            cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
+            
+            // display animation of something while the synthesis in on-going...
+            ofEnableAlphaBlending();
+            ofSetRectMode(OF_RECTMODE_CENTER);
+            ofPushMatrix();
+            ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+            
+            if(_anim_cnt < _anim_cnt_max){
+                
+                ofColor aColour;
+                int rectSizeW = ofGetWidth()/4;
+                int rectSizeH = ofGetHeight()/4;
+                int _fade_in_frames = _anim_cnt_max/2;
+                
+                int c_anim = 10;
+                int fade;
+                
+                //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
+                
+                if (_anim_cnt < _fade_in_frames) {
+                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                    
+                    fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
+                    
+                    for (int i=0; i <= 15; i++){
+                        c_anim = 0+17*i;
+                        
+                        aColour.set(c_anim, c_anim, c_anim, fade);
+                        ofSetColor(aColour);
+                        
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                }
+                
+                if (_anim_cnt >= _fade_in_frames && _anim_cnt <= (_anim_cnt_max-_fade_in_frames)){
+                    
+                    for (int i=0; i <= 15; i++){
+                        c_anim = 255;
+                        aColour.set(c_anim, c_anim, c_anim, 255);
+                        ofSetColor(aColour);
+                        
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                }
+                
+                if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _anim_cnt <= _anim_cnt_max) {
+                    
+                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+                    fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
+                    cout << "fade down = " << fade << endl;
+                    
+                    for (int i=0; i <= 15; i++){
+                        
+                        c_anim = (17*i);
+                        
+                        aColour.set(c_anim, c_anim, c_anim, 255-fade);
+                        ofSetColor(aColour);
+                        ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
+                        ofRect(0, 0, rectSizeW-10*i, rectSizeH-10*i);
+                    }
+                    
+                }
+                _anim_cnt++;
+                
+            } else {
+                _state = STATE_DISPLAY_RESULTS;
+                _anim_cnt=0;
+            }
+            ofPopMatrix();
+            ofSetRectMode(OF_RECTMODE_CORNER);
+            ofDisableAlphaBlending();
+            
             break;
         }
             
         case STATE_DISPLAY_RESULTS:
         {
             // display results of the synthesis
+            _RUN_DONE = true;
             break;
         }
             

@@ -30,7 +30,6 @@ protected:
     string quad;
     bool    _RUN_DONE;
     float     _flip, _level;
-    int     _run_cnt, _save_cnt;
     int _animation_cnt1;
     int _animation_cnt2;
     int _animation_cnt3;
@@ -48,6 +47,7 @@ protected:
     int _animation_cnt15;
     int _animation_cnt16;
     int _animation_reset;  // this reset part didn't get working - so using 16 different counters! yay! 
-    float   c, _frame_cnt, _frame_cnt_max;
-    
+   
+    int     _run_cnt, _save_cnt, _fade_cnt, _anim_cnt;
+    float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
 };
