@@ -22,7 +22,7 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     DELTA_T_SAVE = 100;
     NUM_PHASE = 1;
     NUM_RUN = 1;
-    NUM_SAVE_PER_RUN = 50;//100;    
+    NUM_SAVE_PER_RUN = 100;    
     
     create_dir();
     _frame_cnt = 0;
@@ -68,7 +68,7 @@ void IResponseAnalysis::synthesise()
     int index=0;
     
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=true;
+    bool debug=false;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);

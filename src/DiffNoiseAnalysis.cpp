@@ -18,7 +18,7 @@ using Poco::Thread;
 
 void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 100;//600;  // right number is about 450
+    DELTA_T_SAVE = 600;  // right number is about 450
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 50;    
@@ -67,7 +67,7 @@ void DiffNoiseAnalysis::synthesise()
     int index=0;
     
     //if you want to see what this looks like with real data ignore the new filenames and load teh old ones.
-    bool debug=true;
+    bool debug=false;
     if(debug){
         _saved_filenames.clear();
         _saved_filenames=getListOfImageFilePaths("MIDDLESBOROUGH", _name);
