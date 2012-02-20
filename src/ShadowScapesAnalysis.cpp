@@ -278,7 +278,6 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     }
     
-    
     cout << "ShadowScapesAnalysis::saving...\n";
     
     string file_name;

@@ -189,6 +189,7 @@ void RefractiveIndex::state_analysis()
 void RefractiveIndex::update()
 {
     state_analysis();
+    
     /*
     RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
 
