@@ -64,6 +64,9 @@ protected:
     //EG FILENAME : DIFF_NOISE_7_85.7322.jpg RETURNS : 85.7322
     virtual int getRecordedValueFromFileName(string str);
     
+    static vector<ofMesh>meshes;
+
+    
 public:
     string  _name;    
     
@@ -84,7 +87,7 @@ protected:
     
     //added Tom S 19/2/12
     //each mesh in the vector is a seperate 3D point cloud which is coloured with pixel data and shifted in the z plane according to the specified type of colour difference eg red value or hue
-    vector<ofMesh>meshes;
+    //make this vector were static
     //how fast to move from one mesh to the next
     float speed;
     //the index (inside the vector of meshes) of the current mesh being displayed

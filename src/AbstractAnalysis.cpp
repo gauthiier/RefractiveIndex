@@ -34,6 +34,9 @@
 #include "RefractiveIndex.h"
 #include "ofxFileHelper.h"
 
+
+vector<ofMesh>  AbstractAnalysis::meshes;
+
 // this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
     _state = STATE_ACQUIRING;

@@ -45,7 +45,7 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    DELTA_T_SAVE = 150; // the right number is about 300
+    DELTA_T_SAVE = 100;//150; // the right number is about 300
     NUM_PHASE = 1;
     NUM_RUN = 1;
     NUM_SAVE_PER_RUN = 100;//;    
