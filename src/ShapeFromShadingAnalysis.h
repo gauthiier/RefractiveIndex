@@ -20,10 +20,12 @@ public:
     
     void setup(int camWidth, int camHeight);
     void acquire();
-    void synthesise();    
+    void synthesise(); 
+    void display_results();
     void draw();
     
     void save_cb(Poco::Timer& timer);
+    void display_results_cb(Poco::Timer& timer);
     
 protected:
     
@@ -48,6 +50,6 @@ protected:
     int _animation_cnt15;
     int _animation_cnt16;
     int _animation_reset;  // this reset part didn't get working - so using 16 different counters! yay! 
-    float   c, _frame_cnt, _frame_cnt_max;
+    float   c, _frame_cnt, _frame_cnt_max, _results_cnt, _results_cnt_max;
     
 };

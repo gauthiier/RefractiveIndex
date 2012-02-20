@@ -51,10 +51,12 @@ public:
     
     void setup(int camWidth, int camHeight);
     void acquire();
-    void synthesise();    
+    void synthesise(); 
+    void display_results();
     void draw();
     
     void save_cb(Poco::Timer& timer);
+    void display_results_cb(Poco::Timer& timer);
     
 protected:
     
@@ -65,6 +67,6 @@ protected:
     float     _step;
     shadow_type _dir;
     int     _run_cnt, _save_cnt;
-    float   c, _frame_cnt, _frame_cnt_max;
+    float   c, _frame_cnt, _frame_cnt_max, _results_cnt, _results_cnt_max;
     
 };
