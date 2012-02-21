@@ -1,7 +1,5 @@
 
-
 ////also the new shit////
-
 
 #include "RefractiveIndex.h"
 
@@ -16,8 +14,6 @@
 #include "DiffNoiseAnalysis.h"
 
 #include "ofxXmlSettings.h"
-#include "ofxOpenCv.h"
-
 
 #define CAMERA_ID           1
 #define CAMERA_ACQU_WIDTH   640

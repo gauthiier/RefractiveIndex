@@ -1,6 +1,5 @@
 #include "ofAppGlutWindow.h"
 #include "RefractiveIndex.h"
-#include "ofxXmlSettings.h"
 
 #define SCREEN_WIDTH        800
 #define SCREEN_HEIGHT       600
@@ -9,22 +8,21 @@
 
 int main() {
 	ofAppGlutWindow window;
+   
+    bool fullscreen;
     
-    ofxXmlSettings   XML;
+    //fullscreen = true; 
     
-    XML.loadFile("../data/config.refindx");
-    
-    bool fullscreen = (XML.getValue("config:display:fullscreen", "false") == "true" ? true : false);
-    int screen_w = XML.getValue("config:display:width", SCREEN_WIDTH);
-    int screen_h = XML.getValue("config:display:height", SCREEN_HEIGHT);     
+    fullscreen = false;
     
     cout << "> display configuration" << endl;
     cout << "* fullscreen: " << (fullscreen ? "yes" : "no") << endl;
+ 
     if(!fullscreen) {
-        cout << "* screen width: " << screen_w << endl;
-        cout << "* screen height: " << screen_h << endl;
+        cout << "* screen width: " << SCREEN_WIDTH << endl;
+        cout << "* screen height: " << SCREEN_HEIGHT << endl;
     }
     
-	ofSetupOpenGL(&window, screen_w, screen_h, (fullscreen ? OF_FULLSCREEN : OF_WINDOW));
+	ofSetupOpenGL(&window, SCREEN_WIDTH, SCREEN_HEIGHT, (fullscreen ? OF_FULLSCREEN : OF_WINDOW));
 	ofRunApp(new RefractiveIndex());
 }

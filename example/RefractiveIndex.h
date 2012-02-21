@@ -8,7 +8,7 @@
 #include "AbstractAnalysis.h"
 #include "AnalysisAdaptor.h"
 
-
+#include "ofxOpenCv.h"
 
 class RefractiveIndex : public ofBaseApp
 {
@@ -62,5 +62,6 @@ public:
     // this should be in xml
     static string           _location;
     
+    ofxCvColorImage			colorImg;
     
 };
