@@ -33,6 +33,15 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
     create_dir();
+    
+    _show_image = false;
+    _image_shown = false;
+    
+    //for an ofxOpenCv.h image i would like to use..."
+    //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    
+    image1.setUseTexture(false);
+    image2.setUseTexture(true);
 
 }
 
@@ -68,6 +77,34 @@ void ColorMultiAnalysis::acquire()
 void ColorMultiAnalysis::synthesise()
 {
     // _saved_filenames has all the file names of all the saved images
+}
+
+void ColorMultiAnalysis::displayresults()
+{
+    
+    for(float i=1;i<_saved_filenames.size();i++){
+        
+        cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+        
+        while(!_image_shown){
+            Thread::sleep(2);
+            //cout << "!_image_shown" << endl;
+        }
+        
+        
+        if(!image1.loadImage(_saved_filenames[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        } 
+        
+        
+        if(image1.loadImage(_saved_filenames[i])){
+            image1.loadImage(_saved_filenames[i]);
+            //cout << "_show_image = true;" << endl;
+            _show_image = true;
+            _image_shown = false;
+        }
+    }
 }
 
 
@@ -216,9 +253,30 @@ void ColorMultiAnalysis::draw()
             
         case STATE_DISPLAY_RESULTS:
         {
+            
+            if (_frame_cnt > 2)
+            {
+                _image_shown = true;
+                _frame_cnt=0;
+            }
+            
+            _frame_cnt++;
+            
+            if (_show_image)
+            {  
+                ofEnableAlphaBlending();
+                
+                ofSetColor(255, 255, 255, 255);
+                image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+                image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                ofDisableAlphaBlending();
+            }
+            
             // display results of the synthesis
             _RUN_DONE = true;
             break;
+
         }
             
             

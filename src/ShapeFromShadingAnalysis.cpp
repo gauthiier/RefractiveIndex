@@ -32,7 +32,8 @@ void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
     _show_image = false;
     _image_shown = false;
     
-    image2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    //for an ofxOpenCv.h image i would like to use..."
+    //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
 
     image1.setUseTexture(false);
     image2.setUseTexture(true);
@@ -105,10 +106,12 @@ void ShapeFromShadingAnalysis::displayresults()
             //cout << "!_image_shown" << endl;
         }
         
+        
         if(!image1.loadImage(_saved_filenames[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
+        
         
         if(image1.loadImage(_saved_filenames[i])){
             image1.loadImage(_saved_filenames[i]);
@@ -442,9 +445,7 @@ void ShapeFromShadingAnalysis::draw()
                     image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
-                
             }
-
 
             // display results of the synthesis
             _RUN_DONE = true;

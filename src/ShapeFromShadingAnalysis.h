@@ -6,7 +6,6 @@
 #pragma once
 
 #include "AbstractAnalysis.h"
-
 #include "Poco/Timer.h"
 
 
@@ -51,10 +50,9 @@ protected:
    
     int     _run_cnt, _save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
-    bool _show_image, _image_shown;
    
-    
+    bool _show_image, _image_shown;
     ofImage image1;
-    ofxCvImage image2; 
+    ofImage image2; 
 
 };

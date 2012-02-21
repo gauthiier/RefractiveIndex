@@ -1,12 +1,4 @@
-/*
- 
- todo:
- (1) Look at warinings about the #define which get over written
- 
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ author: dviid
- ~ contact: dviid@labs.ciid.dk
- */
+
 
 ////also the new shit////
 
@@ -25,6 +17,7 @@
 
 #include "ofxXmlSettings.h"
 #include "ofxOpenCv.h"
+
 
 #define CAMERA_ID           1
 #define CAMERA_ACQU_WIDTH   640
