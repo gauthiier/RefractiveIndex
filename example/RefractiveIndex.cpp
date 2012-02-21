@@ -200,6 +200,18 @@ void RefractiveIndex::update()
 void RefractiveIndex::draw()
 {
     ofBackground(0, 0, 0);
+    
+    //TODO:  Needs to return to a black screen - not to exit... 
+    
+    // i.e.: operational sequence
+    //    1) starts in a black screen
+    //    2) we 'start' with keypress "s" the entire set of analyses
+    //    3) at any point we need to be able to restart / stop-return-to-black / trigger each analysis individually
+    //    4) should end in black screen as well
+    //    5) final kill button
+    
+    ofRect(0,0,ofGetWidth(), ofGetHeight());
+           
     if(_currentAnalysis)
         _currentAnalysis->draw();
 }
@@ -312,6 +324,8 @@ void RefractiveIndex::keyPressed  (int key)
         _state = ISTATE_START;
     }
      */
+    
+    
 }
 
 void RefractiveIndex::exit()

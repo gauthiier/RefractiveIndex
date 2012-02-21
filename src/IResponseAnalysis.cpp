@@ -117,9 +117,18 @@ void IResponseAnalysis::draw()
             
         case STATE_ACQUIRING:
         {
-            /// *** TODO  *** ///
-            // still need to deal with latency frames here - i.e.: there are frames
-            /// *** TODO  *** ///
+            ofEnableAlphaBlending();
+            ofColor aColour;
+            int _fade_in_frames = _frame_cnt_max/10;
+            cout<< "_fade_in_frames" << _fade_in_frames<< endl;
+            
+            if (_frame_cnt < _fade_in_frames) {
+                
+                aColour.set(255, 255, 255, ofMap(_frame_cnt, 0, _fade_in_frames, 0, 255));
+                ofSetColor(aColour);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+            
+            }
             
             if (_frame_cnt < _frame_cnt_max)
             {
@@ -131,6 +140,14 @@ void IResponseAnalysis::draw()
                 _RUN_DONE = true;
             }
             
+            if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max) {
+                aColour.set(0, 0, 0, ofMap(_frame_cnt-(_frame_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255));
+                ofSetColor(aColour);
+                ofRect(0, 0, ofGetWidth(), ofGetHeight());
+                // cout <<  "FADE OUT STROBE TIME " << endl;
+            }         
+            
+            ofDisableAlphaBlending();
             _frame_cnt++;
 
             break;
