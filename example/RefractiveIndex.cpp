@@ -210,7 +210,7 @@ void RefractiveIndex::draw()
     //    4) should end in black screen as well
     //    5) final kill button
     
-    ofRect(0,0,ofGetWidth(), ofGetHeight());
+    //ofRect(0,0,ofGetWidth(), ofGetHeight());
            
     if(_currentAnalysis)
         _currentAnalysis->draw();
