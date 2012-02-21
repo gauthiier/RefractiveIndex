@@ -79,7 +79,7 @@ void ShadowScapesAnalysis::acquire()
         
         save_timer.start(save_callback);
         
-        while(!_RUN_DONE)
+        while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
         
         save_timer.stop();
@@ -93,7 +93,7 @@ void ShadowScapesAnalysis::synthesise()
 {
     
     // _saved_filenames has all the file names of all the saved images
-    while(!_RUN_DONE)
+    while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
 }
 
@@ -104,6 +104,8 @@ void ShadowScapesAnalysis::displayresults()
     for(float i=1;i<_saved_filenames.size()-1;i++){
         
        // cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+        
+        if(_state == STATE_STOP) return;
         
         while(!_image_shown){
             Thread::sleep(2);
