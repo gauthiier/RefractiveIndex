@@ -39,6 +39,7 @@ protected:
     
     // analysis + synthesize images - all the children (see - do_synthesize)
     virtual void synthesise() = 0;   
+    virtual void displayresults() = 0;   
     
         
 public:

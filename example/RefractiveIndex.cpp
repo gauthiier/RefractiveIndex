@@ -24,6 +24,7 @@
 #include "DiffNoiseAnalysis.h"
 
 #include "ofxXmlSettings.h"
+#include "ofxOpenCv.h"
 
 #define CAMERA_ID           1
 #define CAMERA_ACQU_WIDTH   640
@@ -53,15 +54,17 @@ void RefractiveIndex::setup()
     bool save_config = false;
     
     cout << "Loading configuration..." << endl;
-    if(!XML.loadFile("../data/config.refindx")) {
+    if(XML.loadFile("config.refindx") == false) {
         ofLog(OF_LOG_ERROR) << "error loading config - using default.";
         save_config = true;                
+    } else {
+        XML.loadFile("config.refindx");
     }
         
     // <camera>
     _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
-    _vid_w = XML.getValue("config:camera:width", CAMERA_ACQU_WIDTH);
-    _vid_h = XML.getValue("config:camera:height", CAMERA_ACQU_HEIGHT);
+    _vid_w  = XML.getValue("config:camera:width", CAMERA_ACQU_WIDTH);
+    _vid_h  = XML.getValue("config:camera:height", CAMERA_ACQU_HEIGHT);
     
     // <display>
     int fps = XML.getValue("config:display:fps", 30);
@@ -102,25 +105,25 @@ void RefractiveIndex::setup()
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis(V));
-    _analysisVector.push_back(new ShadowScapesAnalysis(H));
-    _analysisVector.push_back(new ShadowScapesAnalysis(D));
+   // _analysisVector.push_back(new ShadowScapesAnalysis(V));
+   // _analysisVector.push_back(new ShadowScapesAnalysis(H));
+   // _analysisVector.push_back(new ShadowScapesAnalysis(D));
     
-    _analysisVector.push_back(new RelaxRateAnalysis());
+  //  _analysisVector.push_back(new RelaxRateAnalysis());
     
-    _analysisVector.push_back(new IResponseAnalysis());
+  //  _analysisVector.push_back(new IResponseAnalysis());
     
     _analysisVector.push_back(new ShapeFromShadingAnalysis());
     
-    _analysisVector.push_back(new StrobeAnalysis());
+  //  _analysisVector.push_back(new StrobeAnalysis());
     
-    _analysisVector.push_back(new CamNoiseAnalysis());
+  //  _analysisVector.push_back(new CamNoiseAnalysis());
     
-    _analysisVector.push_back(new ColorSingleAnalysis());
+  //  _analysisVector.push_back(new ColorSingleAnalysis());
     
-    _analysisVector.push_back(new ColorMultiAnalysis());
+  //  _analysisVector.push_back(new ColorMultiAnalysis());
     
-    _analysisVector.push_back(new DiffNoiseAnalysis());
+  //  _analysisVector.push_back(new DiffNoiseAnalysis());
 
     _currentAnalysisIndx = 0;
     _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 

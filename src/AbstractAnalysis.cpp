@@ -41,8 +41,7 @@ void AbstractAnalysis::do_synthesize() {
     _state = STATE_SYNTHESISING;
     synthesise();
     _state = STATE_DISPLAY_RESULTS;
-    
-    //displayresults();
+    displayresults();
     
     ofNotifyEvent(_synthesize_cb, _name);
 }

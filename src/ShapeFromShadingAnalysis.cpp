@@ -10,11 +10,8 @@ using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
 
-
 void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
-{
-    
-    
+{    
     NUM_RUN = 1;
     
     int acq_run_time = 20;   // 20 seconds of acquiring per run
@@ -32,6 +29,13 @@ void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
     int anim_time = 5;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
+    _show_image = false;
+    _image_shown = false;
+    
+    image2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+
+    image1.setUseTexture(false);
+    image2.setUseTexture(true);
 }
 
 
@@ -85,9 +89,34 @@ void ShapeFromShadingAnalysis::acquire()
 
 void ShapeFromShadingAnalysis::synthesise()
 {
-    // _saved_filenames has all the file names of all the saved images
     while(!_RUN_DONE)
         Thread::sleep(3);
+}
+
+void ShapeFromShadingAnalysis::displayresults()
+{
+    
+    for(float i=1;i<_saved_filenames.size();i++){
+        
+        cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+        
+        while(!_image_shown){
+            Thread::sleep(2);
+            //cout << "!_image_shown" << endl;
+        }
+        
+        if(!image1.loadImage(_saved_filenames[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        } 
+        
+        if(image1.loadImage(_saved_filenames[i])){
+            image1.loadImage(_saved_filenames[i]);
+            //cout << "_show_image = true;" << endl;
+            _show_image = true;
+            _image_shown = false;
+        }
+    }
 }
 
 // this runs at frame rate = 33 ms for 30 FPS
@@ -102,22 +131,9 @@ void ShapeFromShadingAnalysis::draw()
                 
                 ofEnableAlphaBlending();
                 
-                
                 int _quarter_frame_cnt_max = _frame_cnt_max/4;
                 int _half_frame_cnt_max = _frame_cnt_max/2;
                 int _threequarters_frame_cnt_max = 3*_frame_cnt_max/4;
-                
-                //TODO:  put in CROSS FADES, ETC§E 
-                
-                /*
-                 if (_animation_reset == true)
-                 {
-                 _animation_cnt1 = 0;
-                 _animation_cnt2 = 0;
-                 _animation_cnt3 = 0;
-                 _animation_cnt4 = 0;
-                 }
-                 */
                 
                 if(_frame_cnt < _quarter_frame_cnt_max) {
                     
@@ -208,7 +224,7 @@ void ShapeFromShadingAnalysis::draw()
                     }  
                     
                     
-                    
+            
                 }
                 
                 
@@ -258,11 +274,7 @@ void ShapeFromShadingAnalysis::draw()
                         //ofRect(2.75*ofGetWidth()/4, 0, ofGetWidth()/2, ofGetHeight());      
                         _animation_cnt12++;
                     }  
-                    
-                    
-                    
-                    
-                    
+                
                 }
                 
                 
@@ -316,6 +328,7 @@ void ShapeFromShadingAnalysis::draw()
                 ofDisableAlphaBlending();
             } else {
                 //_state = STATE_SYNTHESISING;
+                _frame_cnt = 0;
                 _RUN_DONE = true;
             }
             
@@ -408,8 +421,31 @@ void ShapeFromShadingAnalysis::draw()
             break;
         }
             
+        
+            
         case STATE_DISPLAY_RESULTS:
-        {
+        {   
+            if (_frame_cnt > 2)
+            {
+                _image_shown = true;
+                _frame_cnt=0;
+            }
+            
+            _frame_cnt++;
+            
+            if (_show_image)
+            {  
+                ofEnableAlphaBlending();
+                
+                    ofSetColor(255, 255, 255, 255);
+                    image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+                    image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                ofDisableAlphaBlending();
+                
+            }
+
+
             // display results of the synthesis
             _RUN_DONE = true;
             break;

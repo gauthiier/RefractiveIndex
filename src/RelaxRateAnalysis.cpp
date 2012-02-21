@@ -31,13 +31,11 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 
     int anim_time = 5;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
-
 }
 
 
 void RelaxRateAnalysis::acquire()
 {
-
     Timer* save_timer;
 
     TimerCallback<RelaxRateAnalysis> save_callback(*this, &RelaxRateAnalysis::save_cb);
