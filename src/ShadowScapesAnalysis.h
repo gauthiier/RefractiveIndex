@@ -44,6 +44,13 @@ protected:
     bool _show_image, _image_shown;
     ofImage         image1;
     ofImage         image2; 
-    ofxCvColorImage	cvImage1;
     
+    ofxCvColorImage         cvImage1;
+    
+    ofxCvGrayscaleImage 	cvGrayImage1;
+    ofxCvGrayscaleImage 	cvGrayBg1;
+    ofxCvGrayscaleImage 	cvGrayDiff1;
+    
+    ofxCvContourFinder      cvContourFinder1;
+
 };

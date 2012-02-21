@@ -281,6 +281,8 @@ void IResponseAnalysis::save_cb(Timer& timer)
     if (RefractiveIndex::_vidGrabber.isFrameNew())
     {
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    } else {
+        return;
     }
     
     //cout << "IResponseAnalysis::saving...\n";

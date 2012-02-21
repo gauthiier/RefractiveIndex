@@ -5,6 +5,8 @@
 #include "Poco/Thread.h"
 #include "RefractiveIndex.h"
 
+#include "ofxOpenCv.h"
+
 using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
@@ -16,7 +18,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
     NUM_RUN = 1;
     
-    int acq_run_time = 20;   // 10 seconds of acquiring per run
+    int acq_run_time = 1;   // 10 seconds of acquiring per run
     
     int screenSpan;
     if (_dir == V) screenSpan = ofGetHeight();
@@ -37,7 +39,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     _run_cnt = 0;
     _save_cnt = 0;
 
-    int anim_time = 5;   // 10 seconds
+    int anim_time = 1;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
     _show_image = false;
@@ -48,6 +50,10 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     
     image1.setUseTexture(false);
     image2.setUseTexture(true);
+
+	cvGrayImage1.allocate(320,240);
+    cvGrayDiff1.allocate(320,240);
+
 }
 
 void ShadowScapesAnalysis::acquire()
@@ -78,8 +84,6 @@ void ShadowScapesAnalysis::acquire()
 
 void ShadowScapesAnalysis::synthesise()
 {
-    //cvImage1.allocate(image2.getWidth(), image2.getHeight());  
-    //cvImage1.setFromPixels(image2);
     
     // _saved_filenames has all the file names of all the saved images
     while(!_RUN_DONE)
@@ -309,7 +313,15 @@ void ShadowScapesAnalysis::draw()
                 
                 ofSetColor(255, 255, 255, 255);
                 image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
-                image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                //image2.draw(0,0, ofGetWidth(), ofGetHeight());
+    
+                //cvImage1.allocate(image1.getWidth(), image2.getHeight());  
+                cvImage1.setFromPixels(image1.getPixels(), 320, 240);
+                cvGrayImage1 = cvImage1;
+                cvGrayDiff1.absDiff(cvGrayImage1, cvGrayImage1);
+                
+                cvGrayImage1.draw(0,0, ofGetWidth(), ofGetHeight());
+                //cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
             }

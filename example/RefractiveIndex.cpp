@@ -115,7 +115,7 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new DiffNoiseAnalysis());
 
     _currentAnalysisIndx = 0;
-    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 
+    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     
     _state = ISTATE_START;
     
@@ -216,18 +216,21 @@ void RefractiveIndex::draw()
 void RefractiveIndex::setup_camera()
 {
     stop_camera();
-
-        if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
+    
+    _vidGrabber.setDeviceID(_vid_id);
+     _vidGrabber.listDevices();
+    
+    if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
         return;
     }
-
+    
+    _vidGrabber.setVerbose(true);
     _vidGrabber.setUseTexture(false);
-    _vidGrabber.listDevices();
-	_vidGrabber.setVerbose(true);
     _vid_stream_open = true;
-    _vidGrabber.setDeviceID(_vid_id);
-
+    cout << "CAMERA SETUP " << endl;
+    return;
+	
 }
 
 void RefractiveIndex::stop_camera()
