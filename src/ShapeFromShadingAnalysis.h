@@ -6,7 +6,10 @@
 #pragma once
 
 #include "AbstractAnalysis.h"
+
 #include "Poco/Timer.h"
+
+#include "ofxOpenCv.h"
 
 
 class ShapeFromShadingAnalysis : public AbstractAnalysis

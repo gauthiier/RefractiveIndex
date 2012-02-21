@@ -6,6 +6,8 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
+
 enum shadow_type {
     H, V, D,
 };
@@ -40,8 +42,8 @@ protected:
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
     bool _show_image, _image_shown;
-    ofImage image1;
-    ofImage image2; 
-    ofxCvColorImage			colorImg;
+    ofImage         image1;
+    ofImage         image2; 
+    ofxCvColorImage	cvImage1;
     
 };

@@ -72,6 +72,7 @@ void RelaxRateAnalysis::acquire()
 
 void RelaxRateAnalysis::synthesise()
 {
+    
     // _saved_filenames has all the file names of all the saved images
     while(!_RUN_DONE)
         Thread::sleep(3);
@@ -250,6 +251,7 @@ void RelaxRateAnalysis::draw()
                 ofEnableAlphaBlending();
                 
                 ofSetColor(255, 255, 255, 255);
+                
                 image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
                 image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
@@ -261,12 +263,9 @@ void RelaxRateAnalysis::draw()
             break;
         }
             
-            
         default:
             break;
     }
-
-
 
 }
 

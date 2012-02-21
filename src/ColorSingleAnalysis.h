@@ -9,6 +9,9 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
+
+
 class ColorSingleAnalysis : public AbstractAnalysis
 {
 public:

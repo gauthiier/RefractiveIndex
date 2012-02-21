@@ -9,6 +9,8 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
+
 
 class StrobeAnalysis : public AbstractAnalysis
 {

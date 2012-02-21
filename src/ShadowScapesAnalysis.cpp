@@ -78,6 +78,10 @@ void ShadowScapesAnalysis::acquire()
 
 void ShadowScapesAnalysis::synthesise()
 {
+    
+    //cvImage1.allocate(image2.getWidth(), image2.getHeight());  
+    //cvImage1.setFromPixels(image2);
+    
     // _saved_filenames has all the file names of all the saved images
     while(!_RUN_DONE)
         Thread::sleep(3);

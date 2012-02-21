@@ -9,6 +9,8 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
+
 class IResponseAnalysis : public AbstractAnalysis
 {
 public:

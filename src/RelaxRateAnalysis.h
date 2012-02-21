@@ -5,6 +5,7 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
 
 class RelaxRateAnalysis : public AbstractAnalysis
 {

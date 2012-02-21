@@ -9,6 +9,9 @@
 
 #include "Poco/Timer.h"
 
+#include "ofxOpenCv.h"
+
+
 class DiffNoiseAnalysis : public AbstractAnalysis
 {
 public:
