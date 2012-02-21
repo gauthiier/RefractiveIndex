@@ -19,7 +19,7 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     
     int acq_run_time = 35;  
     
-    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+    DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
     // or 10 times per second = every 100 ms
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
@@ -298,6 +298,8 @@ void ColorMultiAnalysis::save_cb(Timer& timer)
     if (RefractiveIndex::_vidGrabber.isFrameNew())
     {
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    } else {
+        return;
     }
     
     //cout << "ColorMultiAnalysis::saving...\n";

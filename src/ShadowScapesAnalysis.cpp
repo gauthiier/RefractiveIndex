@@ -16,7 +16,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
     NUM_RUN = 1;
     
-    int acq_run_time = 15;   // 10 seconds of acquiring per run
+    int acq_run_time = 20;   // 10 seconds of acquiring per run
     
     int screenSpan;
     if (_dir == V) screenSpan = ofGetHeight();
@@ -28,7 +28,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     
     // 40 pixels per second should give us a 20 second scan at 800 pixels wide
 
-    DELTA_T_SAVE = 10*acq_run_time/2; // for 20 seconds, we want this to be around 200 files
+    DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
     // or 10 times per second = every 100 ms
         
     create_dir();
@@ -78,7 +78,6 @@ void ShadowScapesAnalysis::acquire()
 
 void ShadowScapesAnalysis::synthesise()
 {
-    
     //cvImage1.allocate(image2.getWidth(), image2.getHeight());  
     //cvImage1.setFromPixels(image2);
     
@@ -337,6 +336,8 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
     if (RefractiveIndex::_vidGrabber.isFrameNew())
     {
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    } else {
+        return;
     }
     
     //cout << "ShadowScapesAnalysis::saving...\n";
