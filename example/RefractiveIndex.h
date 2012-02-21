@@ -62,6 +62,4 @@ public:
     // this should be in xml
     static string           _location;
     
-    ofxCvColorImage			colorImg;
-    
 };

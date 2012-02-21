@@ -42,6 +42,6 @@ protected:
     bool _show_image, _image_shown;
     ofImage image1;
     ofImage image2; 
-
+    ofxCvColorImage			colorImg;
     
 };

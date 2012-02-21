@@ -7,11 +7,12 @@
 ////also the new shit////
 
 int main() {
+    
 	ofAppGlutWindow window;
    
     bool fullscreen;
     
-    //fullscreen = true; 
+    fullscreen = true; 
     
     fullscreen = false;
     
@@ -25,4 +26,5 @@ int main() {
     
 	ofSetupOpenGL(&window, SCREEN_WIDTH, SCREEN_HEIGHT, (fullscreen ? OF_FULLSCREEN : OF_WINDOW));
 	ofRunApp(new RefractiveIndex());
+
 }
