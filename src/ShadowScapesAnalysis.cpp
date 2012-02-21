@@ -18,7 +18,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
     NUM_RUN = 1;
     
-    int acq_run_time = 1;   // 10 seconds of acquiring per run
+    int acq_run_time = 5;   // 10 seconds of acquiring per run
     
     int screenSpan;
     if (_dir == V) screenSpan = ofGetHeight();
@@ -49,16 +49,23 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
     
     image1.setUseTexture(false);
-    image2.setUseTexture(true);
-
-	cvGrayImage1.allocate(320,240);
-    cvGrayDiff1.allocate(320,240);
-
+    image2.setUseTexture(false);
+    
+    cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
+    cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
+    
+    cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
+    cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
 }
 
 void ShadowScapesAnalysis::acquire()
 {
-
     _line = 0;
     
     // RUN ROUTINE
@@ -94,29 +101,39 @@ void ShadowScapesAnalysis::synthesise()
 void ShadowScapesAnalysis::displayresults()
 {
     
-    for(float i=1;i<_saved_filenames.size();i++){
+    for(float i=1;i<_saved_filenames.size()-1;i++){
         
-        cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+       // cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
         
         while(!_image_shown){
             Thread::sleep(2);
             //cout << "!_image_shown" << endl;
         }
         
-        
         if(!image1.loadImage(_saved_filenames[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
         
+        image1.loadImage(_saved_filenames[2]);
         
         if(image1.loadImage(_saved_filenames[i])){
-            image1.loadImage(_saved_filenames[i]);
+            
+            //image1.loadImage(_saved_filenames[i]);
+            
+            image2.loadImage(_saved_filenames[i]);
+            cout << "loaded filenames[i] -  " << _saved_filenames[i] << endl;
+        
+//            image2.loadImage(_saved_filenames[i+1]);
+            
+            cout << "loaded filenames[i+1] -" << _saved_filenames[i+1] << endl;
+
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
         }
     }
+    
 }
 
 
@@ -309,21 +326,40 @@ void ShadowScapesAnalysis::draw()
             
             if (_show_image)
             {  
-                ofEnableAlphaBlending();
+                //ofEnableAlphaBlending();
                 
                 ofSetColor(255, 255, 255, 255);
-                image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
-                //image2.draw(0,0, ofGetWidth(), ofGetHeight());
-    
-                //cvImage1.allocate(image1.getWidth(), image2.getHeight());  
-                cvImage1.setFromPixels(image1.getPixels(), 320, 240);
-                cvGrayImage1 = cvImage1;
-                cvGrayDiff1.absDiff(cvGrayImage1, cvGrayImage1);
+                image3.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+                image4.setFromPixels(image2.getPixels(),image2.width,image2.height, OF_IMAGE_COLOR);
+                // image3.draw(0,0, ofGetWidth(), ofGetHeight());
+                // image4.draw(0,0, ofGetWidth(), ofGetHeight());
                 
-                cvGrayImage1.draw(0,0, ofGetWidth(), ofGetHeight());
-                //cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
+                /*
+                cvColorImage1.allocate(image3.width, image3.height);  
+                cvGrayImage1.allocate(image3.width, image3.height); 
                 
-                ofDisableAlphaBlending();
+                cvColorImage2.allocate(image4.width, image4.height);  
+                cvGrayImage2.allocate(image4.width, image4.height); 
+                */
+                
+                cvColorImage1.setFromPixels(image3.getPixels(), image3.width, image3.height);
+                cvColorImage2.setFromPixels(image4.getPixels(), image4.width, image4.height);
+                
+                // image3.setFromPixels(cvColorImage1.getPixels(),cvColorImage1.width,cvColorImage1.height, OF_IMAGE_COLOR);
+                // image4.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
+                // cvColorImage1.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                cvGrayImage1 = cvColorImage1;
+                cvGrayImage2 = cvColorImage2;
+                
+                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
+                cvGrayDiff1.dilate();
+                cvGrayDiff1.contrastStretch();
+                      
+                
+                cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                //ofDisableAlphaBlending();
             }
             
             // display results of the synthesis
