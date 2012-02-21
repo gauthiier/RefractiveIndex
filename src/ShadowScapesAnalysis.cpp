@@ -119,6 +119,14 @@ void ShadowScapesAnalysis::synthesise()
         //there is a known issue with using loadImage inside classes in other directories. the fix is to call setUseTExture(false)
         image1.setUseTexture(false);
         image2.setUseTexture(false);
+        
+        string fnamei = _saved_filenames[i];
+        string fnameii = _saved_filenames[i + 1];
+        
+        bool l1 = image1.loadImage(_saved_filenames[i]);
+        bool l2 = image2.loadImage(_saved_filenames[i+1]);        
+        
+        
         //some of the textures are not loading correctly so only make mesh if both the images load
         if(image1.loadImage(_saved_filenames[i]) && image2.loadImage(_saved_filenames[i+1])){
             meshes.push_back(ofMesh());
@@ -126,6 +134,9 @@ void ShadowScapesAnalysis::synthesise()
             setMeshFromPixels( calculateListOfZValues(image1,image2, COMPARE_BRIGHTNESS), image2, &meshes[index]);            
             index++;
         }
+        
+        image1.clear();
+        image2.clear();
     }
     
 }
@@ -288,6 +299,14 @@ void ShadowScapesAnalysis::draw()
 void ShadowScapesAnalysis::save_cb(Timer& timer)
 {
     
+    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
+    
+    if (RefractiveIndex::_vidGrabber.isFrameNew())
+    {
+        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    }
+    
+    
     cout << "ShadowScapesAnalysis::saving...\n";
     string file_name;
     
@@ -302,9 +321,9 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
     if(_dir == D) {
         file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
-    _saved_filenames.push_back(ofToDataPath("")+_whole_file_path+"/"+file_name);
-
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    saveimage(file_name);
+    
     _save_cnt++;    
     
 }

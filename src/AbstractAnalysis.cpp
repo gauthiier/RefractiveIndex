@@ -72,8 +72,8 @@ void AbstractAnalysis::create_dir()
     }
 
     ofxFileHelper fileHelper;
-    _whole_file_path = ANALYSIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime ;
-    //cout << "_whole_file_path = " << _whole_file_path << endl;
+    _whole_file_path = ofToDataPath("") + ANALYSIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime ;
+    cout << "_whole_file_path = " << _whole_file_path << endl;
     
     if(!fileHelper.doesDirectoryExist(_whole_file_path)){
         fileHelper.makeDirectory(ANALYSIS_PATH);
@@ -163,7 +163,8 @@ ofPixels AbstractAnalysis::calculateListOfZValues(ofImage image1, ofImage image2
     int y=0;
     
     //for each pixel...
-    for(int i=0;i<imagePixels1.size();i+=3){
+    //for(int i=0;i<imagePixels1.size();i+=3){
+    for(int i=0;i<20;i+=3){
         
         //get the colour of each image at this x y location - we will use these colours for comparison according to the below criteria
         ofColor colourImage1 = imagePixels1.getColor(x, y);
@@ -319,8 +320,15 @@ int AbstractAnalysis::getRecordedValueFromFileName(string str){
 void AbstractAnalysis::saveimage(string filename) 
 {
     if(RefractiveIndex::_pixels.isAllocated()) {
-        ofSaveImage(RefractiveIndex::_pixels, filename, OF_IMAGE_QUALITY_BEST);
-        _saved_filenames.push_back(filename);
+        
+        string fname = _whole_file_path + "/" + filename;
+        
+        cout << "saving - " << fname << endl;
+        
+        ofSaveImage(RefractiveIndex::_pixels, fname, OF_IMAGE_QUALITY_BEST);
+        
+        _saved_filenames.push_back(fname);
+        
     } else {
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::_pixels NOT allocated...";
     }

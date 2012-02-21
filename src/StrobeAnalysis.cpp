@@ -232,9 +232,8 @@ void StrobeAnalysis::draw()
 void StrobeAnalysis::save_cb(Timer& timer)
 {
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
-    _saved_filenames.push_back(ofToDataPath("")+_whole_file_path+"/"+file_name);
-
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    saveimage(file_name);
+    
     _save_cnt++;
     
     cout << "_save_cnt" << _save_cnt << endl;

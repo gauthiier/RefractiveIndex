@@ -247,34 +247,14 @@ void ColorMultiAnalysis::draw()
 // this runs at save_cb timer rate = DELTA_T_SAVE
 void ColorMultiAnalysis::save_cb(Timer& timer)
 {
-    _save_cnt++;
-    
-    // UPDATE THE COLOR ON THE SCREEN
-    //float c_last = c;
     
     // cout << "COLORMULTIANALYSIS::saving...\n";
-    // cout << "c_last... " << c << endl;
+    
     string file_name = ofToString(_save_cnt,2)+"_"+ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
+    saveimage(file_name);
     
-    // cout<<_whole_file_path<<endl;
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-<<<<<<< HEAD
-<<<<<<< HEAD
-   // _saved_filenames.push_back("/Users/tomschofield/of_preRelease_v007_osx/apps/myApps/refractiveIndexDavidFeb/bin/data/"+_whole_file_path+"/"+file_name);
-    _saved_filenames.push_back("fish.jpg");
+    _save_cnt++;    
 
-=======
-    _saved_filenames.push_back(ofToDataPath("")+_whole_file_path+"/"+file_name);
->>>>>>> tom
-    if(_save_cnt >= NUM_SAVE_PER_RUN){
-        _RUN_DONE = true;
-    }
-=======
-    
-    //if(_save_cnt >= NUM_SAVE_PER_RUN){
-    //    _RUN_DONE = true;
-    //}
->>>>>>> 88fa0375934e9ad87053542e88a0f9fe61af0a66
 }
 
 void ColorMultiAnalysis::display_results_cb(Timer& timer){

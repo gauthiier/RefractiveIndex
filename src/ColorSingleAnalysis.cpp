@@ -236,19 +236,14 @@ void ColorSingleAnalysis::draw()
 // this runs at save_cb timer rate = DELTA_T_SAVE
 void ColorSingleAnalysis::save_cb(Timer& timer)
 {
+        
+    //cout << "ColorSingleAnalysis::saving...\n";
+    
+    string file_name =ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";    
+    saveimage(file_name);
+    
     _save_cnt++;
-    
-    //    cout << "ColorSingleAnalysis::saving...\n";
-    
-    string file_name =ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";
-    
-    //cout<<ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";
-    cout<<file_name<<endl;
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    _saved_filenames.push_back(ofToDataPath("")+_whole_file_path+"/"+file_name);
 
-    //cout<<_whole_file_path+"/"+file_name<<endl;
-    
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
     //    _RUN_DONE = true;
 

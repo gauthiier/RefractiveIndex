@@ -97,29 +97,29 @@ void RefractiveIndex::setup()
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis(V));
-    _analysisVector.push_back(new ShadowScapesAnalysis(H));
-    _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    //_analysisVector.push_back(new ShadowScapesAnalysis(V));
+    //_analysisVector.push_back(new ShadowScapesAnalysis(H));
+    //_analysisVector.push_back(new ShadowScapesAnalysis(D));
     
     _analysisVector.push_back(new RelaxRateAnalysis());
     
-    _analysisVector.push_back(new IResponseAnalysis());
+    //_analysisVector.push_back(new IResponseAnalysis());
     
-    _analysisVector.push_back(new ShapeFromShadingAnalysis());
+    //_analysisVector.push_back(new ShapeFromShadingAnalysis());
     
-    _analysisVector.push_back(new StrobeAnalysis());
+    //_analysisVector.push_back(new StrobeAnalysis());
     
-    _analysisVector.push_back(new CamNoiseAnalysis());
+    //_analysisVector.push_back(new CamNoiseAnalysis());
     
-    _analysisVector.push_back(new ColorSingleAnalysis());
+    //_analysisVector.push_back(new ColorSingleAnalysis());
     
-    _analysisVector.push_back(new ColorMultiAnalysis());
+    //_analysisVector.push_back(new ColorMultiAnalysis());
     
-    _analysisVector.push_back(new DiffNoiseAnalysis());
+    //_analysisVector.push_back(new DiffNoiseAnalysis());
         
 
     _currentAnalysisIndx = 0;
-    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx); 
+    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     
     _state = ISTATE_START;
     
@@ -209,6 +209,7 @@ void RefractiveIndex::setup_camera()
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
         return;
     }
+    _vidGrabber.setUseTexture(false);
     _vidGrabber.listDevices();
 	_vidGrabber.setVerbose(true);
     _vid_stream_open = true;

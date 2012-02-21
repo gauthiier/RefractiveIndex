@@ -61,6 +61,7 @@ void RelaxRateAnalysis::acquire()
 
 void RelaxRateAnalysis::synthesise()
 {
+    /*
     //incrementer to whichMesh
     speed=0.2;
     //whichMesh is the index in the vector of meshes
@@ -100,9 +101,12 @@ void RelaxRateAnalysis::synthesise()
             index++;
         }
     }
+     */
     
 }
 void RelaxRateAnalysis::display_results(){
+    
+    /*
     
     Timer* display_results_timer;
     
@@ -119,6 +123,7 @@ void RelaxRateAnalysis::display_results(){
         Thread::sleep(3);
     
     display_results_timer->stop();
+     */
     
 }
 
@@ -170,6 +175,7 @@ void RelaxRateAnalysis::draw()
             
         case STATE_DISPLAY_RESULTS:
         {
+            /*
             // display results of the synthesis
             // display results of the synthesis
             int imageWidth=640;
@@ -191,6 +197,7 @@ void RelaxRateAnalysis::draw()
                 whichMesh+=speed;
                 
             }
+             */
 
             break;
         }
@@ -207,17 +214,14 @@ void RelaxRateAnalysis::draw()
 // this runs at save_cb timer rate = DELTA_T_SAVE
 void RelaxRateAnalysis::save_cb(Timer& timer)
 {
-    _save_cnt++;
-    cout << "RelaxRateAnalysis::saving...\n";
+    //cout << "RelaxRateAnalysis::saving...\n";
     //cout << "c_last... " << c << endl;
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-    string thisLocation = RefractiveIndex::_location;
-    
-    string file = _whole_file_path+"/"+file_name;
 
-    ofSaveImage(RefractiveIndex::_pixels, file, OF_IMAGE_QUALITY_BEST);
+    saveimage(file_name);
     
-    _saved_filenames.push_back(ofToDataPath("")+file);
+    _save_cnt++;
+    
 
     //if(_save_cnt >= NUM_SAVE_PER_RUN)
      //   _RUN_DONE = true;
