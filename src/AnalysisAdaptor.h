@@ -21,19 +21,23 @@ public:
     
     void start()
     {
+        _stopping = false;
         _runnable = new RunnableAdapter<AbstractAnalysis>(*_analysis, &AbstractAnalysis::do_synthesize);
         _worker.start(*_runnable);
     }
     
     void stop() 
     {
+        if(_stopping) return;
+        _stopping = true;
         _analysis->_state = STATE_STOP;
-        _worker.join();
+        _worker.join();        
     }
     
 protected:
     AbstractAnalysis*                   _analysis;
     Thread                              _worker;    //   
-    RunnableAdapter<AbstractAnalysis>*  _runnable;    
+    RunnableAdapter<AbstractAnalysis>*  _runnable;  
+    bool                                _stopping;
 };
 

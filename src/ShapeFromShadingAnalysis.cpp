@@ -78,7 +78,7 @@ void ShapeFromShadingAnalysis::acquire()
         _animation_cnt16 = 0;
         _animation_reset = false;  // coundn't get this to work - so using seperate counters - shitty!
         
-        while(!_RUN_DONE)
+        while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
         save_timer->stop();
@@ -90,7 +90,7 @@ void ShapeFromShadingAnalysis::acquire()
 
 void ShapeFromShadingAnalysis::synthesise()
 {
-    while(!_RUN_DONE)
+    while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
 }
 
@@ -98,6 +98,8 @@ void ShapeFromShadingAnalysis::displayresults()
 {
     
     for(float i=1;i<_saved_filenames.size();i++){
+        
+        if(_state == STATE_STOP) return;
         
         cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
         

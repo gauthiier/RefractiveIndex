@@ -65,7 +65,7 @@ void CamNoiseAnalysis::acquire()
 
          _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
 
-        while(!_RUN_DONE)
+        while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
         save_timer->stop();
@@ -77,7 +77,7 @@ void CamNoiseAnalysis::acquire()
 void CamNoiseAnalysis::synthesise()
 {   
     // _saved_filenames has all the file names of all the saved images
-    while(!_RUN_DONE)
+    while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
 
 }

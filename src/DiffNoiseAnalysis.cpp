@@ -65,7 +65,7 @@ void DiffNoiseAnalysis::acquire()
        
          _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
 
-        while(!_RUN_DONE)
+        while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
         save_timer->stop();
@@ -75,7 +75,7 @@ void DiffNoiseAnalysis::acquire()
 void DiffNoiseAnalysis::synthesise()
 {   
     // _saved_filenames has all the file names of all the saved images
-    while(!_RUN_DONE)
+    while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
 
 }
@@ -84,6 +84,8 @@ void DiffNoiseAnalysis::displayresults()
 {
     
     for(float i=1;i<_saved_filenames.size();i++){
+        
+        if(_state == STATE_STOP) return;
         
         cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
         

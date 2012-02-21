@@ -36,13 +36,16 @@
 
 // this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
+    _saved_filenames.clear();
     _state = STATE_ACQUIRING;
     acquire();
+    if(_state == STATE_STOP) goto exit;
     _state = STATE_SYNTHESISING;
     synthesise();
+    if(_state == STATE_STOP) goto exit;
     _state = STATE_DISPLAY_RESULTS;
     displayresults();
-    
+exit:    
     ofNotifyEvent(_synthesize_cb, _name);
 }
 

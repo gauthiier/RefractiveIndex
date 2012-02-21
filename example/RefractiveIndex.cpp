@@ -94,9 +94,9 @@ void RefractiveIndex::setup()
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis(V));
-    _analysisVector.push_back(new ShadowScapesAnalysis(H));
-    _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    //_analysisVector.push_back(new ShadowScapesAnalysis(V)); 
+    //_analysisVector.push_back(new ShadowScapesAnalysis(H));
+    //_analysisVector.push_back(new ShadowScapesAnalysis(D));
     
     _analysisVector.push_back(new RelaxRateAnalysis());
     
@@ -114,10 +114,13 @@ void RefractiveIndex::setup()
     
     _analysisVector.push_back(new DiffNoiseAnalysis());
 
-    _currentAnalysisIndx = 0;
-    _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
+    //_currentAnalysisIndx = 0;
+    //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     
-    _state = ISTATE_START;
+    //_state = ISTATE_START;
+    
+    _currentAnalysis = NULL;
+    _state = ISTATE_UNDEF;
     
 }
 
@@ -157,7 +160,9 @@ void RefractiveIndex::state_analysis()
         case ISTATE_TRANSITION:            
             if(_currentAnalysisIndx >= _analysisVector.size()) {
                 _currentAnalysisIndx = 0;
-                _state = ISTATE_END;
+                _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
+                _state = ISTATE_START;                
+                //_state = ISTATE_END;
             } else {
                 _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
                 _state = ISTATE_START;
@@ -179,23 +184,16 @@ void RefractiveIndex::state_analysis()
 }
 
 void RefractiveIndex::update()
-{
+{    
     state_analysis();
-    
-    // this has been moved to each class
-    /*
-    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
-
-    if (_vidGrabber.isFrameNew())
-    {
-        _pixels = _vidGrabber.getPixelsRef(); //get ofPixels from the camera
-    }
-     */
-    
 }
 
 void RefractiveIndex::draw()
 {
+    // refractive mauve
+    //ofBackground(113, 110, 136);
+    
+    // black
     ofBackground(0, 0, 0);
     
     //TODO:  Needs to return to a black screen - not to exit... 
@@ -252,78 +250,112 @@ void RefractiveIndex::keyPressed  (int key)
     
     // i.e.: ask david how to shut off the prior Analysis if it's not finished running from here? 
     
-    /*
-    if(key == '1')
+    if(key == 'x')
     {
-        // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(0);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysis = NULL;
+        _state = ISTATE_UNDEF;
+    }    
+    
+    else if(key == '1')
+    {
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 0;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
 
-    if(key == '2')
+    else if(key == '2')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(1);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 1;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
 
-    if(key == '3')
-    {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(2);
-        _state = ISTATE_START;
+    else if(key == '3')
+    {        
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 2;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '4')
-    {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(3);
-        _state = ISTATE_START;
+    else if(key == '4')
+    {     
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 3;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '5')
+    else if(key == '5')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(4);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 4;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '6')
+    else if(key == '6')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(5);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 5;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '7')
+    else if(key == '7')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(6);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 6;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '8')
+    else if(key == '8')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(7);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 7;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
     
-    if(key == '9')
+    else if(key == '9')
     {
-     
-     // something needs to go here to cancel the prior analysis
-        _currentAnalysis = _analysisVector.at(8);
-        _state = ISTATE_START;
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 8;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
     }
-     */
+    
+    else if(key == '0')
+    {
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 9;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
+    }
+
+    else if(key == 'q')
+    {
+        if(_currentAnalysis)
+            _analysisAdapator->stop();
+        _currentAnalysisIndx = 10;
+        if(!_currentAnalysis)
+            _state = ISTATE_TRANSITION;            
+    }
     
     
 }
