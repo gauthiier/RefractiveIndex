@@ -472,7 +472,7 @@ void ShapeFromShadingAnalysis::save_cb(Timer& timer)
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     }
     
-    cout << "ShapeFromShadingAnalysis::saving...\n";
+    //cout << "ShapeFromShadingAnalysis::saving...\n";
     
     string file_name = ofToString(_save_cnt,2)+"_"+ quad +"_"+ofToString(_run_cnt,2)+".jpg";
     

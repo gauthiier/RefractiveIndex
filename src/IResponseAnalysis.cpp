@@ -283,7 +283,7 @@ void IResponseAnalysis::save_cb(Timer& timer)
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
     }
     
-    cout << "IResponseAnalysis::saving...\n";
+    //cout << "IResponseAnalysis::saving...\n";
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
