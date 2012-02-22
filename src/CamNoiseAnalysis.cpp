@@ -82,7 +82,7 @@ void CamNoiseAnalysis::acquire()
             Thread::sleep(3);
 
     save_timer->stop();
-    
+
 
    // }
 }
