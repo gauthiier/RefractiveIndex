@@ -54,7 +54,7 @@ void RelaxRateAnalysis::acquire()
 
         _run_cnt = i;
 
-        cout << "RUN NUM = " << i;
+        //cout << "RUN NUM = " << i;
 
         save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
         save_timer->start(save_callback);
@@ -72,8 +72,8 @@ void RelaxRateAnalysis::acquire()
 
 void RelaxRateAnalysis::synthesise()
 {
-    
-    // _saved_filenames has all the file names of all the saved images
+
+    // _saved_filenames_analysis has all the file names of all the saved images
     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
   
@@ -82,11 +82,11 @@ void RelaxRateAnalysis::synthesise()
 void RelaxRateAnalysis::displayresults()
 {
     
-    for(float i=1;i<_saved_filenames.size();i++){
+    for(float i=1;i<_saved_filenames_analysis.size();i++){
         
         if(_state == STATE_STOP) return;
         
-        cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+       // cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
         
         while(!_image_shown){
             Thread::sleep(2);
@@ -94,14 +94,14 @@ void RelaxRateAnalysis::displayresults()
         }
         
         
-        if(!image1.loadImage(_saved_filenames[i])){
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
         
         
-        if(image1.loadImage(_saved_filenames[i])){
-            image1.loadImage(_saved_filenames[i]);
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+            image1.loadImage(_saved_filenames_analysis[i]);
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
@@ -152,7 +152,7 @@ void RelaxRateAnalysis::draw()
         {
             // display animation of something while the synthesis in on-going...
             
-            cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
+            //cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
             
             // display animation of something while the synthesis in on-going...
             ofEnableAlphaBlending();
@@ -173,7 +173,7 @@ void RelaxRateAnalysis::draw()
                 //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
                 
                 if (_anim_cnt < _fade_in_frames) {
-                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                    //cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
                     
                     fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
                     
@@ -190,7 +190,7 @@ void RelaxRateAnalysis::draw()
                 
                 if (_anim_cnt >= _fade_in_frames && _anim_cnt <= (_anim_cnt_max-_fade_in_frames)){
                     
-                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = MIDDLE OF ANIMATION...\n";
+                    //cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = MIDDLE OF ANIMATION...\n";
                     
                     for (int i=0; i <= 15; i++){
                         c_anim = 255;
@@ -206,16 +206,16 @@ void RelaxRateAnalysis::draw()
                 
                 if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _anim_cnt <= _anim_cnt_max) {
 
-                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADE OUT OF ANIMATION...\n";
+                    //cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADE OUT OF ANIMATION...\n";
                     
-                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+                    //cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
                     fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
-                    cout << "fade down = " << fade << endl;
+                    //cout << "fade down = " << fade << endl;
                     
                     for (int i=0; i <= 15; i++){
                         
                         c_anim = (17*i);
-                        cout << "c_anim = " << c_anim << endl;
+                        //cout << "c_anim = " << c_anim << endl;
                         aColour.set(c_anim, c_anim, c_anim, 255-fade);
                         ofSetColor(aColour);
                         ofRect(0, 0, rectSizeW+10*i, rectSizeH+10*i);
@@ -288,7 +288,7 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
 }

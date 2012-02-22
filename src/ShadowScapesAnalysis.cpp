@@ -18,7 +18,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
     NUM_RUN = 1;
     
-    int acq_run_time = 5;   // 10 seconds of acquiring per run
+    int acq_run_time = 15;   // 10 seconds of acquiring per run
     
     int screenSpan;
     if (_dir == V) screenSpan = ofGetHeight();
@@ -30,29 +30,33 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     
     // 40 pixels per second should give us a 20 second scan at 800 pixels wide
 
-    DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
-    // or 10 times per second = every 100 ms
+    DELTA_T_SAVE = 3*(10*acq_run_time/2);   // for 20 seconds, we want this to be around 100 files
+                                            // or 5 times per second = every 200 ms
         
-    create_dir();
+    create_dir();  // this makes both synth and analysis folder structures
 
     _scanLineWidth = 100.0;
     _run_cnt = 0;
     _save_cnt = 0;
+    _synth_save_cnt = 0;
 
-    int anim_time = 1;   // 10 seconds
+    int anim_time = 10;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
     _show_image = false;
     _image_shown = false;
     
-    //for an ofxOpenCv.h image i would like to use..."
-    //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    //  images use for drawing the synthesized files to the screen ///
+    image1.setUseTexture(false);  // the non texture image that is needed to first load the image
+    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
+   
+    //  images used for re-loading and saving out the synthesized files ///
+    image3.setUseTexture(false);  
+    image4.setUseTexture(false);
+    image5.setUseTexture(false);
     
-    image1.setUseTexture(false);
-    image2.setUseTexture(false);
-    
-    cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
-    cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
+    //cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
+    //cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
     
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
@@ -91,19 +95,103 @@ void ShadowScapesAnalysis::acquire()
 
 void ShadowScapesAnalysis::synthesise()
 {
+    //cout << "ShadowScapesAnalysis::saving synthesis...\n";
     
-    // _saved_filenames has all the file names of all the saved images
-    while(!_RUN_DONE && _state != STATE_STOP)
+    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
+    
+      //  cout << "ShadowScapesAnalysis::synthesis FOR LOOP...\n";
+        
+        // cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
+        
+        if(_state == STATE_STOP) return;
+                
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        } 
+        
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+            
+            if(image5.loadImage(_saved_filenames_analysis[i+1])){
+                
+                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+                               
+                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
+                
+                cvGrayImage1 = cvColorImage1;
+                cvGrayImage2 = cvColorImage2;
+                
+                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
+                cvGrayDiff1.erode();
+                cvGrayDiff1.contrastStretch();
+                cvGrayDiff1.blur(5);
+                cvGrayDiff1.dilate();
+                cvGrayDiff1.contrastStretch();
+                
+                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
+                string file_name;
+                
+                if(_dir == H) {
+                    file_name = ofToString(_synth_save_cnt, 2)+"_H_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                }
+                
+                if(_dir == V) {
+                    file_name = ofToString(_synth_save_cnt, 2)+"_V_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                }    
+                
+                if(_dir == D) {
+                    file_name = ofToString(_synth_save_cnt, 2)+"_D_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                }
+                
+                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
+                
+                ofSaveImage(cvGrayDiff1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                _synth_save_cnt++;
+                
+            }
+        }
+    }
+    
+    // _saved_filenames_synthesis has processed all the files in the analysis images folder
+     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
 }
 
 
 void ShadowScapesAnalysis::displayresults()
 {
-    
-    for(float i=1;i<_saved_filenames.size()-1;i++){
+    for(float i=1;i<_saved_filenames_synthesis.size();i++){
         
-       // cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+        if(_state == STATE_STOP) return;
+        
+       // cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
+        
+        while(!_image_shown){
+            Thread::sleep(2);
+            //cout << "!_image_shown" << endl;
+        }
+        
+        if(!image3.loadImage(_saved_filenames_synthesis[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        } 
+        
+        if(image3.loadImage(_saved_filenames_synthesis[i])){
+            image3.loadImage(_saved_filenames_synthesis[i]);
+            //cout << "_show_image = true;" << endl;
+            _show_image = true;
+            _image_shown = false;
+        }
+    }
+    
+    
+    // THE OLD SHIT /// 
+/*
+    for(float i=1;i<_saved_filenames_synthesis.size()-1;i++){
+        
+       // cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
         
         if(_state == STATE_STOP) return;
         
@@ -112,29 +200,26 @@ void ShadowScapesAnalysis::displayresults()
             //cout << "!_image_shown" << endl;
         }
         
-        if(!image1.loadImage(_saved_filenames[i])){
+        if(!image1.loadImage(_saved_filenames_synthesis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
         
-        image1.loadImage(_saved_filenames[2]);
+            
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+            
+            image1.loadImage(_saved_filenames_analysis[i]);
+            cout << "loaded filenames[i] -  " << _saved_filenames_analysis[i] << endl;
         
-        if(image1.loadImage(_saved_filenames[i])){
-            
-            //image1.loadImage(_saved_filenames[i]);
-            
-            image2.loadImage(_saved_filenames[i]);
-            cout << "loaded filenames[i] -  " << _saved_filenames[i] << endl;
-        
-//            image2.loadImage(_saved_filenames[i+1]);
-            
-            cout << "loaded filenames[i+1] -" << _saved_filenames[i+1] << endl;
-
+            image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+          
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
+
         }
     }
+*/
     
 }
 
@@ -211,7 +296,6 @@ void ShadowScapesAnalysis::draw()
             
             if(_dir == V && int(_line) >= (ofGetHeight()+4*_scanLineWidth)){
                 //cout << "VERTICAL IS DONE - _line >= (ofGetHeight()+4*_scanLineWidth) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
                 
             }
@@ -219,14 +303,13 @@ void ShadowScapesAnalysis::draw()
             if(_dir == H && int(_line) >= (ofGetWidth()+4*_scanLineWidth)) {
                 
                 //cout << "HORIZONTAL IS DONE -  _line >= (ofGetWidth()+4*_scanLineWidth)) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
                 
             }
             
             if(_dir == D && int(_line) >= (1.5*ofGetHeight()+4*_scanLineWidth)) {
                 //cout << "DIAGONAL IS DONE - _line >= (1.5*ofGetHeight()+4*_scanLineWidth)) is TRUE" << endl;
-                //_state = STATE_SYNTHESISING;
+            
                 _RUN_DONE = true;
             }
         
@@ -235,7 +318,7 @@ void ShadowScapesAnalysis::draw()
             
         case STATE_SYNTHESISING:
         {
-            cout << "ShadowScapesAnalysis = STATE_SYNTHESISING...\n";
+           // cout << "ShadowScapesAnalysis = STATE_SYNTHESISING...\n";
 
             // display animation of something while the synthesis in on-going...
             ofEnableAlphaBlending();
@@ -256,7 +339,7 @@ void ShadowScapesAnalysis::draw()
                 //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
                          
                 if (_anim_cnt < _fade_in_frames) {
-                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                  //  cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
                 
                     fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
                 
@@ -303,9 +386,7 @@ void ShadowScapesAnalysis::draw()
                 _anim_cnt++;
                 
             } else {
-                
                 _RUN_DONE = true;
-                //_state = STATE_DISPLAY_RESULTS;
                 _anim_cnt=0;
             }
             ofPopMatrix();
@@ -317,6 +398,8 @@ void ShadowScapesAnalysis::draw()
             
         case STATE_DISPLAY_RESULTS:
         {
+            //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
+
             
             if (_frame_cnt > 2)
             {
@@ -328,40 +411,44 @@ void ShadowScapesAnalysis::draw()
             
             if (_show_image)
             {  
-                //ofEnableAlphaBlending();
+              //  cout << "_show_image...\n" << endl;
                 
-                ofSetColor(255, 255, 255, 255);
+                ofEnableAlphaBlending();
+                
+                    ofSetColor(255, 255, 255);
+                    image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
+                    image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                ofDisableAlphaBlending();
+                
+                //cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
+                
+                
+                // THE OLD SHIT
+                /*
+                ofEnableAlphaBlending();
+                
+                ofSetColor(255, 255, 255, 200);
                 image3.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
                 image4.setFromPixels(image2.getPixels(),image2.width,image2.height, OF_IMAGE_COLOR);
-                // image3.draw(0,0, ofGetWidth(), ofGetHeight());
-                // image4.draw(0,0, ofGetWidth(), ofGetHeight());
-                
-                /*
-                cvColorImage1.allocate(image3.width, image3.height);  
-                cvGrayImage1.allocate(image3.width, image3.height); 
-                
-                cvColorImage2.allocate(image4.width, image4.height);  
-                cvGrayImage2.allocate(image4.width, image4.height); 
-                */
-                
+                                
                 cvColorImage1.setFromPixels(image3.getPixels(), image3.width, image3.height);
                 cvColorImage2.setFromPixels(image4.getPixels(), image4.width, image4.height);
-                
-                // image3.setFromPixels(cvColorImage1.getPixels(),cvColorImage1.width,cvColorImage1.height, OF_IMAGE_COLOR);
-                // image4.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
-                // cvColorImage1.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 cvGrayImage1 = cvColorImage1;
                 cvGrayImage2 = cvColorImage2;
                 
                 cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                cvGrayDiff1.dilate();
                 cvGrayDiff1.contrastStretch();
-                      
+                cvGrayDiff1.dilate();
                 
                 cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
                 
-                //ofDisableAlphaBlending();
+                ofDisableAlphaBlending();            
+                */     
+                
+                //image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                
             }
             
             // display results of the synthesis
@@ -390,7 +477,7 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
         return;
     }
     
-    //cout << "ShadowScapesAnalysis::saving...\n";
+    //cout << "ShadowScapesAnalysis::saving analysis...\n";
     
     string file_name;
     
@@ -406,8 +493,8 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
         file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
+    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
     
 }

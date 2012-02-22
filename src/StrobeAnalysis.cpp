@@ -14,14 +14,14 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
     NUM_RUN = 1;
     
-    int acq_run_time = 20;   // 20 seconds of acquiring per run
+    int acq_run_time = 25;   // 20 seconds of acquiring per run
     
-    DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
-                                          // or 10 times per second = every 100 ms
+    DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 100 files
+                                          // or 5 times per second = every 200 ms
    
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    _strobe_interval = 1500;  //every 1 seconds, or every thirty frames 30 frames
+    _strobe_interval = 1750;  //every 1 seconds, or every thirty frames 30 frames
 
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
@@ -30,14 +30,29 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     int anim_time = 5;   // 5 seconds for the animation
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
+    
     _show_image = false;
     _image_shown = false;
     
-    //for an ofxOpenCv.h image i would like to use..."
-    //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    //  images use for drawing the synthesized files to the screen ///
+    image1.setUseTexture(false);  // the non texture image that is needed to first load the image
+    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
     
-    image1.setUseTexture(false);
-    image2.setUseTexture(true);
+    //  images used for re-loading and saving out the synthesized files ///
+    image3.setUseTexture(false);  
+    image4.setUseTexture(false);
+    image5.setUseTexture(false);
+    
+   // cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
+   // cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
+    
+    cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
+    cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 
 }
 
@@ -75,39 +90,93 @@ void StrobeAnalysis::acquire()
 
 void StrobeAnalysis::synthesise()
 {
-    // _saved_filenames has all the file names of all the saved images
+   // cout << "StrobeAnalysis::saving synthesis...\n";
+    if(_state == STATE_STOP) return;
+    
+    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
+        
+    //    cout << "StrobeAnalysis::synthesis FOR LOOP...\n";
+        
+    //    cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
+        
+        if(_state == STATE_STOP) return;
+        
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
+            //couldn't load image
+    //        cout << "didn't load image" << endl;
+        } 
+        
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+    //        cout << "LOADED image1!!!" << endl;
+            //if(image5.loadImage(_saved_filenames_analysis[i+1])){
+                
+                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+                
+                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
+                
+                cvGrayImage1 = cvColorImage1;
+                //cvGrayImage2 = cvColorImage2;
+                
+                //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
+                //cvGrayDiff1.erode();
+                //cvGrayDiff1.contrastStretch();
+                //cvGrayDiff1.blur(5);
+                //cvGrayDiff1.dilate();
+                //cvGrayDiff1.contrastStretch();
+                
+                cvGrayImage1.contrastStretch();
+                cvGrayImage1.blur(10);   
+                cvGrayImage1.dilate();
+               
+                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
+                string file_name;
+                
+                file_name = ofToString(_synth_save_cnt, 2)+"_StrobeAnalysis_"+ofToString(_run_cnt,2)+".jpg";
+                
+                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
+                
+                ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                //ofSaveImage(cvGrayDiff1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                _synth_save_cnt++;
+                
+            //}
+        }
+    }
+    
+    // _saved_filenames_synthesis has processed all the files in the analysis images folder
     while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3);
+        Thread::sleep(3); 
 }
 
 void StrobeAnalysis::displayresults()
 {
     
-    for(float i=1;i<_saved_filenames.size();i++){
+    for(float i=1;i<_saved_filenames_synthesis.size();i++){
         
         if(_state == STATE_STOP) return;
         
-        cout << "_saved_filenames[i]" << _saved_filenames[i] << endl;
+    //    cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
         
         while(!_image_shown){
             Thread::sleep(2);
             //cout << "!_image_shown" << endl;
         }
         
-        
-        if(!image1.loadImage(_saved_filenames[i])){
+        if(!image3.loadImage(_saved_filenames_synthesis[i])){
             //couldn't load image
-            cout << "didn't load image" << endl;
+      //      cout << "didn't load image" << endl;
         } 
         
-        
-        if(image1.loadImage(_saved_filenames[i])){
-            image1.loadImage(_saved_filenames[i]);
+        if(image3.loadImage(_saved_filenames_synthesis[i])){
+            image3.loadImage(_saved_filenames_synthesis[i]);
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
         }
     }
+    
 }
 
 
@@ -124,7 +193,7 @@ void StrobeAnalysis::draw()
                 ofEnableAlphaBlending();
                 ofColor aColour;
                 int _fade_in_frames = _frame_cnt_max/10;
-                cout<< "_fade_in_frames" << _fade_in_frames<< endl;
+           //     cout<< "_fade_in_frames" << _fade_in_frames<< endl;
                 
                 if (_frame_cnt < _fade_in_frames) {
                     
@@ -179,7 +248,7 @@ void StrobeAnalysis::draw()
         {
             // display animation of something while the synthesis in on-going...
             
-            cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
+          //  cout << "StrobeAnalysis = STATE_SYNTHESISING...\n";
             
             // display animation of something while the synthesis in on-going...
             ofEnableAlphaBlending();
@@ -200,7 +269,7 @@ void StrobeAnalysis::draw()
                 //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
                 
                 if (_anim_cnt < _fade_in_frames) {
-                    cout << "ShadowScapesAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+            //        cout << "StrobeAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
                     
                     fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
                     
@@ -229,9 +298,9 @@ void StrobeAnalysis::draw()
                 
                 if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _anim_cnt <= _anim_cnt_max) {
                     
-                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+             //       cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
                     fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
-                    cout << "fade down = " << fade << endl;
+             //       cout << "fade down = " << fade << endl;
                     
                     for (int i=0; i <= 15; i++){
                         
@@ -261,6 +330,8 @@ void StrobeAnalysis::draw()
         case STATE_DISPLAY_RESULTS:
         {
             
+         //   cout << "STATE_DISPLAY_RESULTS...\n" << endl;
+            
             if (_frame_cnt > 2)
             {
                 _image_shown = true;
@@ -271,10 +342,12 @@ void StrobeAnalysis::draw()
             
             if (_show_image)
             {  
+         //       cout << "_show_image...\n" << endl;
+                
                 ofEnableAlphaBlending();
                 
-                ofSetColor(255, 255, 255, 255);
-                image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+                ofSetColor(255, 255, 255);
+                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
                 image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
@@ -283,6 +356,7 @@ void StrobeAnalysis::draw()
             // display results of the synthesis
             _RUN_DONE = true;
             break;
+
 
         }
             
@@ -311,9 +385,7 @@ void StrobeAnalysis::save_cb(Timer& timer)
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
-    _saved_filenames.push_back(_whole_file_path+"/"+file_name);
-
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
 
 }

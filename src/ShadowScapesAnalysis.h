@@ -38,7 +38,7 @@ protected:
     float    _scanLineWidth; // pix per second
     float     _step;
     shadow_type _dir;
-    int     _run_cnt, _save_cnt, _anim_cnt;
+    int     _run_cnt, _save_cnt, _synth_save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
     bool _show_image, _image_shown;

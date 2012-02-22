@@ -10,6 +10,7 @@
 #include <string>
 
 #define ANALYSIS_PATH "analysis/"
+#define SYNTHESIS_PATH "synthesis/"
 
 #define STATE_ACQUIRING         0x1111
 #define STATE_SYNTHESISING      0x2222
@@ -24,10 +25,11 @@ public:
     
     // generic function to set up the camera
     virtual void setup(int camWidth, int camHeight){_cam_w = camWidth; _cam_h = camHeight;}  
+
     // this is the main threaded loop for a given analysis
     void do_synthesize();
                         
-    // ofx
+    // show the results to the screen
     virtual void draw() = 0;    
         
 protected:
@@ -39,8 +41,9 @@ protected:
     
     // analysis + synthesize images - all the children (see - do_synthesize)
     virtual void synthesise() = 0;   
-    virtual void displayresults() = 0;   
     
+    // display the results from disk
+    virtual void displayresults() = 0;   
         
 public:
     string  _name;    
@@ -50,8 +53,9 @@ public:
 
 protected:    
     int             _cam_w, _cam_h;          
-    string          _whole_file_path;
-    vector<string>  _saved_filenames;
+    string          _whole_file_path_analysis, _whole_file_path_synthesis;
+    vector<string>  _saved_filenames_analysis;
+    vector<string>  _saved_filenames_synthesis;
     
     int             _state;
     
