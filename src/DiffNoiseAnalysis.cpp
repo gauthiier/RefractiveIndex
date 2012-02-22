@@ -61,8 +61,6 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-
-
 }
 
 
