@@ -64,7 +64,7 @@ void StrobeAnalysis::acquire()
     Timer* save_timer;
     TimerCallback<StrobeAnalysis> save_callback(*this, &StrobeAnalysis::save_cb);
     
-    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0, _synth_save_cnt = 0;
     _run_cnt++;
     _RUN_DONE = false;
     create_dir();

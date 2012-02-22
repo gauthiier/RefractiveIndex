@@ -66,7 +66,7 @@ void CamNoiseAnalysis::acquire()
     Timer* save_timer;
     TimerCallback<CamNoiseAnalysis> save_callback(*this, &CamNoiseAnalysis::save_cb);
 
-    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0, _synth_save_cnt = 0;
     _run_cnt++;
     _RUN_DONE = false;
     create_dir();

@@ -74,7 +74,7 @@ void ShadowScapesAnalysis::acquire()
     TimerCallback<ShadowScapesAnalysis> save_callback(*this, &ShadowScapesAnalysis::save_cb);
     
     _run_cnt++;
-    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0, _synth_save_cnt = 0;
     _line = 0;
     _RUN_DONE = false;
 

@@ -67,7 +67,7 @@ void ColorMultiAnalysis::acquire()
     TimerCallback<ColorMultiAnalysis> save_callback(*this, &ColorMultiAnalysis::save_cb);
 
     _run_cnt++;
-    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0, _synth_save_cnt = 0;
     _RUN_DONE = false;
     create_dir();
     
