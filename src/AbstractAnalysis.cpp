@@ -6,15 +6,22 @@
 
 // this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
-    _saved_filenames_analysis.clear();
-    _state = STATE_ACQUIRING;
-    acquire();
-    if(_state == STATE_STOP) goto exit;
-    _state = STATE_SYNTHESISING;
-    synthesise();
-    if(_state == STATE_STOP) goto exit;
-    _state = STATE_DISPLAY_RESULTS;
-    displayresults();
+    
+    for(int i = 0; i < NUM_RUN; i++) {
+        
+        cout << "i NUM_RUN" << i << endl;
+                
+        _saved_filenames_analysis.clear();    
+        _state = STATE_ACQUIRING;
+        acquire();
+        if(_state == STATE_STOP) goto exit;
+        _state = STATE_SYNTHESISING;
+        synthesise();
+        if(_state == STATE_STOP) goto exit;
+        _state = STATE_DISPLAY_RESULTS;
+        displayresults();
+    }
+    
     exit:    
     ofNotifyEvent(_synthesize_cb, _name);
 }

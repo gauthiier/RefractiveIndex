@@ -13,8 +13,8 @@ using Poco::Thread;
 
 void CamNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    
-    NUM_RUN = 1;
+
+    NUM_RUN = 5;
     
     int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -23,16 +23,15 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    create_dir();
-    
     _frame_cnt = 0;
+    _run_cnt = 0;
+    
     c = 0;
     
     int anim_time = 10;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
         
-    create_dir();
-
+    //create_dir();
 
     _show_image = false;
     _image_shown = false;
@@ -64,29 +63,28 @@ void CamNoiseAnalysis::acquire()
 {
 
     Timer* save_timer;
-
     TimerCallback<CamNoiseAnalysis> save_callback(*this, &CamNoiseAnalysis::save_cb);
 
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _run_cnt++;
+    _RUN_DONE = false;
+    create_dir();
+
     // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
+    // for(int i = 0; i < NUM_RUN; i++) {
+    // _run_cnt = i;
+    //cout << "RUN NUM = " << i;
 
-        _run_cnt = i;
-
-        //cout << "RUN NUM = " << i;
-
-        save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);
-        _RUN_DONE = false;
-
-         _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
-
+    save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+    save_timer->start(save_callback);
+    
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
-        save_timer->stop();
-        
-        _RUN_DONE = false;
-    }
+    save_timer->stop();
+    
+
+   // }
 }
 
 void CamNoiseAnalysis::synthesise()

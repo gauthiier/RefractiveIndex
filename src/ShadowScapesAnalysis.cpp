@@ -16,7 +16,7 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = 1;
+    NUM_RUN = 5;
     
     int acq_run_time = 15;   // 10 seconds of acquiring per run
     
@@ -33,7 +33,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     DELTA_T_SAVE = 3*(10*acq_run_time/2);   // for 20 seconds, we want this to be around 100 files
                                             // or 5 times per second = every 200 ms
         
-    create_dir();  // this makes both synth and analysis folder structures
+    //create_dir();  // this makes both synth and analysis folder structures
 
     _scanLineWidth = 100.0;
     _run_cnt = 0;
@@ -65,31 +65,31 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
 }
 
 void ShadowScapesAnalysis::acquire()
 {
-    _line = 0;
+        
+    Timer save_timer(0, DELTA_T_SAVE);  
+    TimerCallback<ShadowScapesAnalysis> save_callback(*this, &ShadowScapesAnalysis::save_cb);
     
-    // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
-        
-        Timer save_timer(0, DELTA_T_SAVE);  
-        TimerCallback<ShadowScapesAnalysis> save_callback(*this, &ShadowScapesAnalysis::save_cb);
-        
-        _RUN_DONE = false;
-        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
-        
-        save_timer.start(save_callback);
-        
+    _run_cnt++;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _line = 0;
+    _RUN_DONE = false;
+
+    create_dir();
+    
+    //cout << "RUN NUM = " << i;
+   
+    save_timer.start(save_callback);
+      
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
-        
-        save_timer.stop();
-        
-        _RUN_DONE = false;
-    }
+    
+    save_timer.stop();
+    
+    //}
 
 }
 

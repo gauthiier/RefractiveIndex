@@ -13,7 +13,7 @@ using Poco::Thread;
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = 1;
+    NUM_RUN = 5;
     
     int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -22,8 +22,9 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    create_dir();
+    //create_dir();
     
+    _run_cnt = 0;
     _level = 0;
     _flip = 1;
     _frame_cnt = 0;
@@ -35,78 +36,141 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     _show_image = false;
     _image_shown = false;
     
-    //for an ofxOpenCv.h image i would like to use..."
-    //image3.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    //  images use for drawing the synthesized files to the screen ///
+    image1.setUseTexture(false);  // the non texture image that is needed to first load the image
+    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
     
-    image1.setUseTexture(false);
-    image2.setUseTexture(true);
+    //  images used for re-loading and saving out the synthesized files ///
+    image3.setUseTexture(false);  
+    image4.setUseTexture(false);
+    image5.setUseTexture(false);
+    
+    //cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
+    //cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
+    
+    cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
+    cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
 }
 
 
 void RelaxRateAnalysis::acquire()
 {
     Timer* save_timer;
-
     TimerCallback<RelaxRateAnalysis> save_callback(*this, &RelaxRateAnalysis::save_cb);
+    
+    _run_cnt++;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _RUN_DONE = false;
 
+    create_dir();
+    
     // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
-
-        _run_cnt = i;
-
-        //cout << "RUN NUM = " << i;
-
-        save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);
-        _RUN_DONE = false;
-         _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
-
+    //for(int i = 0; i < NUM_RUN; i++) {
+    //_run_cnt = i;
+    //cout << "RUN NUM = " << i;
+    
+    save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+  
+    save_timer->start(save_callback);
+  
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
-
-        save_timer->stop();
+    
+    save_timer->stop();
         
-        _RUN_DONE = false;
-    }
 }
 
 void RelaxRateAnalysis::synthesise()
 {
-
-    // _saved_filenames_analysis has all the file names of all the saved images
-    while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3);
-  
-}
-
-void RelaxRateAnalysis::displayresults()
-{
+    //cout << "IResponseAnalysis::saving synthesis...\n";
+    if(_state == STATE_STOP) return;
     
-    for(float i=1;i<_saved_filenames_analysis.size();i++){
+    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
+        
+        //cout << "IResponseAnalysis::synthesis FOR LOOP...\n";
+        
+        //cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
         
         if(_state == STATE_STOP) return;
-        
-       // cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
-        
-        while(!_image_shown){
-            Thread::sleep(2);
-            //cout << "!_image_shown" << endl;
-        }
-        
         
         if(!image1.loadImage(_saved_filenames_analysis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
         
-        
         if(image1.loadImage(_saved_filenames_analysis[i])){
-            image1.loadImage(_saved_filenames_analysis[i]);
+            //cout << "LOADED image1!!!" << endl;
+            if(image5.loadImage(_saved_filenames_analysis[i+1])){
+                
+                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+                
+                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
+                
+                cvGrayImage1 = cvColorImage1;
+                cvGrayImage2 = cvColorImage2;
+                
+                //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
+                cvGrayDiff1.erode();
+                cvGrayDiff1.contrastStretch();
+                cvGrayDiff1.blur(5);
+                //cvGrayDiff1.dilate();
+                //cvGrayDiff1.contrastStretch();
+                
+                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
+                string file_name;
+                
+                file_name = ofToString(_synth_save_cnt, 2)+"_RelaxRateAnalysis_"+ofToString(_run_cnt,2)+".jpg";
+                
+                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
+                
+                ofSaveImage(cvGrayDiff1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                _synth_save_cnt++;
+            }
+        }
+    }
+    
+    // _saved_filenames_synthesis has processed all the files in the analysis images folder
+    while(!_RUN_DONE && _state != STATE_STOP)
+        Thread::sleep(3);
+    
+}
+
+void RelaxRateAnalysis::displayresults()
+{
+    
+    for(float i=1;i<_saved_filenames_synthesis.size();i++){
+        
+        if(_state == STATE_STOP) return;
+        
+        //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
+        
+        while(!_image_shown){
+            Thread::sleep(2);
+            //cout << "!_image_shown" << endl;
+        }
+        
+        if(!image3.loadImage(_saved_filenames_synthesis[i])){
+            //couldn't load image
+            // cout << "didn't load image" << endl;
+        } 
+        
+        if(image3.loadImage(_saved_filenames_synthesis[i])){
+            image3.loadImage(_saved_filenames_synthesis[i]);
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
         }
     }
+
+    
 }
 
 
@@ -250,11 +314,12 @@ void RelaxRateAnalysis::draw()
             
             if (_show_image)
             {  
+                //cout << "_show_image...\n" << endl;
+                
                 ofEnableAlphaBlending();
                 
-                ofSetColor(255, 255, 255, 255);
-                
-                image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
+                ofSetColor(255, 255, 255);
+                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
                 image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
@@ -263,6 +328,7 @@ void RelaxRateAnalysis::draw()
             // display results of the synthesis
             _RUN_DONE = true;
             break;
+        
         }
             
         default:

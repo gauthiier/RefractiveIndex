@@ -12,7 +12,7 @@ using Poco::Thread;
 
 void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = 1;
+    NUM_RUN = 5;
     
     int acq_run_time = 25;   // 20 seconds of acquiring per run
     
@@ -25,11 +25,12 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
-    create_dir();
+    //create_dir();
+    
+    _run_cnt = 0;
     
     int anim_time = 5;   // 5 seconds for the animation
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
-    
     
     _show_image = false;
     _image_shown = false;
@@ -61,31 +62,30 @@ void StrobeAnalysis::acquire()
 {
 
     Timer* save_timer;
-
     TimerCallback<StrobeAnalysis> save_callback(*this, &StrobeAnalysis::save_cb);
-
+    
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0;
+    _run_cnt++;
+    _RUN_DONE = false;
+    create_dir();
+    
     // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
+    //for(int i = 0; i < NUM_RUN; i++) {
 
-        _run_cnt = i;
-        _save_cnt = 0;
-        _frame_cnt = 0;
+    //_run_cnt = i;
+    
+    //cout << "RUN NUM = " << i;
 
-        //cout << "RUN NUM = " << i;
-
-        save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);
-        _RUN_DONE = false;
-        
-        _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0;
-
+    save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+    save_timer->start(save_callback);
+    
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
-        save_timer->stop();
-        
-        _RUN_DONE = false;
-    }
+    save_timer->stop();
+  
+    
+    //}
 }
 
 void StrobeAnalysis::synthesise()

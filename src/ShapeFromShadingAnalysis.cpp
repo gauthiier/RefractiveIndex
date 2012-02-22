@@ -12,7 +12,7 @@ using Poco::Thread;
 
 void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
 {    
-    NUM_RUN = 1;
+    NUM_RUN = 5;
     
     int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -21,8 +21,8 @@ void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    create_dir();
-    
+    //create_dir();
+    _run_cnt = 0;
     _frame_cnt = 0;
     c = 0;
     
@@ -61,47 +61,48 @@ void ShapeFromShadingAnalysis::acquire()
 {
 
     Timer* save_timer;
-
     TimerCallback<ShapeFromShadingAnalysis> save_callback(*this, &ShapeFromShadingAnalysis::save_cb);
 
+    _run_cnt++;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;    
+    _RUN_DONE = false;
+    create_dir();
+    
+    _animation_cnt1 = 0;
+    _animation_cnt2 = 0;
+    _animation_cnt3 = 0;
+    _animation_cnt4 = 0;
+    _animation_cnt5 = 0;
+    _animation_cnt6 = 0;
+    _animation_cnt7 = 0;
+    _animation_cnt8 = 0;
+    _animation_cnt9 = 0;
+    _animation_cnt10 = 0;
+    _animation_cnt11 = 0;
+    _animation_cnt12 = 0;
+    _animation_cnt13 = 0;
+    _animation_cnt14 = 0;
+    _animation_cnt15 = 0;
+    _animation_cnt16 = 0;
+    _animation_reset = false;  // coundn't get this to work - so using seperate counters - shitty!
+    
     // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
+    //for(int i = 0; i < NUM_RUN; i++) {
 
-        _run_cnt = i;
+      //  _run_cnt = i;
 
         //cout << "RUN NUM = " << i;
 
-        save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);
-        _RUN_DONE = false;
-         _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
-        
-        _animation_cnt1 = 0;
-        _animation_cnt2 = 0;
-        _animation_cnt3 = 0;
-        _animation_cnt4 = 0;
-        _animation_cnt5 = 0;
-        _animation_cnt6 = 0;
-        _animation_cnt7 = 0;
-        _animation_cnt8 = 0;
-        _animation_cnt9 = 0;
-        _animation_cnt10 = 0;
-        _animation_cnt11 = 0;
-        _animation_cnt12 = 0;
-        _animation_cnt13 = 0;
-        _animation_cnt14 = 0;
-        _animation_cnt15 = 0;
-        _animation_cnt16 = 0;
-        _animation_reset = false;  // coundn't get this to work - so using seperate counters - shitty!
-        
+    save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+   
+    save_timer->start(save_callback);
+     
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
-        save_timer->stop();
-        
-        _RUN_DONE = false;
-
-    }
+    save_timer->stop();
+    
+   // }
 }
 
 void ShapeFromShadingAnalysis::synthesise()

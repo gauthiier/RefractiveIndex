@@ -13,7 +13,7 @@ using Poco::Thread;
 void IResponseAnalysis::setup(int camWidth, int camHeight)
 {
     
-    NUM_RUN = 1;
+    NUM_RUN = 5;
     
     int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -22,8 +22,9 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    create_dir();
+    //create_dir();
     
+    _run_cnt = 0;
     _frame_cnt = 0;
     c = 0;
     
@@ -61,29 +62,28 @@ void IResponseAnalysis::acquire()
 {
 
     Timer* save_timer;
-
     TimerCallback<IResponseAnalysis> save_callback(*this, &IResponseAnalysis::save_cb);
 
+    _run_cnt++;
+    _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
+    _RUN_DONE = false;
+    create_dir();
+
     // RUN ROUTINE
-    for(int i = 0; i < NUM_RUN; i++) {
+    //for(int i = 0; i < NUM_RUN; i++) {
+    //_run_cnt = i;
+    //cout << "RUN NUM = " << i;
 
-        _run_cnt = i;
-
-        //cout << "RUN NUM = " << i;
-
-        save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
-        save_timer->start(save_callback);
-        
-         _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;
-
+    save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
+   
+    save_timer->start(save_callback);
+    
         while(!_RUN_DONE && _state != STATE_STOP)
             Thread::sleep(3);
 
-        save_timer->stop();
-        
-        _RUN_DONE = false;
-        
-    }
+    save_timer->stop();
+   
+    //}
 }
 
 void IResponseAnalysis::synthesise()
@@ -308,7 +308,6 @@ void IResponseAnalysis::draw()
         case STATE_DISPLAY_RESULTS:
         {
             //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
-            
             
             if (_frame_cnt > 2)
             {

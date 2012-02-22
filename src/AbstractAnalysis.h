@@ -59,6 +59,8 @@ protected:
     
     int             _state;
     
+    //int             _run_cnt;
+    
     float           DELTA_T_SAVE;
     int             NUM_PHASE;
     int             NUM_RUN;
