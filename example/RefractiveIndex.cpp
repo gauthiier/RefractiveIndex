@@ -36,7 +36,7 @@ bool             RefractiveIndex::_vid_stream_open;
 bool             RefractiveIndex::_vid_toggle_on;
 string           RefractiveIndex::_location;
 
-ofxXmlSettings   XML;
+ofxXmlSettings   RefractiveIndex::XML;
 
 void RefractiveIndex::setup()
 {

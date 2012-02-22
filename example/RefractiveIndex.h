@@ -9,6 +9,7 @@
 #include "AnalysisAdaptor.h"
 
 #include "ofxOpenCv.h"
+#include "ofxXmlSettings.h"
 
 class RefractiveIndex : public ofBaseApp
 {
@@ -61,5 +62,6 @@ public:
     
     // this should be in xml
     static string           _location;
+    static ofxXmlSettings   XML;  // made this static so we can access RUN_NUM in the analyses 
     
 };

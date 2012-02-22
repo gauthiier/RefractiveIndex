@@ -10,9 +10,14 @@ using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
 
+#define NUMBER_RUNS     1
+
 void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = 5;
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    cout << "NUM_RUN StrobeAnalysis " << NUM_RUN << endl;
+
+    //NUM_RUN = 5;
     
     int acq_run_time = 25;   // 20 seconds of acquiring per run
     

@@ -5,6 +5,7 @@
 #include "Poco/Thread.h"
 #include "RefractiveIndex.h"
 
+//#include "ofxXmlSettings.h"
 #include "ofxOpenCv.h"
 
 using Poco::Timer;
@@ -13,10 +14,13 @@ using Poco::Thread;
 
 #define STATE_SCAN      0
 #define STATE_ANALYSIS  1
+#define NUMBER_RUNS     1
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = 5;
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    cout << "NUM_RUN ShadowScapesAnalysis " << NUM_RUN << endl;
+    //NUM_RUN = 5;
     
     int acq_run_time = 15;   // 10 seconds of acquiring per run
     

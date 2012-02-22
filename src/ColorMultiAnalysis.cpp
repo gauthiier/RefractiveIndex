@@ -9,11 +9,14 @@ using Poco::Timer;
 using Poco::TimerCallback;
 using Poco::Thread;
 
+#define NUMBER_RUNS     1
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    cout << "NUM_RUN ColorMultiAnalysis " << NUM_RUN << endl;
     
-    NUM_RUN = 5;
+    //NUM_RUN = 5;
     
     int acq_run_time = 35;  
     
