@@ -133,15 +133,15 @@ void ShadowScapesAnalysis::synthesise()
                 string file_name;
                 
                 if(_dir == H) {
-                    file_name = ofToString(_synth_save_cnt, 2)+"_H_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                    file_name = ofToString(_synth_save_cnt, 2)+"_H_ShadowScapesSynthesis_"+ofToString(_run_cnt,2)+".jpg";
                 }
                 
                 if(_dir == V) {
-                    file_name = ofToString(_synth_save_cnt, 2)+"_V_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                    file_name = ofToString(_synth_save_cnt, 2)+"_V_ShadowScapesSynthesis_"+ofToString(_run_cnt,2)+".jpg";
                 }    
                 
                 if(_dir == D) {
-                    file_name = ofToString(_synth_save_cnt, 2)+"_D_ShadowScapesSynthesis"+ofToString(_run_cnt,2)+".jpg";
+                    file_name = ofToString(_synth_save_cnt, 2)+"_D_ShadowScapesSynthesis_"+ofToString(_run_cnt,2)+".jpg";
                 }
                 
                 //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);

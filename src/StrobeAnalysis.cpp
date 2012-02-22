@@ -26,7 +26,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
     //create_dir();
-    
+    _synth_save_cnt = 0;
     _run_cnt = 0;
     
     int anim_time = 5;   // 5 seconds for the animation

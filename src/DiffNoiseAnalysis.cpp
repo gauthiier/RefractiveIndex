@@ -27,6 +27,7 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
     
     _run_cnt = 0;
     _frame_cnt = 0;
+    _synth_save_cnt = 0;
     c = 0;
     
     int anim_time = 10;   // 10 seconds

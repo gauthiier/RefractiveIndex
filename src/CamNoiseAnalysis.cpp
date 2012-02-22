@@ -25,6 +25,7 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt = 0;
     _run_cnt = 0;
+    _synth_save_cnt = 0;
     
     c = 0;
     

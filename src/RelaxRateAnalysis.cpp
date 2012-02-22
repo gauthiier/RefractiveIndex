@@ -29,7 +29,8 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     _flip = 1;
     _frame_cnt = 0;
     c = 0;
-
+    _synth_save_cnt = 0;
+    
     int anim_time = 5;   // 10 seconds
     _anim_cnt_max = anim_time*ofGetFrameRate();  // e.g.: 30 frames per second = 150 frames
     
