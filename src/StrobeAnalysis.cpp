@@ -11,6 +11,7 @@ using Poco::TimerCallback;
 using Poco::Thread;
 
 #define NUMBER_RUNS     1
+#define ACQUIRE_TIME    30
 
 void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
@@ -19,14 +20,18 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 
     //NUM_RUN = 5;
     
-    int acq_run_time = 25;   // 20 seconds of acquiring per run
+    int acq_run_time;   // 10 seconds of acquiring per run
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_strobe", ACQUIRE_TIME);
+    cout << "ACQUIRE_TIME StrobeAnalysis " << acq_run_time << endl;
+    
+    //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 100 files
                                           // or 5 times per second = every 200 ms
    
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    _strobe_interval = 1750;  //every 1 seconds, or every thirty frames 30 frames
+    _strobe_interval = 2000;  //every 1 seconds, or every thirty frames 30 frames
 
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
@@ -113,40 +118,45 @@ void StrobeAnalysis::synthesise()
         
         if(image1.loadImage(_saved_filenames_analysis[i])){
     //        cout << "LOADED image1!!!" << endl;
-            //if(image5.loadImage(_saved_filenames_analysis[i+1])){
+            if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
-                
+            
                 cvGrayImage1 = cvColorImage1;
-                //cvGrayImage2 = cvColorImage2;
-                
-                //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                //cvGrayDiff1.erode();
-                //cvGrayDiff1.contrastStretch();
-                //cvGrayDiff1.blur(5);
-                //cvGrayDiff1.dilate();
-                //cvGrayDiff1.contrastStretch();
-                
-                cvGrayImage1.contrastStretch();
-                cvGrayImage1.blur(10);   
-                cvGrayImage1.dilate();
+                cvGrayImage2 = cvColorImage2;
+            
+                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
+                cvGrayDiff1.dilate();
+                cvGrayDiff1.dilate();
+                cvGrayDiff1.contrastStretch();
                
                 /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
                 string file_name;
                 
                 file_name = ofToString(_synth_save_cnt, 2)+"_StrobeAnalysis_"+ofToString(_run_cnt,2)+".jpg";
                 
-                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
+        
+                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
                 
-                ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                //ofSaveImage(cvGrayDiff1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                
+                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+                ofImage image;
+                //image.allocate(cvGrayImage1.width, cvGrayImage1.height, OF_IMAGE_GRAYSCALE);    
+            
+                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+                image.setUseTexture(false);  
+                
+                image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height,OF_IMAGE_GRAYSCALE);
+                image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+                
                 _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
                 _synth_save_cnt++;
                 
-            //}
+            }
         }
     }
     
@@ -390,7 +400,26 @@ void StrobeAnalysis::save_cb(Timer& timer)
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+    //ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    
+    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+    unsigned char * somePixels;
+    ofPixels appPix = RefractiveIndex::_pixels;
+    somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
+    somePixels = appPix.getPixels();
+
+    ofImage myImage;
+    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    
+    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+    myImage.setUseTexture(false);
+    
+    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+file_name);
+    
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
 
 }

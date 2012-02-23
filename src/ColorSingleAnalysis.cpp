@@ -11,6 +11,7 @@ using Poco::TimerCallback;
 using Poco::Thread;
 
 #define NUMBER_RUNS     1
+#define ACQUIRE_TIME    20
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
@@ -19,7 +20,11 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     
     //NUM_RUN = 5;
     
-    int acq_run_time = 25;   // 20 seconds of acquiring per run
+    int acq_run_time;   // 10 seconds of acquiring per run
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_colorsingle", ACQUIRE_TIME);
+    cout << "ACQUIRE_TIME ColorSingleAnalysis " << acq_run_time << endl;
+    
+    //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 1*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
                                             // or 10 times per second = every 100 ms
@@ -134,7 +139,6 @@ void ColorSingleAnalysis::synthesise()
                 //cvGrayDiff1.dilate();
                 //cvGrayDiff1.contrastStretch();
             
-                cvColorImage1.contrastStretch();
                 cvColorImage1.blur(5);
                 cvColorImage1.erode();
                 cvColorImage1.erode();
@@ -150,9 +154,21 @@ void ColorSingleAnalysis::synthesise()
                 
                 file_name = ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".jpg";
                 
-                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
                 
-                ofSaveImage(cvColorImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                
+                
+                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+                ofImage image;
+                //image.allocate(cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
+                
+                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+                image.setUseTexture(false);  
+                
+                image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
+                image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+            
                 _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
                 _synth_save_cnt++;
                 
@@ -367,7 +383,6 @@ void ColorSingleAnalysis::draw()
                 
                 ofSetColor(255, 255, 255);
                 image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
-                //image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
                 image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
@@ -404,8 +419,26 @@ void ColorSingleAnalysis::save_cb(Timer& timer)
     
     string file_name =ofToString(_save_cnt,2)+"_"+fileNameTag+"_"+ofToString(_run_cnt,2)+".jpg";
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
     
+    //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+    //ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    
+    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+    unsigned char * somePixels;
+    ofPixels appPix = RefractiveIndex::_pixels;
+    somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
+    somePixels = appPix.getPixels();
+    
+    ofImage myImage;
+    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    
+    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+    myImage.setUseTexture(false);
+    
+    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+file_name);
+        
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
 
 

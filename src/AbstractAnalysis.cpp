@@ -11,7 +11,9 @@ void AbstractAnalysis::do_synthesize() {
         
         cout << "i NUM_RUN" << i << endl;
                 
-        _saved_filenames_analysis.clear();    
+        _saved_filenames_analysis.clear();  
+        _saved_filenames_synthesis.clear();    
+        
         _state = STATE_ACQUIRING;
         acquire();
         if(_state == STATE_STOP) goto exit;
@@ -57,19 +59,38 @@ void AbstractAnalysis::create_dir()
     //cout << "_whole_file_path_analysis = " << _whole_file_path_analysis << endl;
     
     if(!fileHelperAnalysis.doesDirectoryExist(_whole_file_path_analysis)){
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(ANALYSIS_PATH))
         fileHelperAnalysis.makeDirectory(ANALYSIS_PATH);
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(ANALYSIS_PATH+RefractiveIndex::_location))
         fileHelperAnalysis.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location);
+
+        if(!fileHelperAnalysis.doesDirectoryExist(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name))
         fileHelperAnalysis.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name);
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime))
         fileHelperAnalysis.makeDirectory(ANALYSIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
+        
+        
     }
     
     _whole_file_path_synthesis = SYNTHESIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime;
     
     if(!fileHelperSynthesis.doesDirectoryExist(_whole_file_path_synthesis)){
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(SYNTHESIS_PATH))
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH);
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(SYNTHESIS_PATH+RefractiveIndex::_location))
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location);
+
+        if(!fileHelperAnalysis.doesDirectoryExist(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name))
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name);
+        
+        if(!fileHelperAnalysis.doesDirectoryExist(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime))
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
+        
     }
     
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////    

@@ -15,6 +15,7 @@ using Poco::Thread;
 #define STATE_SCAN      0
 #define STATE_ANALYSIS  1
 #define NUMBER_RUNS     1
+#define ACQUIRE_TIME    20
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
@@ -22,7 +23,9 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     cout << "NUM_RUN ShadowScapesAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
     
-    int acq_run_time = 15;   // 10 seconds of acquiring per run
+    int acq_run_time;   // 10 seconds of acquiring per run
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_shadowscapes", ACQUIRE_TIME);
+    cout << "ACQUIRE_TIME ShadowScapesAnalysis " << acq_run_time << endl;
     
     int screenSpan;
     if (_dir == V) screenSpan = ofGetHeight();
@@ -131,7 +134,6 @@ void ShadowScapesAnalysis::synthesise()
                 cvGrayDiff1.contrastStretch();
                 cvGrayDiff1.blur(5);
                 cvGrayDiff1.dilate();
-                cvGrayDiff1.contrastStretch();
                 
                 /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
                 string file_name;
@@ -148,9 +150,22 @@ void ShadowScapesAnalysis::synthesise()
                     file_name = ofToString(_synth_save_cnt, 2)+"_D_ShadowScapesSynthesis_"+ofToString(_run_cnt,2)+".jpg";
                 }
                 
-                //image4.setFromPixels(cvColorImage1.getPixelsRef(),image3.width, image3.height, OF_IMAGE_COLOR);
                 
-                ofSaveImage(cvGrayDiff1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+                
+                
+                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+                ofImage image;
+                //image.allocate(cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
+                
+                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+                image.setUseTexture(false);  
+                
+                
+                image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
+                image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+
                 _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
                 _synth_save_cnt++;
                 
@@ -372,9 +387,9 @@ void ShadowScapesAnalysis::draw()
                 
                 if (_anim_cnt > (_anim_cnt_max-_fade_in_frames) && _anim_cnt <= _anim_cnt_max) {
                     
-                    cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
+                    //cout << "_anim_cnt = " << _anim_cnt-(_anim_cnt_max-_fade_in_frames) << endl;
                     fade = ofMap(_anim_cnt-(_anim_cnt_max-_fade_in_frames), 0, _fade_in_frames, 0, 255);
-                    cout << "fade down = " << fade << endl;
+                    //cout << "fade down = " << fade << endl;
                    
                     for (int i=0; i <= 15; i++){
                         
@@ -425,33 +440,6 @@ void ShadowScapesAnalysis::draw()
                 
                 ofDisableAlphaBlending();
                 
-                //cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
-                
-                
-                // THE OLD SHIT
-                /*
-                ofEnableAlphaBlending();
-                
-                ofSetColor(255, 255, 255, 200);
-                image3.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
-                image4.setFromPixels(image2.getPixels(),image2.width,image2.height, OF_IMAGE_COLOR);
-                                
-                cvColorImage1.setFromPixels(image3.getPixels(), image3.width, image3.height);
-                cvColorImage2.setFromPixels(image4.getPixels(), image4.width, image4.height);
-                
-                cvGrayImage1 = cvColorImage1;
-                cvGrayImage2 = cvColorImage2;
-                
-                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                cvGrayDiff1.contrastStretch();
-                cvGrayDiff1.dilate();
-                
-                cvGrayDiff1.draw(0,0, ofGetWidth(), ofGetHeight());
-                
-                ofDisableAlphaBlending();            
-                */     
-                
-                //image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
             }
             
@@ -497,8 +485,26 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
         file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+    //ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+    
+    
+    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+    unsigned char * somePixels;
+    ofPixels appPix = RefractiveIndex::_pixels;
+    somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
+    somePixels = appPix.getPixels();
+    
+    ofImage myImage;
+    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    
+    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+    myImage.setUseTexture(false);
+    
+    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+file_name);
     
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
-    
+        
 }

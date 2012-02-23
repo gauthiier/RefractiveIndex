@@ -52,6 +52,8 @@ void RefractiveIndex::setup()
         
     // <camera>
     _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
+    cout << "_vid_id: " << _vid_id << endl;
+    
     _vid_w  = XML.getValue("config:camera:width", CAMERA_ACQU_WIDTH);
     _vid_h  = XML.getValue("config:camera:height", CAMERA_ACQU_HEIGHT);
     
@@ -116,7 +118,6 @@ void RefractiveIndex::setup()
 
     //_currentAnalysisIndx = 0;
     //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
-    
     //_state = ISTATE_START;
     
     _currentAnalysis = NULL;
@@ -190,22 +191,11 @@ void RefractiveIndex::update()
 
 void RefractiveIndex::draw()
 {
-    // refractive mauve
+    // refractive mauve - this doesn't work... looks weird in various places.
     //ofBackground(113, 110, 136);
     
     // black
     ofBackground(0, 0, 0);
-    
-    //TODO:  Needs to return to a black screen - not to exit... 
-    
-    // i.e.: operational sequence
-    //    1) starts in a black screen
-    //    2) we 'start' with keypress "s" the entire set of analyses
-    //    3) at any point we need to be able to restart / stop-return-to-black / trigger each analysis individually
-    //    4) should end in black screen as well
-    //    5) final kill button
-    
-    //ofRect(0,0,ofGetWidth(), ofGetHeight());
            
     if(_currentAnalysis)
         _currentAnalysis->draw();
@@ -215,8 +205,9 @@ void RefractiveIndex::setup_camera()
 {
     stop_camera();
     
+    // THIS IS LOADED IN FROM THE XML FILE SETTINGS 
     _vidGrabber.setDeviceID(_vid_id);
-     _vidGrabber.listDevices();
+    _vidGrabber.listDevices();
     
     if(!_vidGrabber.initGrabber(_vid_w, _vid_h)) {
         ofLog(OF_LOG_ERROR) << "RefractiveIndex::setup_camera - could not initialise grabber";
@@ -356,6 +347,47 @@ void RefractiveIndex::keyPressed  (int key)
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
     }
+    
+    /*
+     TO DO:  add a file dialog so we can save images to another hard drive...
+     e.g.: http://dev.openframeworks.cc/pipermail/of-dev-openframeworks.cc/2011-April/003125.html
+     
+>> 		case 's':
+>> 			doSave ^= true;
+>> 			doLoad = false;
+>> 			if(doSave) {
+>> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to save to", true);
+>> 				if(r.bSuccess) {
+>> 					saveCounter = 0;
+>> 					savePath = r.getPath();
+>> 					ofDirectory::createDirectory(savePath + "/color/");
+>> 					ofDirectory::createDirectory(savePath + "/depth/");
+>> 					printf("SAVE %s %s\n", r.getPath().c_str(), r.getName().c_str());
+>> 				} else {
+>> 					doSave = false;
+>> 				}
+>> 				
+>> 			}
+>> 			break;
+>> 			
+>> 		case 'l':
+>> 			doLoad ^= true;
+>> 			doSave = false;
+>> 			if(doLoad) {
+>> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to load from", true);
+>> 				if(r.bSuccess) {
+>> 					loadCounter = 0;
+>> 					loadPath = r.getPath();
+>> 					ofDirectory dir;
+>> 					loadMaxFiles = MAX(dir.listDir(loadPath + "/color"), dir.listDir(loadPath + "/depth"));
+>> 					printf("LOAD %i %s %s\n", loadMaxFiles, r.getPath().c_str(), r.getName().c_str());
+>> 				} else {
+>> 					doLoad = false;
+>> 				}
+>> 				
+>> 			}
+>> 			break;
+    */
     
     
 }
