@@ -19,7 +19,7 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_ShadowScapesAnalysis", NUMBER_RUNS);
     cout << "NUM_RUN ShadowScapesAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
     

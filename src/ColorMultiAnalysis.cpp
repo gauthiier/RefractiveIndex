@@ -14,7 +14,7 @@ using Poco::Thread;
 
 void ColorMultiAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_ColorMultiAnalysis", NUMBER_RUNS);
     cout << "NUM_RUN ColorMultiAnalysis " << NUM_RUN << endl;
     
     //NUM_RUN = 5;

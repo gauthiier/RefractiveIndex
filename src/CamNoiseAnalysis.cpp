@@ -15,7 +15,7 @@ using Poco::Thread;
 
 void CamNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_CamNoiseAnalysis", NUMBER_RUNS);
     cout << "NUM_RUN CamNoiseAnalysis " << NUM_RUN << endl;
 
     //NUM_RUN = 5;

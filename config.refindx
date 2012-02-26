@@ -1,0 +1,33 @@
+<config>
+	<camera>
+		<id>1</id>
+		<width>640</width>
+		<height>480</height>
+	</camera>
+	<display>
+		<fps>30</fps>
+    </display>
+	<locale>
+		<name>SWANSEA</name>
+	</locale>
+
+    <Analysis_NUM_RUN>
+        
+
+
+
+
+    </Analysis_NUM_RUN>
+
+    <analysis_time>
+        <acquiretime_shadowscapes>      25      </acquiretime_shadowscapes>
+        <acquiretime_relaxrate>         22      </acquiretime_relaxrate>
+        <acquiretime_iresponse>         23      </acquiretime_iresponse>
+        <acquiretime_shapefromshading>  24      </acquiretime_shapefromshading>
+        <acquiretime_strobe>            25      </acquiretime_strobe>
+        <acquiretime_camnoise>          20      </acquiretime_camnoise>
+        <acquiretime_colorsingle>       25      </acquiretime_colorsingle>
+        <acquiretime_colormulti>        35      </acquiretime_colormulti>
+        <acquiretime_diffnoise>         20      </acquiretime_diffnoise>
+    </analysis_time>
+</config>
