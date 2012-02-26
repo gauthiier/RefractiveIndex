@@ -7,6 +7,7 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
+#include "ofxOpenCv.h"
 #include <string>
 
 #define ANALYSIS_PATH "analysis/"
@@ -34,9 +35,10 @@ public:
         
 protected:
     
-    virtual void create_dir();
+    virtual void create_dir_allocate_images();
     
-    virtual void saveimage(string filename);
+    virtual void saveImageAnalysis(string filename);
+    virtual void saveImageSynthesis(string filename, ofxCvImage* newPixels, ofImageType newType);
     
     // acquire images - all the children (see - do_synthesize)
     virtual void acquire() = 0;   
@@ -60,6 +62,9 @@ protected:
     vector<string>  _saved_filenames_synthesis;
     
     int             _state;
+    
+    ofImage         myColorImage;
+    ofImage         myBlackWhiteImage;
     
     //int             _run_cnt;
     

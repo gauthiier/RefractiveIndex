@@ -83,7 +83,7 @@ void ShadowScapesAnalysis::acquire()
     _line = 0;
     _RUN_DONE = false;
 
-    create_dir();
+    create_dir_allocate_images();
    
     save_timer.start(save_callback);
       
@@ -145,24 +145,26 @@ void ShadowScapesAnalysis::synthesise()
                 }
                 
                 
+                
                 //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
                 // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
                 
                 
                 //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                ofImage image;
+                //ofImage image;
                 //image.allocate(cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
                 
                 //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                image.setUseTexture(false);  
+                //image.setUseTexture(false);  
                 
-                
-                image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
-                image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+                //image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
+                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
 
-                _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                               
+                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+                saveImageSynthesis(file_name, &cvGrayDiff1, OF_IMAGE_GRAYSCALE);
                 _synth_save_cnt++;
-                
             }
         }
     }
@@ -198,41 +200,6 @@ void ShadowScapesAnalysis::displayresults()
             _image_shown = false;
         }
     }
-    
-    
-    // THE OLD SHIT /// 
-/*
-    for(float i=1;i<_saved_filenames_synthesis.size()-1;i++){
-        
-       // cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
-        
-        if(_state == STATE_STOP) return;
-        
-        while(!_image_shown){
-            Thread::sleep(2);
-            //cout << "!_image_shown" << endl;
-        }
-        
-        if(!image1.loadImage(_saved_filenames_synthesis[i])){
-            //couldn't load image
-            cout << "didn't load image" << endl;
-        } 
-        
-            
-        if(image1.loadImage(_saved_filenames_analysis[i])){
-            
-            image1.loadImage(_saved_filenames_analysis[i]);
-            cout << "loaded filenames[i] -  " << _saved_filenames_analysis[i] << endl;
-        
-            image2.setFromPixels(image1.getPixels(),image1.width,image1.height, OF_IMAGE_COLOR);
-          
-            //cout << "_show_image = true;" << endl;
-            _show_image = true;
-            _image_shown = false;
-
-        }
-    }
-*/
 
 }
 
@@ -467,6 +434,6 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
         file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
         
-    saveimage(file_name);
+    saveImageAnalysis(file_name);
         
 }

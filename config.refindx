@@ -14,26 +14,26 @@
 	</locale>
 
     <analysis_NUM_RUN>
-        <NUM_RUN_shadowscapes>          5      </NUM_RUN_shadowscapes>
-        <NUM_RUN_relaxrate>             2      </NUM_RUN_relaxrate>
+        <NUM_RUN_shadowscapes>          3      </NUM_RUN_shadowscapes>
+        <NUM_RUN_relaxrate>             3      </NUM_RUN_relaxrate>
         <NUM_RUN_iresponse>             3      </NUM_RUN_iresponse>
-        <NUM_RUN_shapefromshading>      4      </NUM_RUN_shapefromshading>
+        <NUM_RUN_shapefromshading>      3      </NUM_RUN_shapefromshading>
         <NUM_RUN_strobe>                5      </NUM_RUN_strobe>
-        <NUM_RUN_camnoise>              1      </NUM_RUN_camnoise>
+        <NUM_RUN_camnoise>              5      </NUM_RUN_camnoise>
         <NUM_RUN_colorsingle>           5      </NUM_RUN_colorsingle>
         <NUM_RUN_colormulti>            5      </NUM_RUN_colormulti>
-        <NUM_RUN_diffnoise>             2      </NUM_RUN_diffnoise>
+        <NUM_RUN_diffnoise>             3      </NUM_RUN_diffnoise>
     </analysis_NUM_RUN>
 
     <analysis_time>
-        <acquiretime_shadowscapes>      25      </acquiretime_shadowscapes>
-        <acquiretime_relaxrate>         22      </acquiretime_relaxrate>
-        <acquiretime_iresponse>         23      </acquiretime_iresponse>
-        <acquiretime_shapefromshading>  24      </acquiretime_shapefromshading>
-        <acquiretime_strobe>            25      </acquiretime_strobe>
-        <acquiretime_camnoise>          20      </acquiretime_camnoise>
-        <acquiretime_colorsingle>       25      </acquiretime_colorsingle>
-        <acquiretime_colormulti>        35      </acquiretime_colormulti>
-        <acquiretime_diffnoise>         20      </acquiretime_diffnoise>
+        <acquiretime_shadowscapes>      30      </acquiretime_shadowscapes>
+        <acquiretime_relaxrate>         30      </acquiretime_relaxrate>
+        <acquiretime_iresponse>         30      </acquiretime_iresponse>
+        <acquiretime_shapefromshading>  30      </acquiretime_shapefromshading>
+        <acquiretime_strobe>            30      </acquiretime_strobe>
+        <acquiretime_camnoise>          30      </acquiretime_camnoise>
+        <acquiretime_colorsingle>       40      </acquiretime_colorsingle>
+        <acquiretime_colormulti>        40      </acquiretime_colormulti>
+        <acquiretime_diffnoise>         30      </acquiretime_diffnoise>
     </analysis_time>
 </config>

@@ -30,7 +30,7 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
-    //create_dir();
+    //create_dir_allocate_images();
     
     _run_cnt = 0;
     _frame_cnt = 0;
@@ -76,7 +76,7 @@ void DiffNoiseAnalysis::acquire()
     _run_cnt++;
     _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0, _synth_save_cnt = 0;
     _RUN_DONE = false;
-    create_dir();
+    create_dir_allocate_images();
     
     // RUN ROUTINE
     //for(int i = 0; i < NUM_RUN; i++) {
@@ -143,16 +143,19 @@ void DiffNoiseAnalysis::synthesise()
             
             
             //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-            ofImage image;
+            //ofImage image;
             //image.allocate(cvColorImage1.width, cvGrayImage1.height, OF_IMAGE_COLOR);
             
             //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-            image.setUseTexture(false);  
+            //image.setUseTexture(false);  
             
-            image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
-            image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+            //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
+            //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
             
-            _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+            //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+            
+            // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+            saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
             _synth_save_cnt++;
             
             // }
@@ -404,5 +407,5 @@ void DiffNoiseAnalysis::save_cb(Timer& timer)
             
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
 
-    saveimage(file_name);
+    saveImageAnalysis(file_name);
 }

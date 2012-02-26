@@ -12,8 +12,8 @@ void AbstractAnalysis::do_synthesize() {
         cout << "NUM_RUN: " << i << endl;
                 
         _saved_filenames_analysis.clear();  
-        _saved_filenames_synthesis.clear();    
-        
+        _saved_filenames_synthesis.clear(); 
+
         _state = STATE_ACQUIRING;
         acquire();
         if(_state == STATE_STOP) goto exit;
@@ -28,7 +28,7 @@ void AbstractAnalysis::do_synthesize() {
     ofNotifyEvent(_synthesize_cb, _name);
 }
 
-void AbstractAnalysis::create_dir()
+void AbstractAnalysis::create_dir_allocate_images()
 {
     // HERE IS WHERE WE SETUP THE DIRECTORY FOR ALL THE SAVED IMAGES
     
@@ -92,11 +92,28 @@ void AbstractAnalysis::create_dir()
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
         
     }
+    //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////  
     
-    //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////    
+    
+    //////////////////////////////ALLOCATE IMAGES //////////////////////////////////////////////////  
+    
+    ofImage myColorImage1;
+    myColorImage1.setUseTexture(false);
+    myColorImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
+
+    ofImage myGrayImage1;
+    myGrayImage1.setUseTexture(false);
+    myGrayImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_GRAYSCALE);
+
+    ofImage myColorImage2;
+    myColorImage2.setUseTexture(false);
+    myColorImage2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
+
+    //////////////////////////////END ALLOCATE IMAGES //////////////////////////////////////////////////  
+
 }
 
-void AbstractAnalysis::saveimage(string filename)
+void AbstractAnalysis::saveImageAnalysis(string filename)
 {
     
     RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
@@ -120,18 +137,48 @@ void AbstractAnalysis::saveimage(string filename)
     //somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
     somePixels = appPix.getPixels();
     
-    ofImage myImage;
-    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    
     //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-    myImage.setUseTexture(false);
-    
-    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
+    myColorImage1.setUseTexture(false);
+    myColorImage1.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    myColorImage1.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
     
 #endif
     
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+filename);
+    
+}
+
+
+void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels, ofImageType newType)
+{
+    
+#ifdef TARGET_OSX   
+    
+    ofSaveImage(newPixels->getPixelsRef(), _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
+    
+#elif defined(TARGET_WIN32)    
+    
+    if (newType == OF_IMAGE_COLOR){
+       myColorImage2.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_COLOR);
+    }
+
+    if (newType == OF_IMAGE_GRAYSCALE){
+        myGrayImage1.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_GRAYSCALE);
+    }
+    
+    myColorImage2.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
+
+        
+    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+    //unsigned char * somePixels;
+    //ofPixels appPix = RefractiveIndex::_pixels;
+    //somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
+    //somePixels = appPix.getPixels();
+    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    
+#endif
+   
+    _saved_filenames_synthesis.push_back(_whole_file_path_analysis+"/"+filename);
     
 }
 

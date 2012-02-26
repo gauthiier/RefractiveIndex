@@ -34,7 +34,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 
     // The British Health and Safety Executive recommend that a net flash rate for a bank of strobe lights does not exceed 5 flashes per second, at which only 5% of photosensitive epileptics are at risk. It also recommends that no strobing effect continue for more than 30 seconds, due to the potential for discomfort and disorientation.
     
-    //create_dir();
+    //create_dir_allocate_images();
     _synth_save_cnt = 0;
     _run_cnt = 0;
     
@@ -76,7 +76,7 @@ void StrobeAnalysis::acquire()
     _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0;  _strobe_cnt = 0, _synth_save_cnt = 0;
     _run_cnt++;
     _RUN_DONE = false;
-    create_dir();
+    create_dir_allocate_images();
     
     // RUN ROUTINE
     //for(int i = 0; i < NUM_RUN; i++) {
@@ -143,17 +143,23 @@ void StrobeAnalysis::synthesise()
                 
                 
                 //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                ofImage image;
+                //ofImage image;
                 //image.allocate(cvGrayImage1.width, cvGrayImage1.height, OF_IMAGE_GRAYSCALE);    
             
                 //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                image.setUseTexture(false);  
+                //image.setUseTexture(false);  
                 
-                image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height,OF_IMAGE_GRAYSCALE);
-                image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+                //image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height,OF_IMAGE_GRAYSCALE);
+                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
                 
-                _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+              
+                
+                
+                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+                saveImageSynthesis(file_name, &cvGrayDiff1, OF_IMAGE_GRAYSCALE);
                 _synth_save_cnt++;
+                
                 
             }
         }
@@ -388,5 +394,5 @@ void StrobeAnalysis::save_cb(Timer& timer)
     
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(_strobe_on) +"_"+ofToString(_run_cnt,2)+".jpg";
     
-    saveimage(file_name);
+    saveImageAnalysis(file_name);
 }
