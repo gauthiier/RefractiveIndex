@@ -39,9 +39,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 
     DELTA_T_SAVE = 3*(10*acq_run_time/2);   // for 20 seconds, we want this to be around 100 files
                                             // or 5 times per second = every 200 ms
-        
-    //create_dir();  // this makes both synth and analysis folder structures
-
+    
     _scanLineWidth = 100.0;
     _run_cnt = 0;
     _save_cnt = 0;
@@ -86,17 +84,13 @@ void ShadowScapesAnalysis::acquire()
     _RUN_DONE = false;
 
     create_dir();
-    
-    //cout << "RUN NUM = " << i;
    
     save_timer.start(save_callback);
       
-        while(!_RUN_DONE && _state != STATE_STOP)
-            Thread::sleep(3);
+    while(!_RUN_DONE && _state != STATE_STOP)
+        Thread::sleep(3);
     
     save_timer.stop();
-    
-    //}
 
 }
 
@@ -104,7 +98,7 @@ void ShadowScapesAnalysis::synthesise()
 {
     //cout << "ShadowScapesAnalysis::saving synthesis...\n";
     
-    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
+    for(float i=1;i<_saved_filenames_analysis.size()-1; i++){
     
       //  cout << "ShadowScapesAnalysis::synthesis FOR LOOP...\n";
         
@@ -459,18 +453,7 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
 {
     
     _save_cnt++;
-    
-    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
-    
-    if (RefractiveIndex::_vidGrabber.isFrameNew())
-    {
-        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
-    } else {
-        return;
-    }
-    
-    //cout << "ShadowScapesAnalysis::saving analysis...\n";
-    
+        
     string file_name;
     
     if(_dir == H) {
@@ -484,27 +467,7 @@ void ShadowScapesAnalysis::save_cb(Timer& timer)
     if(_dir == D) {
         file_name = ofToString(_save_cnt, 2)+"_D_"+ofToString(_line, 2)+"_"+ofToString(_run_cnt,2)+".jpg";
     }
-    
-    
-    //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-    //ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
-    
-    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-    unsigned char * somePixels;
-    ofPixels appPix = RefractiveIndex::_pixels;
-    somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
-    somePixels = appPix.getPixels();
-    
-    ofImage myImage;
-    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    
-    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-    myImage.setUseTexture(false);
-    
-    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+file_name);
-    
-    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
+        
+    saveimage(file_name);
         
 }

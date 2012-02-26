@@ -100,6 +100,7 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new ShadowScapesAnalysis(H));
     _analysisVector.push_back(new ShadowScapesAnalysis(D));
     
+    /*
     _analysisVector.push_back(new RelaxRateAnalysis());
     
     _analysisVector.push_back(new IResponseAnalysis());
@@ -116,6 +117,7 @@ void RefractiveIndex::setup()
     
     _analysisVector.push_back(new DiffNoiseAnalysis());
 
+     */
     //_currentAnalysisIndx = 0;
     //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     //_state = ISTATE_START;

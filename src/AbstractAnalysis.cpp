@@ -9,7 +9,7 @@ void AbstractAnalysis::do_synthesize() {
     
     for(int i = 0; i < NUM_RUN; i++) {
         
-        cout << "i NUM_RUN" << i << endl;
+        cout << "NUM_RUN: " << i << endl;
                 
         _saved_filenames_analysis.clear();  
         _saved_filenames_synthesis.clear();    
@@ -94,5 +94,44 @@ void AbstractAnalysis::create_dir()
     }
     
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////    
+}
+
+void AbstractAnalysis::saveimage(string filename)
+{
+    
+    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
+    
+    if (RefractiveIndex::_vidGrabber.isFrameNew())
+    {
+        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+    } else {
+        return;
+    }
+        
+#ifdef TARGET_OSX   
+    
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
+    
+#elif defined(TARGET_WIN32)    
+    
+    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+    unsigned char * somePixels;
+    ofPixels appPix = RefractiveIndex::_pixels;
+    //somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
+    somePixels = appPix.getPixels();
+    
+    ofImage myImage;
+    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    
+    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+    myImage.setUseTexture(false);
+    
+    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
+    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
+    
+#endif
+    
+    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+filename);
+    
 }
 

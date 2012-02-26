@@ -369,38 +369,7 @@ void IResponseAnalysis::save_cb(Timer& timer)
 {
     _save_cnt++;
     
-    RefractiveIndex::_vidGrabber.grabFrame();  // get a new frame from the camera
-    
-    if (RefractiveIndex::_vidGrabber.isFrameNew())
-    {
-        RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
-    } else {
-        return;
-    }
-    
-    //cout << "IResponseAnalysis::saving...\n";
-    
     string file_name = ofToString(_save_cnt,2)+"_"+ ofToString(c,2)+"_"+ofToString(_run_cnt,2)+".jpg";
-    
-    
-    //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-    //ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-    
-    
-    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-    unsigned char * somePixels;
-    ofPixels appPix = RefractiveIndex::_pixels;
-    somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
-    somePixels = appPix.getPixels();
-    
-    ofImage myImage;
-    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    
-    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-    myImage.setUseTexture(false);
-    
-    myImage.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    myImage.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+file_name);
-    
-    _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+file_name);
+        
+    saveimage(file_name);
 }
