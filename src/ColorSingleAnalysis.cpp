@@ -15,15 +15,14 @@ using Poco::Thread;
 
 void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_ColorSingleAnalysis", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_colorsingle", NUMBER_RUNS);
     cout << "NUM_RUN ColorSingleAnalysis " << NUM_RUN << endl;
-    
     //NUM_RUN = 5;
     
     int acq_run_time;   // 10 seconds of acquiring per run
-    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_colorsingle", ACQUIRE_TIME);
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colorsingle", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME ColorSingleAnalysis " << acq_run_time << endl;
-    
+
     //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 1*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files

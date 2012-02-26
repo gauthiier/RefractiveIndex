@@ -1,3 +1,5 @@
+<!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
+
 <config>
 	<camera>
 		<id>1</id>
@@ -11,13 +13,17 @@
 		<name>SWANSEA</name>
 	</locale>
 
-    <Analysis_NUM_RUN>
-        
-
-
-
-
-    </Analysis_NUM_RUN>
+    <analysis_NUM_RUN>
+        <NUM_RUN_shadowscapes>          5      </NUM_RUN_shadowscapes>
+        <NUM_RUN_relaxrate>             2      </NUM_RUN_relaxrate>
+        <NUM_RUN_iresponse>             3      </NUM_RUN_iresponse>
+        <NUM_RUN_shapefromshading>      4      </NUM_RUN_shapefromshading>
+        <NUM_RUN_strobe>                5      </NUM_RUN_strobe>
+        <NUM_RUN_camnoise>              1      </NUM_RUN_camnoise>
+        <NUM_RUN_colorsingle>           5      </NUM_RUN_colorsingle>
+        <NUM_RUN_colormulti>            5      </NUM_RUN_colormulti>
+        <NUM_RUN_diffnoise>             2      </NUM_RUN_diffnoise>
+    </analysis_NUM_RUN>
 
     <analysis_time>
         <acquiretime_shadowscapes>      25      </acquiretime_shadowscapes>

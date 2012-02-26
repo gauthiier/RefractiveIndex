@@ -14,17 +14,16 @@ using Poco::Thread;
 #define ACQUIRE_TIME    20
 
 void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
-{    
-    
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_ShapeFromShadingAnalysis", NUMBER_RUNS);
+{       
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_shapefromshading", NUMBER_RUNS);
     cout << "NUM_RUN ShapeFromShadingAnalysis " << NUM_RUN << endl;
-
-   // NUM_RUN = 5;
+    //NUM_RUN = 5;
     
     int acq_run_time;   // 10 seconds of acquiring per run
-    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_shapefromshading", ACQUIRE_TIME);
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_shapefromshading", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME ShapeFromShadingAnalysis " << acq_run_time << endl;
-    
+
+
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files

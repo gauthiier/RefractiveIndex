@@ -19,12 +19,12 @@ using Poco::Thread;
 
 void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_ShadowScapesAnalysis", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_shadowscapes", NUMBER_RUNS);
     cout << "NUM_RUN ShadowScapesAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
     
     int acq_run_time;   // 10 seconds of acquiring per run
-    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:acquiretime_shadowscapes", ACQUIRE_TIME);
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_shadowscapes", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME ShadowScapesAnalysis " << acq_run_time << endl;
     
     int screenSpan;
@@ -233,7 +233,7 @@ void ShadowScapesAnalysis::displayresults()
         }
     }
 */
-    
+
 }
 
 
@@ -412,7 +412,6 @@ void ShadowScapesAnalysis::draw()
         case STATE_DISPLAY_RESULTS:
         {
             //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
-
             
             if (_frame_cnt > 2)
             {

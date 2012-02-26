@@ -15,13 +15,12 @@ using Poco::Thread;
 
 void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 {
-    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis:NUM_RUN_DiffNoiseAnalysis", NUMBER_RUNS);
+    NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_diffnoise", NUMBER_RUNS);
     cout << "NUM_RUN DiffNoiseAnalysis " << NUM_RUN << endl;
-
     //NUM_RUN = 5;
     
     int acq_run_time;   // 10 seconds of acquiring per run
-    acq_run_time = RefractiveIndex::XML.getValue("config:analysis:diffnoise_shadow", ACQUIRE_TIME);
+    acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_diffnoise", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME DiffNoiseAnalysis " << acq_run_time << endl;
     
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
