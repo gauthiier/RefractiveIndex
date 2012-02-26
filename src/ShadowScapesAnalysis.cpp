@@ -39,7 +39,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 
     DELTA_T_SAVE = 3*(10*acq_run_time/2);   // for 20 seconds, we want this to be around 100 files
                                             // or 5 times per second = every 200 ms
-        
+    //DELTA_T_SAVE = 1;
     //create_dir();  // this makes both synth and analysis folder structures
 
     _scanLineWidth = 100.0;
