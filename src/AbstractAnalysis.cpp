@@ -98,16 +98,19 @@ void AbstractAnalysis::create_dir_allocate_images()
     //////////////////////////////ALLOCATE IMAGES //////////////////////////////////////////////////  
     
     ofImage myColorImage1;
+    myColorImage1.clear();
     myColorImage1.setUseTexture(false);
     myColorImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
 
-    ofImage myGrayImage1;
-    myGrayImage1.setUseTexture(false);
-    myGrayImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_GRAYSCALE);
-
-    ofImage myColorImage2;
-    myColorImage2.setUseTexture(false);
-    myColorImage2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
+    //ofxCvImage myColorCvImage2;
+    myColorCvImage2.clear();
+    myColorCvImage2.setUseTexture(false);
+    myColorCvImage2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    
+    //ofxCvImage myGrayCvImage1;
+    myGrayCvImage1.clear();
+    myGrayCvImage1.setUseTexture(false);
+    myGrayCvImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
 
     //////////////////////////////END ALLOCATE IMAGES //////////////////////////////////////////////////  
 
@@ -134,13 +137,11 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
     //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
     unsigned char * somePixels;
     ofPixels appPix = RefractiveIndex::_pixels;
-    //somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
     somePixels = appPix.getPixels();
     
-    //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-    myColorImage1.setUseTexture(false);
     myColorImage1.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
     myColorImage1.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
+    myColorImage1.clear();
     
 #endif
     
@@ -159,25 +160,19 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
 #elif defined(TARGET_WIN32)    
     
     if (newType == OF_IMAGE_COLOR){
-       myColorImage2.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_COLOR);
+       myColorCvImage2.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_COLOR);
+       myColorCvImage2.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
+       myColorCvImage2.clear();
     }
 
     if (newType == OF_IMAGE_GRAYSCALE){
-        myGrayImage1.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_GRAYSCALE);
+        myGrayCvImage1.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_GRAYSCALE);
+        myGrayCvImage1.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
+        myGrayCvImage1.clear();
     }
-    
-    myColorImage2.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
-
         
-    //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-    //unsigned char * somePixels;
-    //ofPixels appPix = RefractiveIndex::_pixels;
-    //somePixels = new unsigned char [appPix.getWidth()*appPix.getHeight()*3];
-    //somePixels = appPix.getPixels();
-    //myImage.allocate(appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
-    
 #endif
-   
+    
     _saved_filenames_synthesis.push_back(_whole_file_path_analysis+"/"+filename);
     
 }

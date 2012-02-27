@@ -65,7 +65,10 @@ protected:
     
     ofImage         myColorImage;
     ofImage         myBlackWhiteImage;
-    
+        
+    ofxCvColorImage         myColorCvImage2;
+    ofxCvColorImage         myGrayCvImage1;
+
     //int             _run_cnt;
     
     float           DELTA_T_SAVE;
