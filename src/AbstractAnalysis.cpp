@@ -103,14 +103,14 @@ void AbstractAnalysis::create_dir_allocate_images()
     myColorImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
 
     //ofxCvImage myColorCvImage2;
-    myColorCvImage2.clear();
-    myColorCvImage2.setUseTexture(false);
-    myColorCvImage2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    myColorImage2.clear();
+    myColorImage2.setUseTexture(false);
+    myColorImage2.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_COLOR);
     
     //ofxCvImage myGrayCvImage1;
-    myGrayCvImage1.clear();
-    myGrayCvImage1.setUseTexture(false);
-    myGrayCvImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h);
+    myGrayImage1.clear();
+    myGrayImage1.setUseTexture(false);
+    myGrayImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_GRAYSCALE);
 
     //////////////////////////////END ALLOCATE IMAGES //////////////////////////////////////////////////  
 
@@ -128,22 +128,22 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
         return;
     }
         
-#ifdef TARGET_OSX   
+//#ifdef TARGET_OSX   
     
-    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
+//    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
     
-#elif defined(TARGET_WIN32)    
+//#elif defined(TARGET_WIN32)    
     
     //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
     unsigned char * somePixels;
     ofPixels appPix = RefractiveIndex::_pixels;
     somePixels = appPix.getPixels();
-    
+    myColorImage1.setUseTexture(false);
     myColorImage1.setFromPixels(somePixels,appPix.getWidth(),appPix.getHeight(), OF_IMAGE_COLOR);
     myColorImage1.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
     myColorImage1.clear();
     
-#endif
+//#endif
     
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+filename);
     
@@ -160,15 +160,17 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
 #elif defined(TARGET_WIN32)    
     
     if (newType == OF_IMAGE_COLOR){
-       myColorCvImage2.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_COLOR);
-       myColorCvImage2.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
-       myColorCvImage2.clear();
+       myColorImage2.setUseTexture(false);
+       myColorImage2.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight(), OF_IMAGE_COLOR);
+       myColorImage2.saveImage(_whole_file_path_synthesis+"/"+filename);
+       myColorImage2.clear();
     }
 
     if (newType == OF_IMAGE_GRAYSCALE){
-        myGrayCvImage1.setFromPixels(newPixels.getPixels(), newPixels.width, newPixels.width, OF_IMAGE_GRAYSCALE);
-        myGrayCvImage1.saveImage(_whole_file_path_synthesis+"/"+thisfilename);
-        myGrayCvImage1.clear();
+        myGrayImage1.setUseTexture(false);
+        myGrayImage1.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight(), OF_IMAGE_GRAYSCALE);
+        myGrayImage1.saveImage(_whole_file_path_synthesis+"/"+filename);
+        myGrayImage1.clear();
     }
         
 #endif
