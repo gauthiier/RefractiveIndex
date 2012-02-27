@@ -139,8 +139,7 @@ void RelaxRateAnalysis::synthesise()
             ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
             
             cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);            
-            
-            cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
+            cvColorImage1.convertToGrayscalePlanarImage(cvGrayDiff1, 1);
             
             cvGrayDiff1.threshold(_treshold);
             
