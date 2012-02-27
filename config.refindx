@@ -36,4 +36,9 @@
         <acquiretime_colormulti>        40      </acquiretime_colormulti>
         <acquiretime_diffnoise>         30      </acquiretime_diffnoise>
     </analysis_time>
+    
+    <relaxrate>
+        <treshold>51</treshold>
+    </relaxrate>
+    
 </config>

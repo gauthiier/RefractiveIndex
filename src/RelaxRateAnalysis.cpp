@@ -12,6 +12,7 @@ using Poco::Thread;
 
 #define NUMBER_RUNS     1
 #define ACQUIRE_TIME    20
+#define TRESHOLD        80
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
@@ -22,6 +23,9 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_relaxrate", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME RelaxRateAnalysis " << acq_run_time << endl;
+    
+    _treshold = RefractiveIndex::XML.getValue("config:relaxrate:treshold", TRESHOLD);
+    cout << "TRESHOLD RelaxRateAnalysis " << _treshold << endl;
     
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -124,63 +128,26 @@ void RelaxRateAnalysis::synthesise()
     //cout << "IResponseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
     
-    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
-        
-        //cout << "IResponseAnalysis::synthesis FOR LOOP...\n";
-        
-        //cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
-        
+    cvContourFinderVect.clear();
+    
+    for(float i=1;i<_saved_filenames_analysis.size();i++){
+                
         if(_state == STATE_STOP) return;
-        
-        if(!image1.loadImage(_saved_filenames_analysis[i])){
-            //couldn't load image
-            cout << "didn't load image" << endl;
-        } 
-        
+                
         if(image1.loadImage(_saved_filenames_analysis[i])){
-            //cout << "LOADED image1!!!" << endl;
-            if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
-                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-                
-                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
-                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
-                
-                cvGrayImage1 = cvColorImage1;
-                cvGrayImage2 = cvColorImage2;
-                
-                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);                
-                cvGrayDiff1.threshold(80);
-                
-                cvContourFinder1.findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, 25, true);
-                                
-                
-                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-                string file_name;
-                
-                file_name = ofToString(_synth_save_cnt, 2)+"_RelaxRateAnalysis_"+ofToString(_run_cnt,2)+".jpg";
-                
-                
-                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                
-                
-                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                //ofImage image;
-                //image.allocate(cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
-                
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                //image.setUseTexture(false);  
-                
-                //image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
-                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
-                
-                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-          
-                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
-                saveImageSynthesis(file_name, &cvGrayDiff1, OF_IMAGE_GRAYSCALE);
-                _synth_save_cnt++;
-            }
+            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+            
+            cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);            
+            cvGrayDiff1 = cvColorImage1;
+            cvGrayDiff1.threshold(_treshold);
+            
+            rfiCvContourFinder* cf = new rfiCvContourFinder();
+            
+            cf->findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, 25, true);
+            
+            cvContourFinderVect.push_back(cf);
+
         }
     }
     
@@ -192,31 +159,27 @@ void RelaxRateAnalysis::synthesise()
 
 void RelaxRateAnalysis::displayresults()
 {
-    
-    for(float i=1;i<_saved_filenames_synthesis.size();i++){
         
-        if(_state == STATE_STOP) return;
+    cvContourFinderVectDisplay.clear();
+    
+    for(int i=1;i<cvContourFinderVect.size();i++){
+        
+        if(_state == STATE_STOP) return;        
+        
         
         //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
         
         while(!_image_shown){
             Thread::sleep(2);
+            if(_state == STATE_STOP) return;
             //cout << "!_image_shown" << endl;
         }
         
-        if(!image3.loadImage(_saved_filenames_synthesis[i])){
-            //couldn't load image
-            // cout << "didn't load image" << endl;
-        } 
+        cvContourFinderVectDisplay.push_back(cvContourFinderVect[i]);    
+        _show_image = true;
+        _image_shown = false;
         
-        if(image3.loadImage(_saved_filenames_synthesis[i])){
-            image3.loadImage(_saved_filenames_synthesis[i]);
-            //cout << "_show_image = true;" << endl;
-            _show_image = true;
-            _image_shown = false;
-        }
-    }
-
+    }     
     
 }
 
@@ -228,9 +191,6 @@ void RelaxRateAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            /// *** TODO  *** ///
-            // still need to deal with latency frames here - i.e.: there are frames
-            /// *** TODO  *** ///
            
             if (_frame_cnt < _frame_cnt_max)
             {
@@ -361,15 +321,10 @@ void RelaxRateAnalysis::draw()
             
             if (_show_image)
             {  
-                //cout << "_show_image...\n" << endl;
-                
-                ofEnableAlphaBlending();
-                
-                ofSetColor(255, 255, 255);
-                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
-                image2.draw(0,0, ofGetWidth(), ofGetHeight());
-                
-                ofDisableAlphaBlending();
+                for(int i=0;i<cvContourFinderVectDisplay.size();i++){
+                    cvContourFinderVectDisplay[i]->draw(0,0, ofGetWidth(), ofGetHeight());
+                }
+
             }
             
             // display results of the synthesis
