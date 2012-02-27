@@ -5,11 +5,7 @@
 
 #include "Poco/Timer.h"
 
-#include "rfiCvContourFinder.h"
-
 #include "ofxOpenCv.h"
-
-
 
 class RelaxRateAnalysis : public AbstractAnalysis
 {
@@ -35,8 +31,6 @@ protected:
     int     _run_cnt, _save_cnt, _synth_save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
-    int     _treshold;
-    
     bool _show_image, _image_shown;
     ofImage         image1;
     ofImage         image2; 
@@ -60,7 +54,6 @@ protected:
     ofxCvGrayscaleImage 	cvGrayImage3;
     ofxCvGrayscaleImage 	cvGrayImage4;
     
-    vector<rfiCvContourFinder*>      cvContourFinderVect;
-    vector<rfiCvContourFinder*>      cvContourFinderVectDisplay;
+    ofxCvContourFinder      cvContourFinder1;
 
 };
