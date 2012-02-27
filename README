@@ -6,5 +6,5 @@ configuring OpenFrameworks
 these files are configured according to OpenFrameworks addons - http://ofxaddons.com/howto
 
 (1) drag-drop "ReflectiveIndex" folder into your OpenFrameworks project
-(2) Install depedencies: {ofxDirList, ofxControlPanel, ofxXmlSettings};  
+(2) Install depedencies: {ofxXmlSettings, ofxOpenCV, ofxFileHelper};  
 (3) Press Play!
