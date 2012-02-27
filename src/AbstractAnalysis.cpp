@@ -111,7 +111,7 @@ void AbstractAnalysis::create_dir_allocate_images()
     myGrayImage1.clear();
     myGrayImage1.setUseTexture(false);
     myGrayImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_GRAYSCALE);
-
+    
     //////////////////////////////END ALLOCATE IMAGES //////////////////////////////////////////////////  
 
 }
@@ -153,17 +153,16 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
 void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels, ofImageType newType)
 {
     
-//#ifdef TARGET_OSX   
+#ifdef TARGET_OSX   
     
   //  ofSaveImage(newPixels->getPixelsRef(), _whole_file_path_synthesis+"/"+filename, OF_IMAGE_QUALITY_BEST);
     
-//#elif defined(TARGET_WIN32)    
+#elif defined(TARGET_WIN32)    
     
     if (newType == OF_IMAGE_COLOR){
        myColorImage2.setUseTexture(false);
        myColorImage2.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight(), OF_IMAGE_COLOR);
        myColorImage2.saveImage(_whole_file_path_synthesis+"/"+filename);
-       myColorImage2.clear();
     }
 
     if (newType == OF_IMAGE_GRAYSCALE){
@@ -171,16 +170,16 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
         
         // THIS IS HOW YOU HAVE TO SAVE OUT THE GREYSCALE IMAGES on WINDOWS FOR SOME REASON --> i.e.: as an OF_IMAGE_COLOR
         // But they don't save properly - they're spatially translated and generally f'd up
-        myGrayImage1.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight());
-    
+        myGrayImage1.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight(), OF_IMAGE_GRAYSCALE);
+        myGrayImage1.setImageType(OF_IMAGE_COLOR); 
+      
         // THIS DOESN' SEEM TO SAVE OUT IMAGES AT ALL ON WINDOWS
         //myGrayImage1.setFromPixels(newPixels->getPixels(), newPixels->getWidth(), newPixels->getHeight(), OF_IMAGE_GRAYSCALE);
         
         myGrayImage1.saveImage(_whole_file_path_synthesis+"/"+filename);
-        myGrayImage1.clear();
     }
         
-//#endif
+#endif
     
     _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+filename);
     

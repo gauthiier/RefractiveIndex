@@ -143,9 +143,9 @@ void ShadowScapesAnalysis::synthesise()
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
-                cvGrayImage1 = cvColorImage1;
-                cvGrayImage2 = cvColorImage2;
-                
+                cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
+                cvColorImage2.convertToGrayscalePlanarImage(cvGrayImage2, 1);
+      
                 cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
                 cvGrayDiff1.erode();
                 cvGrayDiff1.contrastStretch();

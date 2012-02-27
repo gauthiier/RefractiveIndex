@@ -151,16 +151,6 @@ void ColorSingleAnalysis::synthesise()
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
-                //cvGrayImage1 = cvColorImage1;
-                //cvGrayImage2 = cvColorImage2;
-                
-                //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                //cvGrayDiff1.erode();
-                //cvGrayDiff1.contrastStretch();
-                //cvGrayDiff1.blur(5);
-                //cvGrayDiff1.dilate();
-                //cvGrayDiff1.contrastStretch();
-            
                 cvColorImage1.blur(5);
                 cvColorImage1.erode();
                 cvColorImage1.erode();
