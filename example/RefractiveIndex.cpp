@@ -395,5 +395,7 @@ void RefractiveIndex::keyPressed  (int key)
 
 void RefractiveIndex::exit()
 {
+    if(_currentAnalysis)
+        _analysisAdapator->stop();    
     stop_camera();
 }
