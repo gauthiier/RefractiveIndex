@@ -128,11 +128,11 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
         return;
     }
         
-//#ifdef TARGET_OSX   
+#ifdef TARGET_OSX   
     
-//    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
+    ofSaveImage(RefractiveIndex::_pixels, _whole_file_path_analysis+"/"+filename, OF_IMAGE_QUALITY_BEST);
     
-//#elif defined(TARGET_WIN32)    
+#elif defined(TARGET_WIN32)    
     
     //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
     unsigned char * somePixels;
@@ -143,7 +143,7 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
     myColorImage1.saveImage(ofToDataPath("")+ _whole_file_path_analysis+"/"+filename);
     myColorImage1.clear();
     
-//#endif
+#endif
     
     _saved_filenames_analysis.push_back(_whole_file_path_analysis+"/"+filename);
     
