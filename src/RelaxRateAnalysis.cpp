@@ -149,10 +149,11 @@ void RelaxRateAnalysis::synthesise()
                 cvGrayImage1 = cvColorImage1;
                 cvGrayImage2 = cvColorImage2;
                 
-                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                cvGrayDiff1.erode();
-                cvGrayDiff1.contrastStretch();
-                cvGrayDiff1.blur(5);
+                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);                
+                cvGrayDiff1.threshold(80);
+                
+                cvContourFinder1.findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, 25, true);
+                                
                 
                 /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
                 string file_name;
