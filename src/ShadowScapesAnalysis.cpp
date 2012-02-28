@@ -86,6 +86,8 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
 	cvGrayImage2.clear();
     cvGrayDiff2.clear();
     
+    cvConvertorImage.clear();    
+    
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
@@ -93,6 +95,9 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
+    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    
 }
 
 void ShadowScapesAnalysis::acquire()
@@ -189,7 +194,9 @@ void ShadowScapesAnalysis::synthesise()
                 //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
                                
                 // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
-                saveImageSynthesis(file_name, &cvGrayDiff1, OF_IMAGE_GRAYSCALE);
+                cvConvertorImage.setFromGrayscalePlanarImages(cvGrayDiff1,cvGrayDiff1,cvGrayDiff1);
+                
+                saveImageSynthesis(file_name, &cvConvertorImage, OF_IMAGE_GRAYSCALE);
                 _synth_save_cnt++;
             }
         }

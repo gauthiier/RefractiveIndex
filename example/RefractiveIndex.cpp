@@ -15,7 +15,7 @@
 
 #include "ofxXmlSettings.h"
 
-#define CAMERA_ID           1
+#define CAMERA_ID           0
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
 
@@ -99,9 +99,10 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new ShadowScapesAnalysis(V)); 
     _analysisVector.push_back(new ShadowScapesAnalysis(H));
     _analysisVector.push_back(new ShadowScapesAnalysis(D));
-    
+	    
     _analysisVector.push_back(new RelaxRateAnalysis());
     
+	
     _analysisVector.push_back(new IResponseAnalysis());
     
     _analysisVector.push_back(new ShapeFromShadingAnalysis());
@@ -114,7 +115,7 @@ void RefractiveIndex::setup()
     
     _analysisVector.push_back(new ColorMultiAnalysis());
     
-    _analysisVector.push_back(new DiffNoiseAnalysis());
+    _analysisVector.push_back(new DiffNoiseAnalysis());	
     
 
     //_currentAnalysisIndx = 0;
