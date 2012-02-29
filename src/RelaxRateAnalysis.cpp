@@ -162,11 +162,10 @@ void RelaxRateAnalysis::displayresults()
 {
         
     cvContourFinderVectDisplay.clear();
-    
+
     for(int i=1;i<cvContourFinderVect.size();i++){
         
         if(_state == STATE_STOP) return;        
-        
         
         //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
         

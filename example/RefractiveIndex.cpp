@@ -199,6 +199,7 @@ void RefractiveIndex::draw()
     // black
     ofBackground(0, 0, 0);
            
+    ofEnableSmoothing();
     if(_currentAnalysis)
         _currentAnalysis->draw();
 }
