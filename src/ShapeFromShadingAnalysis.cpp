@@ -567,7 +567,7 @@ void ShapeFromShadingAnalysis::draw()
                 ofEnableAlphaBlending();
                 
                 ofSetColor(255, 255, 255);
-                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
+                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
                 image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
