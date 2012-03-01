@@ -13,6 +13,7 @@ using Poco::Thread;
 #define NUMBER_RUNS     1
 #define ACQUIRE_TIME    20
 #define TRESHOLD        80
+#define MAXBLOBS        15
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
@@ -26,6 +27,10 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     
     _treshold = RefractiveIndex::XML.getValue("config:relaxrate:treshold", TRESHOLD);
     cout << "TRESHOLD RelaxRateAnalysis " << _treshold << endl;
+    
+    _maxblobs = RefractiveIndex::XML.getValue("config:relaxrate:maxblobs", MAXBLOBS);
+    cout << "MAXBLOBS RelaxRateAnalysis " << _maxblobs << endl;
+
     
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -145,10 +150,10 @@ void RelaxRateAnalysis::synthesise()
             
             rfiCvContourFinder* cf = new rfiCvContourFinder();
             
-            cf->findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, 25, true);
+            cf->findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, _maxblobs, true);
             
             cvContourFinderVect.push_back(cf);
-
+            
         }
     }
     

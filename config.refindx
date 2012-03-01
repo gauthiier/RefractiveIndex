@@ -39,6 +39,7 @@
     
     <relaxrate>
         <treshold>51</treshold>
+        <maxblobs>25</maxblobs>
     </relaxrate>
     
 </config>

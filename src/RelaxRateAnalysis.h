@@ -36,6 +36,7 @@ protected:
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
     int     _treshold;
+    int     _maxblobs;
     
     bool _show_image, _image_shown;
     ofImage         image1;
