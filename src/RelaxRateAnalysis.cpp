@@ -407,6 +407,11 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
 
 void RelaxRateAnalysis::cleanup()
 {
+    // image1.erase();??
+    
+    // image1.delete();??
+    
+    // detel image1 ?? 
     image1.clear();
     image2.clear();
     image3.clear();  
@@ -419,9 +424,14 @@ void RelaxRateAnalysis::clearcfindervect()
 {
     for(int i = 0; i < cvContourFinderVect.size(); i++) {
         rfiCvContourFinder* f = cvContourFinderVect[i];
+
+        // maybe it's erase here?  http://forum.openframeworks.cc/index.php/topic,3016.0.html
+        // cvContourFinderVect.erase(i);
+        
         delete f;        
     }
     cvContourFinderVect.clear();
+    
 }
 
 void RelaxRateAnalysis::clearcfindervectdisplay()
