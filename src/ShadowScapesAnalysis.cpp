@@ -56,6 +56,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     image3.clear();  
     image4.clear();
     image5.clear();
+        
     
     //  images use for drawing the synthesized files to the screen ///
     image1.setUseTexture(false);  // the non texture image that is needed to first load the image

@@ -410,8 +410,9 @@ void RelaxRateAnalysis::cleanup()
     // image1.erase();??
     
     // image1.delete();??
-    
+
     // detel image1 ?? 
+    
     image1.clear();
     image2.clear();
     image3.clear();  
