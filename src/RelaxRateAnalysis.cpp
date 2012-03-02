@@ -75,6 +75,8 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
     image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
     
+   
+    
     //cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
     //cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
     
@@ -133,7 +135,29 @@ void RelaxRateAnalysis::synthesise()
     //cout << "IResponseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
     
-    cvContourFinderVect.clear();
+    cvContourFinderVect.clear();    
+    
+    image1.clear();
+    image2.clear();
+    image3.clear();  
+    image4.clear();
+    image5.clear();
+    
+    //  images use for drawing the synthesized files to the screen ///
+    image1.setUseTexture(false);  // the non texture image that is needed to first load the image
+    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
+    
+    //  images used for re-loading and saving out the synthesized files ///
+    image3.setUseTexture(false);  
+    image4.setUseTexture(false);
+    image5.setUseTexture(false);
+
+    image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    //image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    image3.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);  
+    image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+
     
     for(float i=1;i<_saved_filenames_analysis.size();i++){
                 
@@ -166,11 +190,16 @@ void RelaxRateAnalysis::synthesise()
 void RelaxRateAnalysis::displayresults()
 {
         
-    cvContourFinderVectDisplay.clear();
+    //cvContourFinderVectDisplay.clear();
+    clearcfindervectdisplay();
     
     for(int i=1;i<cvContourFinderVect.size();i++){
         
-        if(_state == STATE_STOP) return;        
+        if(_state == STATE_STOP){
+            clearcfindervectdisplay();
+            clearcfindervect();
+            return;
+        }        
         
         
         //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
@@ -187,6 +216,14 @@ void RelaxRateAnalysis::displayresults()
         
     }     
     
+    clearcfindervectdisplay();
+    clearcfindervect();
+    
+        
+    //cvContourFinderVectDisplay.clear();
+    //cvContourFinderVect.clear();
+    
+    
 }
 
 
@@ -197,7 +234,8 @@ void RelaxRateAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-           
+            
+            
             if (_frame_cnt < _frame_cnt_max)
             {
                 
@@ -227,6 +265,7 @@ void RelaxRateAnalysis::draw()
             
         case STATE_SYNTHESISING:
         {
+            
             // display animation of something while the synthesis in on-going...
             
             //cout << "RelaxRateAnalysis = STATE_SYNTHESISING...\n";
@@ -335,6 +374,15 @@ void RelaxRateAnalysis::draw()
             
             // display results of the synthesis
             _RUN_DONE = true;
+            
+            cvColorImage1.clear();
+            cvGrayImage1.clear();
+            cvGrayDiff1.clear();
+            
+            cvColorImage2.clear();
+            cvGrayImage2.clear();
+            cvGrayDiff2.clear();
+            image2.clear();
             break;
         
         }
@@ -356,3 +404,28 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
     
     
 }
+
+void RelaxRateAnalysis::cleanup()
+{
+    image1.clear();
+    image2.clear();
+    image3.clear();  
+    image4.clear();
+    image5.clear();    
+}
+
+
+void RelaxRateAnalysis::clearcfindervect()
+{
+    for(int i = 0; i < cvContourFinderVect.size(); i++) {
+        rfiCvContourFinder* f = cvContourFinderVect[i];
+        delete f;        
+    }
+    cvContourFinderVect.clear();
+}
+
+void RelaxRateAnalysis::clearcfindervectdisplay()
+{
+    cvContourFinderVectDisplay.clear();
+}
+

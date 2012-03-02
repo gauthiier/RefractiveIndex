@@ -23,12 +23,16 @@ public:
     void acquire();
     void synthesise(); 
     void displayresults();
+    void cleanup();
 
     void draw();
     
     void save_cb(Poco::Timer& timer);
     
 protected:
+    
+    void clearcfindervect();
+    void clearcfindervectdisplay();
     
     bool    _RUN_DONE;
     float     _flip, _level;

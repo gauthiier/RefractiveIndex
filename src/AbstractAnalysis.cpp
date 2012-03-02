@@ -22,9 +22,11 @@ void AbstractAnalysis::do_synthesize() {
         if(_state == STATE_STOP) goto exit;
         _state = STATE_DISPLAY_RESULTS;
         displayresults();
+        cleanup();
     }
     
     exit:    
+    cleanup();
     ofNotifyEvent(_synthesize_cb, _name);
 }
 

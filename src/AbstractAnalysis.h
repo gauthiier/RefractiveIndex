@@ -48,6 +48,10 @@ protected:
     
     // display the results from disk
     virtual void displayresults() = 0;   
+    
+    // display the results from disk
+    virtual void cleanup() {;}   
+    
         
 public:
     string  _name;    

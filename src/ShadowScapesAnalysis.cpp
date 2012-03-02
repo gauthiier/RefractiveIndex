@@ -439,6 +439,9 @@ void ShadowScapesAnalysis::draw()
             
             // display results of the synthesis
             _RUN_DONE = true;
+            
+            // clear allocated memory...? 
+            
             break;
         }
             

@@ -184,7 +184,11 @@ void IResponseAnalysis::synthesise()
                 cvConvertorImage.setFromGrayscalePlanarImages(cvGrayDiff1,cvGrayDiff1,cvGrayDiff1);
                 
                 saveImageSynthesis(file_name, &cvConvertorImage, OF_IMAGE_GRAYSCALE);
+                
                 _synth_save_cnt++;
+                
+        
+
             }
         }
     }
