@@ -43,27 +43,10 @@ protected:
     int     _maxblobs;
     
     bool _show_image, _image_shown;
-    ofImage         image1;
-    ofImage         image2; 
-    ofImage         image3;
-    ofImage         image4;
-    ofImage         image5; 
-    ofImage         image6; 
     
-    ofxCvColorImage         cvColorImage1;
-    ofxCvColorImage         cvColorImage2;
-    ofxCvColorImage         cvColorImage3;
-    ofxCvColorImage         cvColorImage4;
-    ofxCvColorImage         cvColorImage5;
-    ofxCvColorImage         cvColorImage6;
-    
+    ofImage                 image1;    
+    ofxCvColorImage         cvColorImage1;    
     ofxCvGrayscaleImage 	cvGrayDiff1;
-    ofxCvGrayscaleImage 	cvGrayDiff2;
-    
-    ofxCvGrayscaleImage 	cvGrayImage1;
-    ofxCvGrayscaleImage 	cvGrayImage2;
-    ofxCvGrayscaleImage 	cvGrayImage3;
-    ofxCvGrayscaleImage 	cvGrayImage4;
     
     vector<rfiCvContourFinder*>      cvContourFinderVect;
     vector<rfiCvContourFinder*>      cvContourFinderVectDisplay;

@@ -55,51 +55,18 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     _image_shown = false;
     
     image1.clear();
-    image2.clear();
-    image3.clear();  
-    image4.clear();
-    image5.clear();
-    
-    //  images use for drawing the synthesized files to the screen ///
     image1.setUseTexture(false);  // the non texture image that is needed to first load the image
-    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
-    
-    //  images used for re-loading and saving out the synthesized files ///
-    image3.setUseTexture(false);  
-    image4.setUseTexture(false);
-    image5.setUseTexture(false);
-    
     image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image3.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);  
-    image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    
-   
-    
-    //cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
-    //cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
     
     // clear() apparently fixes the "OF_WARNING: in allocate, reallocating a ofxCvImage" 
     // that we're getting in OSX/Windows and is maybe crashing Windows
     // http://forum.openframeworks.cc/index.php?topic=1867.0
     cvColorImage1.clear();
-	cvGrayImage1.clear();
     cvGrayDiff1.clear();
     
-    cvColorImage2.clear();
-	cvGrayImage2.clear();
-    cvGrayDiff2.clear();
-    
-    
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
-    cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
+        
 }
 
 
@@ -137,27 +104,6 @@ void RelaxRateAnalysis::synthesise()
     
     cvContourFinderVect.clear();    
     
-    image1.clear();
-    image2.clear();
-    image3.clear();  
-    image4.clear();
-    image5.clear();
-    
-    //  images use for drawing the synthesized files to the screen ///
-    image1.setUseTexture(false);  // the non texture image that is needed to first load the image
-    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
-    
-    //  images used for re-loading and saving out the synthesized files ///
-    image3.setUseTexture(false);  
-    image4.setUseTexture(false);
-    image5.setUseTexture(false);
-
-    image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    //image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image3.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);  
-    image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-
     
     for(float i=1;i<_saved_filenames_analysis.size();i++){
                 
@@ -374,15 +320,6 @@ void RelaxRateAnalysis::draw()
             
             // display results of the synthesis
             _RUN_DONE = true;
-            
-            cvColorImage1.clear();
-            cvGrayImage1.clear();
-            cvGrayDiff1.clear();
-            
-            cvColorImage2.clear();
-            cvGrayImage2.clear();
-            cvGrayDiff2.clear();
-            image2.clear();
             break;
         
         }
@@ -407,17 +344,6 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
 
 void RelaxRateAnalysis::cleanup()
 {
-    // image1.erase();??
-    
-    // image1.delete();??
-
-    // detel image1 ?? 
-    
-    image1.clear();
-    image2.clear();
-    image3.clear();  
-    image4.clear();
-    image5.clear();    
 }
 
 
