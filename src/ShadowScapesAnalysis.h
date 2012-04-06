@@ -25,6 +25,9 @@ public:
     void acquire();
     void synthesise();   
     void displayresults();
+        
+    void allocate();   
+    void cleanup();    
 
     void draw();
     

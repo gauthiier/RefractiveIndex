@@ -13,10 +13,13 @@
 #define ANALYSIS_PATH "analysis/"
 #define SYNTHESIS_PATH "synthesis/"
 
+#define STATE_ALLOCATE          0x0010
+#define STATE_CLEANUP           0x0001
 #define STATE_ACQUIRING         0x1111
 #define STATE_SYNTHESISING      0x2222
 #define STATE_DISPLAY_RESULTS   0x3333
 #define STATE_STOP              0xDEADBEEF
+#define STATE_DEF               0x0000
 
 class AbstractAnalysis {
     
@@ -48,8 +51,11 @@ protected:
     
     // display the results from disk
     virtual void displayresults() = 0;   
+
+    // allocate all images
+    virtual void allocate() {;}   
     
-    // display the results from disk
+    // deallocate all images
     virtual void cleanup() {;}   
     
         

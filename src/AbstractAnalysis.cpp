@@ -12,8 +12,12 @@ void AbstractAnalysis::do_synthesize() {
         cout << "NUM_RUN: " << i << endl;
                 
         _saved_filenames_analysis.clear();  
-        _saved_filenames_synthesis.clear(); 
-
+        _saved_filenames_synthesis.clear();
+        
+        if(_state == STATE_STOP) goto exit;
+        _state = STATE_ALLOCATE;
+        allocate();
+        if(_state == STATE_STOP) goto exit;
         _state = STATE_ACQUIRING;
         acquire();
         if(_state == STATE_STOP) goto exit;
@@ -22,6 +26,7 @@ void AbstractAnalysis::do_synthesize() {
         if(_state == STATE_STOP) goto exit;
         _state = STATE_DISPLAY_RESULTS;
         displayresults();
+        _state = STATE_CLEANUP;
         cleanup();
     }
     

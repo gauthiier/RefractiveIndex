@@ -51,6 +51,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     _show_image = false;
     _image_shown = false;
     
+    /*
     image1.clear();
     image2.clear();
     image3.clear();  
@@ -97,6 +98,7 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     
     cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+     */
     
 }
 
@@ -224,17 +226,60 @@ void ShadowScapesAnalysis::displayresults()
         if(!image3.loadImage(_saved_filenames_synthesis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
-        } 
-        
+        } else {
+            _show_image = true;
+            _image_shown = false;
+            
+        }
+/*        
         if(image3.loadImage(_saved_filenames_synthesis[i])){
-            image3.loadImage(_saved_filenames_synthesis[i]);
+            //image3.loadImage(_saved_filenames_synthesis[i]);
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
         }
+ */
     }
 
 }
+
+void ShadowScapesAnalysis::allocate()
+{
+    _RUN_DONE = false;
+    
+    image1.clear();
+    image3.clear();  
+    image4.clear();
+    image5.clear();
+    
+    image1.setUseTexture(false);         
+    image3.setUseTexture(false);  
+    image4.setUseTexture(false);
+    image5.setUseTexture(false);
+    
+    image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    image3.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);  
+    image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    
+    
+    while(!_RUN_DONE && _state != STATE_STOP)
+        Thread::sleep(3);    
+}
+
+void ShadowScapesAnalysis::cleanup()
+{
+    _RUN_DONE = false;
+    
+    image1.clear();
+    image3.clear();  
+    image4.clear();
+    image5.clear();        
+    
+    while(!_RUN_DONE && _state != STATE_STOP)
+        Thread::sleep(3);    
+}
+
 
 
 // the animation draw - and the output draw
@@ -242,6 +287,55 @@ void ShadowScapesAnalysis::draw()
 {
     
     switch (_state) {
+        case STATE_ALLOCATE:
+        {
+            image2.clear();
+            image2.setUseTexture(true);
+            image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+            
+            cvColorImage1.clear();
+            cvGrayImage1.clear();
+            cvGrayDiff1.clear();
+            
+            cvColorImage2.clear();
+            cvGrayImage2.clear();
+            cvGrayDiff2.clear();
+            
+            cvConvertorImage.clear();    
+            
+            cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            
+            cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+            
+            cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);   
+            
+            _state = STATE_DEF;
+            
+            _RUN_DONE = true;
+            break;
+        }
+        case STATE_CLEANUP:
+        {
+            image2.clear();
+            
+            cvColorImage1.clear();
+            cvGrayImage1.clear();
+            cvGrayDiff1.clear();
+            
+            cvColorImage2.clear();
+            cvGrayImage2.clear();
+            cvGrayDiff2.clear();
+            
+            _state = STATE_DEF;
+            
+            _RUN_DONE = true;
+            break;
+        }
+            
         case STATE_ACQUIRING:
         {
             _line += _step;
