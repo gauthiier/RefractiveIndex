@@ -230,9 +230,6 @@ void ColorSingleAnalysis::synthesise()
             vectorField[i].x /= maxMagX;
             vectorField[i].y /= maxMagY;
         }
-
-
-        
         
         // COMMENTING OUT THE FILLER SYNTH ALGORITHM
         /*  
@@ -300,8 +297,23 @@ void ColorSingleAnalysis::synthesise()
     
 }
 
+// 
 void ColorSingleAnalysis::displayresults()
 {
+    
+    if(_state == STATE_STOP) return;
+    
+    _show_image = true;
+    _image_shown = false;
+    
+    //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
+    
+    while(!_image_shown){
+        Thread::sleep(2);
+        //cout << "!_image_shown" << endl;
+    }
+    
+    /*
     for(float i=1;i<_saved_filenames_synthesis.size();i++){
         
         if(_state == STATE_STOP) return;
@@ -325,6 +337,7 @@ void ColorSingleAnalysis::displayresults()
             _image_shown = false;
         }
     }
+    */
     
 }
 
@@ -486,7 +499,7 @@ void ColorSingleAnalysis::draw()
             int height = image1.height;
             float spacing = 10;
             
-            if (_frame_cnt > 2)
+            if (_frame_cnt > 2000)
             {
                 _image_shown = true;
                 _frame_cnt=0;
@@ -496,6 +509,8 @@ void ColorSingleAnalysis::draw()
 
             if (_show_image)
             {  
+                
+                
                 cout << "_show_image = true" << endl;
                
                 for(int x=0; x<width; x++){
@@ -509,6 +524,9 @@ void ColorSingleAnalysis::draw()
                         glPopMatrix();
                     }
                 }
+                
+                //saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
+                
             }
             
             _RUN_DONE = true;
