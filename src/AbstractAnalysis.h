@@ -25,7 +25,7 @@ public:
     virtual ~AbstractAnalysis(){;}
     
     // generic function to set up the camera
-    virtual void setup(int camWidth, int camHeight){_cam_w = camWidth; _cam_h = camHeight;}  
+    virtual void setup(int camWidth, int camHeight);  
 
     // this is the main threaded loop for a given analysis
     void do_synthesize();
@@ -36,6 +36,8 @@ public:
 protected:
     
     virtual void create_dir_allocate_images();
+    
+    virtual void read_dir_create_list(string folder_path);
     
     virtual void saveImageAnalysis(string filename);
     virtual void saveImageSynthesis(string filename, ofxCvImage* newPixels, ofImageType newType);
@@ -54,7 +56,8 @@ protected:
     
         
 public:
-    string  _name;    
+    string  _name;       
+    string  _draw_directory;
     
     // event
     ofEvent<string> _synthesize_cb;    

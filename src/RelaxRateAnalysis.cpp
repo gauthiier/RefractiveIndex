@@ -17,6 +17,8 @@ using Poco::Thread;
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
+    AbstractAnalysis::setup(camWidth, camHeight);
+    
     NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_relaxrate", NUMBER_RUNS);
     cout << "NUM_RUN RelaxRateAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;

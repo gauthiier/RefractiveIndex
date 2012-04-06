@@ -15,6 +15,8 @@ using Poco::Thread;
 
 void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 {
+    AbstractAnalysis::setup(camWidth, camHeight);
+    
     NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_diffnoise", NUMBER_RUNS);
     cout << "NUM_RUN DiffNoiseAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;

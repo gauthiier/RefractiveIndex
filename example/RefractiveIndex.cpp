@@ -27,8 +27,10 @@
 #define ISTATE_TRANSITION   0xCCCC
 #define ISTATE_END          0xDDDD
 
+
 int _state = ISTATE_UNDEF;
 
+int              RefractiveIndex::_mode;
 ofPixels         RefractiveIndex::_pixels;
 ofVideoGrabber   RefractiveIndex::_vidGrabber;
 int              RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, RefractiveIndex::_vid_id;
@@ -49,6 +51,10 @@ void RefractiveIndex::setup()
     } else {
         XML.loadFile("config.refindx");
     }
+    
+    // <mode>
+    string m = XML.getValue("config:mode", "analysing");
+    _mode = (m == "analysing" ? MODE_ANALYSING : (m == "drawing" ? MODE_DRAWING : MODE_ANALYSING));
         
     // <camera>
     _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
@@ -82,8 +88,10 @@ void RefractiveIndex::setup()
     cout << "* cam width = " << _vid_w << endl;
     cout << "* cam height = " << _vid_h << endl;
     
-    _vid_stream_open = false;    
-    setup_camera();
+    if(_mode == MODE_ANALYSING) {
+        _vid_stream_open = false;    
+        setup_camera();
+    }
     
     cout << "RRRRRREADY!" << endl;        
 
@@ -173,10 +181,14 @@ void RefractiveIndex::state_analysis()
             break;
         case ISTATE_STOP:
             stop_analysis(); // blocking
-            _state = ISTATE_TRANSITION;
+            if(_mode == MODE_DRAWING)
+                _state = ISTATE_UNDEF;
+            else
+                _state = ISTATE_TRANSITION;
             break;
         case ISTATE_END:
-            stop_camera();
+            if(_mode == MODE_ANALYSING)
+                stop_camera();
             ::exit(1);
             break;
         case ISTATE_UNDEF:

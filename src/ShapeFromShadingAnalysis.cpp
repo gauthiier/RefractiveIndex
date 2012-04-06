@@ -15,6 +15,8 @@ using Poco::Thread;
 
 void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
 {       
+    AbstractAnalysis::setup(camWidth, camHeight);
+    
     NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_shapefromshading", NUMBER_RUNS);
     cout << "NUM_RUN ShapeFromShadingAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;

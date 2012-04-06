@@ -3,31 +3,72 @@
 #include "AbstractAnalysis.h"
 #include "RefractiveIndex.h"
 #include "ofxFileHelper.h"
+#include "ofSystemUtils.h"
+
+void AbstractAnalysis::setup(int camWidth, int camHeight) {
+    
+    _cam_w = camWidth; _cam_h = camHeight;
+    
+    if(RefractiveIndex::_mode == MODE_DRAWING) {
+        ofFileDialogResult r = ofSystemLoadDialog("choooose da folda", true);
+        if(!r.bSuccess) {
+            ofSystemAlertDialog("OOOOPS.... ERROR...");
+            return;
+        }
+                
+        _whole_file_path_analysis = r.filePath;
+        _whole_file_path_synthesis = r.filePath + "/darwings";        
+    }
+    
+}
 
 // this is the main threaded loop for a given analysis
 void AbstractAnalysis::do_synthesize() {
     
-    for(int i = 0; i < NUM_RUN; i++) {
-        
-        cout << "NUM_RUN: " << i << endl;
+    switch(RefractiveIndex::_mode)
+    {
+        case MODE_ANALYSING:
+        {
+            for(int i = 0; i < NUM_RUN; i++) {
                 
-        _saved_filenames_analysis.clear();  
-        _saved_filenames_synthesis.clear(); 
-
-        _state = STATE_ACQUIRING;
-        acquire();
-        if(_state == STATE_STOP) goto exit;
-        _state = STATE_SYNTHESISING;
-        synthesise();
-        if(_state == STATE_STOP) goto exit;
-        _state = STATE_DISPLAY_RESULTS;
-        displayresults();
-        cleanup();
+                cout << "NUM_RUN: " << i << endl;
+                
+                _saved_filenames_analysis.clear();  
+                _saved_filenames_synthesis.clear(); 
+                
+                _state = STATE_ACQUIRING;
+                acquire();
+                if(_state == STATE_STOP) goto exit;
+                _state = STATE_SYNTHESISING;
+                synthesise();
+                if(_state == STATE_STOP) goto exit;
+                _state = STATE_DISPLAY_RESULTS;
+                displayresults();
+                cleanup();
+            }                    
+        }
+            
+        case MODE_DRAWING:
+        {            
+            ofxFileHelper fileHelperDrawing;
+            if(!fileHelperDrawing.doesDirectoryExist(_whole_file_path_synthesis)){
+                fileHelperDrawing.makeDirectory(_whole_file_path_synthesis);
+            }            
+            
+            read_dir_create_list(_whole_file_path_analysis);
+            _state = STATE_SYNTHESISING;
+            synthesise();
+            if(_state == STATE_STOP) goto exit;
+            _state = STATE_DISPLAY_RESULTS;
+            displayresults();
+            cleanup();            
+        }
     }
     
-    exit:    
+exit:    
     cleanup();
-    ofNotifyEvent(_synthesize_cb, _name);
+    ofNotifyEvent(_synthesize_cb, _name);    
+    
 }
 
 void AbstractAnalysis::create_dir_allocate_images()
@@ -116,6 +157,20 @@ void AbstractAnalysis::create_dir_allocate_images()
 
 }
 
+void AbstractAnalysis::read_dir_create_list(string folder_path)
+{
+    File dir(folder_path);
+    
+    if(dir.exists() && dir.isDirectory()) {
+        vector<string> list;
+        dir.list(list);
+        for(int i = 0; i < list.size(); i++) {
+            string filepath = folder_path + "/" + list[i]; 
+            _saved_filenames_analysis.push_back(filepath);
+        }                
+    }
+}
+
 void AbstractAnalysis::saveImageAnalysis(string filename)
 {
     
@@ -180,6 +235,7 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
 #endif
     
     _saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+filename);
+            
     
 }
 

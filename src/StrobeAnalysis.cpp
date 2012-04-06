@@ -15,6 +15,8 @@ using Poco::Thread;
 
 void StrobeAnalysis::setup(int camWidth, int camHeight)
 {
+    AbstractAnalysis::setup(camWidth, camHeight);
+    
     NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_strobe", NUMBER_RUNS);
     cout << "NUM_RUN StrobeAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;

@@ -1,6 +1,7 @@
 <!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
 
 <config>
+    <mode>drawing</mode>
 	<camera>
 		<id>1</id>
 		<width>640</width>
