@@ -12,7 +12,7 @@ using Poco::Thread;
 
 #define NUMBER_RUNS     1
 #define ACQUIRE_TIME    20
-#define TRESHOLD        80
+#define THRESHOLD        80
 #define MAXBLOBS        15
 
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
@@ -25,8 +25,8 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_relaxrate", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME RelaxRateAnalysis " << acq_run_time << endl;
     
-    _treshold = RefractiveIndex::XML.getValue("config:relaxrate:treshold", TRESHOLD);
-    cout << "TRESHOLD RelaxRateAnalysis " << _treshold << endl;
+    _threshold = RefractiveIndex::XML.getValue("config:relaxrate:threshold", THRESHOLD);
+    cout << "THRESHOLD RelaxRateAnalysis " << _threshold << endl;
     
     _maxblobs = RefractiveIndex::XML.getValue("config:relaxrate:maxblobs", MAXBLOBS);
     cout << "MAXBLOBS RelaxRateAnalysis " << _maxblobs << endl;
@@ -116,7 +116,7 @@ void RelaxRateAnalysis::synthesise()
             cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);            
             cvColorImage1.convertToGrayscalePlanarImage(cvGrayDiff1, 1);
             
-            cvGrayDiff1.threshold(_treshold);
+            cvGrayDiff1.threshold(_threshold);
             
             rfiCvContourFinder* cf = new rfiCvContourFinder();
             

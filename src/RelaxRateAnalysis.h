@@ -39,7 +39,7 @@ protected:
     int     _run_cnt, _save_cnt, _synth_save_cnt, _anim_cnt;
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
-    int     _treshold;
+    int     _threshold;
     int     _maxblobs;
     
     bool _show_image, _image_shown;

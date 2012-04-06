@@ -105,7 +105,7 @@ void ColorSingleAnalysis::acquire()
     Timer* save_timer;
 
     TimerCallback<ColorSingleAnalysis> save_callback(*this, &ColorSingleAnalysis::save_cb);
-    
+
     _run_cnt++;
     _frame_cnt = 0; _save_cnt = 0; _anim_cnt = 0, _synth_save_cnt = 0;
     _RUN_DONE = false;
@@ -124,7 +124,6 @@ void ColorSingleAnalysis::acquire()
 
     save_timer->stop();
 
-  
     // }
 }
 
@@ -135,13 +134,108 @@ void ColorSingleAnalysis::synthesise()
     if(_state == STATE_STOP) return;
     
     for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
-        
+    
         //cout << "ColorSingleAnalysis::synthesis FOR LOOP...\n";
-        
         //cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
         
         if(_state == STATE_STOP) return;
         
+        image1.loadImage("Mar_02_19_00_47_2/194_9.72_1.jpg");
+        image1.resize(image1.width/20, image1.height/20);
+        
+        int width = image1.width;
+        int height = image1.height;
+        
+        // get the pixels from the image
+        imagePixels = image1.getPixels();
+        
+        // ------------------- create the vector field ------------------------------------
+        
+        vectorCount = width * height;
+        
+        // create a 2d vector field
+        vectorField = new ofVec2f[vectorCount];
+        
+        // set all values in vector field to 0.0
+        for(int i=0; i<vectorCount; i++){
+            
+            vectorField[i].x = 0.0;
+            vectorField[i].y = 0.0;
+        }
+        
+        
+        // ------------------- calculate the vectors ------------------------------------
+        
+        // loop through all of the pixels
+        for(int x=1; x< width-1; x++){
+            for(int y=1; y< height-1; y++){
+                
+                char areaPixels[9];
+                
+                // loop through the area pixels
+                for(int i=-1; i<=1; i++){
+                    for(int j=-1; j<=1; j++){
+                        
+                        // determine where to read from in the area (not optimized)
+                        int readPos = ((y + j) * width + (x + i)) * 3;
+                        
+                        unsigned char R = imagePixels[readPos];
+                        unsigned char G = imagePixels[readPos+1];
+                        unsigned char B = imagePixels[readPos+2];
+                        
+                        unsigned char BR = (0.299 * R) + (.587 * G) + (.114 * B);
+                        
+                        int writePos = (j+1) * 3 + (i + 1);
+                        
+                        areaPixels[writePos] = BR;
+                    }
+                }
+                
+                
+                
+                float dX = (areaPixels[0] + areaPixels[3] + areaPixels[6])/3 - (areaPixels[2] + areaPixels[5] + areaPixels[8])/3;
+                float dY = (areaPixels[0] + areaPixels[1] + areaPixels[2])/3 - (areaPixels[6] + areaPixels[7] + areaPixels[8])/3;
+                
+                int vectorPos = y * width + x;
+                
+                //printf("dx %f\n", dX);
+                
+                vectorField[vectorPos].x = dX;
+                vectorField[vectorPos].y = dY;
+                
+                //vectorField[vectorPos].x = -dY;
+                //vectorField[vectorPos].y = dX;
+                
+            }
+        }
+        
+        
+        
+        // ------------------- normalize the vectors ------------------------------------
+        
+        // variables for the maximum magnitude (absolute) in x and y
+        float maxMagX = 1.0;
+        float maxMagY = 1.0;
+        
+        // loop through the vector field to find the maximum x and y values
+        for(int i=0; i< vectorCount; i++){
+            
+            if(fabs(vectorField[i].x) > maxMagX)  maxMagX = fabs(vectorField[i].x);
+            if(fabs(vectorField[i].y) > maxMagY)  maxMagY = fabs(vectorField[i].y);
+        }
+        
+        // loop through the vector field to normalize the values
+        for(int i=0; i< vectorCount; i++){
+            
+            vectorField[i].x /= maxMagX;
+            vectorField[i].y /= maxMagY;
+        }
+
+
+        
+        
+        // COMMENTING OUT THE FILLER SYNTH ALGORITHM
+        /*  
         if(!image1.loadImage(_saved_filenames_analysis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
@@ -180,7 +274,7 @@ void ColorSingleAnalysis::synthesise()
                 //ofImage image;
                 //image.allocate(cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
                 
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+                // This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? 
                 //image.setUseTexture(false);  
                 
                 //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
@@ -192,9 +286,12 @@ void ColorSingleAnalysis::synthesise()
             
                 saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
                 _synth_save_cnt++;
-            
+        
            // }
-        }
+        
+         }
+         */
+        
     }
     
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
@@ -238,8 +335,6 @@ void ColorSingleAnalysis::draw()
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            
-            
             if (_frame_cnt < _frame_cnt_max)
             {
                     
@@ -385,8 +480,42 @@ void ColorSingleAnalysis::draw()
         case STATE_DISPLAY_RESULTS:
         {
             
-            //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
+            cout << "case STATE_DISPLAY_RESULTS = true" << endl;
+
+            int width = image1.width;
+            int height = image1.height;
+            float spacing = 10;
             
+            if (_frame_cnt > 2)
+            {
+                _image_shown = true;
+                _frame_cnt=0;
+            }
+            
+            _frame_cnt++;
+
+            if (_show_image)
+            {  
+                cout << "_show_image = true" << endl;
+               
+                for(int x=0; x<width; x++){
+                    
+                    float xPos = (float) x * spacing + 5;
+                    
+                    for(int y=0; y<height; y++){
+                        float yPos = (float)y * spacing + 5;
+                        glPushMatrix();
+                            ofLine(xPos, yPos, xPos+(vectorField[y*width+x].x*spacing), yPos+(vectorField[y*width+x].y*spacing));
+                        glPopMatrix();
+                    }
+                }
+            }
+            
+            _RUN_DONE = true;
+            break;
+
+            /*
+            //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
             
             if (_frame_cnt > 2)
             {
@@ -402,9 +531,9 @@ void ColorSingleAnalysis::draw()
                 
                 ofEnableAlphaBlending();
                 
-                ofSetColor(255, 255, 255);
-                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
-                image2.draw(0,0, ofGetWidth(), ofGetHeight());
+                    ofSetColor(255, 255, 255);
+                    image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
+                    image2.draw(0,0, ofGetWidth(), ofGetHeight());
                 
                 ofDisableAlphaBlending();
             }
@@ -412,12 +541,11 @@ void ColorSingleAnalysis::draw()
             // display results of the synthesis
             _RUN_DONE = true;
             break;
-
-
-        }
+            */
             
+        }
         default:
-            break;
+        break;
     }
     
 }

@@ -1,45 +1,45 @@
 <!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
 
 <config>
-	<camera>
-		<id>1</id>
-		<width>640</width>
-		<height>480</height>
-	</camera>
-	<display>
-		<fps>30</fps>
-    </display>
-	<locale>
-		<name>SWANSEA</name>
-	</locale>
+<camera>
+<id>1</id>
+<width>640</width>
+<height>480</height>
+</camera>
+<display>
+<fps>30</fps>
+</display>
+<locale>
+<name>SWANSEA</name>
+</locale>
 
-    <analysis_NUM_RUN>
-        <NUM_RUN_shadowscapes>          3      </NUM_RUN_shadowscapes>
-        <NUM_RUN_relaxrate>             3      </NUM_RUN_relaxrate>
-        <NUM_RUN_iresponse>             3      </NUM_RUN_iresponse>
-        <NUM_RUN_shapefromshading>      3      </NUM_RUN_shapefromshading>
-        <NUM_RUN_strobe>                5      </NUM_RUN_strobe>
-        <NUM_RUN_camnoise>              5      </NUM_RUN_camnoise>
-        <NUM_RUN_colorsingle>           5      </NUM_RUN_colorsingle>
-        <NUM_RUN_colormulti>            5      </NUM_RUN_colormulti>
-        <NUM_RUN_diffnoise>             3      </NUM_RUN_diffnoise>
-    </analysis_NUM_RUN>
+<analysis_NUM_RUN>
+<NUM_RUN_shadowscapes>          3      </NUM_RUN_shadowscapes>
+<NUM_RUN_relaxrate>             3      </NUM_RUN_relaxrate>
+<NUM_RUN_iresponse>             3      </NUM_RUN_iresponse>
+<NUM_RUN_shapefromshading>      3      </NUM_RUN_shapefromshading>
+<NUM_RUN_strobe>                5      </NUM_RUN_strobe>
+<NUM_RUN_camnoise>              5      </NUM_RUN_camnoise>
+<NUM_RUN_colorsingle>           5      </NUM_RUN_colorsingle>
+<NUM_RUN_colormulti>            5      </NUM_RUN_colormulti>
+<NUM_RUN_diffnoise>             3      </NUM_RUN_diffnoise>
+</analysis_NUM_RUN>
 
-    <analysis_time>
-        <acquiretime_shadowscapes>      30      </acquiretime_shadowscapes>
-        <acquiretime_relaxrate>         30      </acquiretime_relaxrate>
-        <acquiretime_iresponse>         30      </acquiretime_iresponse>
-        <acquiretime_shapefromshading>  30      </acquiretime_shapefromshading>
-        <acquiretime_strobe>            30      </acquiretime_strobe>
-        <acquiretime_camnoise>          30      </acquiretime_camnoise>
-        <acquiretime_colorsingle>       40      </acquiretime_colorsingle>
-        <acquiretime_colormulti>        40      </acquiretime_colormulti>
-        <acquiretime_diffnoise>         30      </acquiretime_diffnoise>
-    </analysis_time>
-    
-    <relaxrate>
-        <treshold>51</treshold>
-        <maxblobs>25</maxblobs>
-    </relaxrate>
-    
+<analysis_time>
+<acquiretime_shadowscapes>      30      </acquiretime_shadowscapes>
+<acquiretime_relaxrate>         30      </acquiretime_relaxrate>
+<acquiretime_iresponse>         30      </acquiretime_iresponse>
+<acquiretime_shapefromshading>  30      </acquiretime_shapefromshading>
+<acquiretime_strobe>            30      </acquiretime_strobe>
+<acquiretime_camnoise>          30      </acquiretime_camnoise>
+<acquiretime_colorsingle>       40      </acquiretime_colorsingle>
+<acquiretime_colormulti>        40      </acquiretime_colormulti>
+<acquiretime_diffnoise>         30      </acquiretime_diffnoise>
+</analysis_time>
+
+<relaxrate>
+<threshold>51</threshold>
+<maxblobs>25</maxblobs>
+</relaxrate>
+
 </config>

@@ -246,8 +246,6 @@ void ColorMultiAnalysis::draw()
                     //cout << "FADING IN..." << endl;
                 }
                 
-                
-                
                 if (_frame_cnt >= _fade_in_frames && _frame_cnt < _frame_cnt_max-_fade_in_frames){
                     
                     aColor.setHsb(c, 255, 255);
