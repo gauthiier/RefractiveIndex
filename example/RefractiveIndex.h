@@ -11,6 +11,9 @@
 #include "ofxOpenCv.h"
 #include "ofxXmlSettings.h"
 
+#define MODE_DRAWING        0xEEFF
+#define MODE_ANALYSING      0xFFEE
+
 class RefractiveIndex : public ofBaseApp
 {
 public:
@@ -55,6 +58,8 @@ public:
     // acquisition
     static ofPixels         _pixels;    
     static ofVideoGrabber   _vidGrabber;
+    static int              _mode;
+    
     vector<string>          videoSourceList;    
     static int              _vid_w, _vid_h, _vid_id;
     static bool             _vid_stream_open;

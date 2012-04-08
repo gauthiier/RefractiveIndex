@@ -27,8 +27,10 @@
 #define ISTATE_TRANSITION   0xCCCC
 #define ISTATE_END          0xDDDD
 
+
 int _state = ISTATE_UNDEF;
 
+int              RefractiveIndex::_mode;
 ofPixels         RefractiveIndex::_pixels;
 ofVideoGrabber   RefractiveIndex::_vidGrabber;
 int              RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, RefractiveIndex::_vid_id;
@@ -49,7 +51,11 @@ void RefractiveIndex::setup()
     } else {
         XML.loadFile("config.refindx");
     }
-        
+    
+    // <mode>
+    string m = XML.getValue("config:mode", "analysing");
+    _mode = (m == "analysing" ? MODE_ANALYSING : (m == "drawing" ? MODE_DRAWING : MODE_ANALYSING));
+    
     // <camera>
     _vid_id = XML.getValue("config:camera:id", CAMERA_ID);
     cout << "_vid_id: " << _vid_id << endl;
@@ -59,12 +65,12 @@ void RefractiveIndex::setup()
     
     // <display>
     int fps = XML.getValue("config:display:fps", 30);
-            
+    
     // <location>
     _location = XML.getValue("config:locale:name", LOCATION);
-        
+    
     cout << "Configuring..." << endl;
-
+    
     // display
     cout << "> display" << endl;
     ofSetFrameRate(fps);
@@ -82,13 +88,15 @@ void RefractiveIndex::setup()
     cout << "* cam width = " << _vid_w << endl;
     cout << "* cam height = " << _vid_h << endl;
     
-    _vid_stream_open = false;    
-    setup_camera();
+    if(_mode == MODE_ANALYSING) {
+        _vid_stream_open = false;    
+        setup_camera();
+    }
     
     cout << "RRRRRREADY!" << endl;        
-
+    
     _analysisAdapator = NULL;
-
+    
     //getting a warning from the OFlog that the pixels aren't allocated
     //void ofPixels::allocate(int w, int h, ofImageType type)    
     _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR); 
@@ -99,7 +107,7 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new ShadowScapesAnalysis(V)); 
     _analysisVector.push_back(new ShadowScapesAnalysis(H));
     _analysisVector.push_back(new ShadowScapesAnalysis(D));
-	    
+    
     _analysisVector.push_back(new RelaxRateAnalysis());
     
 	
@@ -117,7 +125,7 @@ void RefractiveIndex::setup()
     
     _analysisVector.push_back(new DiffNoiseAnalysis());	
     
-
+    
     //_currentAnalysisIndx = 0;
     //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     //_state = ISTATE_START;
@@ -173,10 +181,14 @@ void RefractiveIndex::state_analysis()
             break;
         case ISTATE_STOP:
             stop_analysis(); // blocking
-            _state = ISTATE_TRANSITION;
+            if(_mode == MODE_DRAWING)
+                _state = ISTATE_UNDEF;
+            else
+                _state = ISTATE_TRANSITION;
             break;
         case ISTATE_END:
-            stop_camera();
+            if(_mode == MODE_ANALYSING)
+                stop_camera();
             ::exit(1);
             break;
         case ISTATE_UNDEF:
@@ -198,7 +210,7 @@ void RefractiveIndex::draw()
     
     // black
     ofBackground(0, 0, 0);
-           
+    
     if(_currentAnalysis)
         _currentAnalysis->draw();
 }
@@ -259,7 +271,7 @@ void RefractiveIndex::keyPressed  (int key)
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
     }
-
+    
     else if(key == '2')
     {
         if(_currentAnalysis)
@@ -268,7 +280,7 @@ void RefractiveIndex::keyPressed  (int key)
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
     }
-
+    
     else if(key == '3')
     {        
         if(_currentAnalysis)
@@ -340,7 +352,7 @@ void RefractiveIndex::keyPressed  (int key)
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
     }
-
+    
     else if(key == 'q')
     {
         if(_currentAnalysis)
@@ -354,42 +366,42 @@ void RefractiveIndex::keyPressed  (int key)
      TO DO:  add a file dialog so we can save images to another hard drive...
      e.g.: http://dev.openframeworks.cc/pipermail/of-dev-openframeworks.cc/2011-April/003125.html
      
->> 		case 's':
->> 			doSave ^= true;
->> 			doLoad = false;
->> 			if(doSave) {
->> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to save to", true);
->> 				if(r.bSuccess) {
->> 					saveCounter = 0;
->> 					savePath = r.getPath();
->> 					ofDirectory::createDirectory(savePath + "/color/");
->> 					ofDirectory::createDirectory(savePath + "/depth/");
->> 					printf("SAVE %s %s\n", r.getPath().c_str(), r.getName().c_str());
->> 				} else {
->> 					doSave = false;
->> 				}
->> 				
->> 			}
->> 			break;
->> 			
->> 		case 'l':
->> 			doLoad ^= true;
->> 			doSave = false;
->> 			if(doLoad) {
->> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to load from", true);
->> 				if(r.bSuccess) {
->> 					loadCounter = 0;
->> 					loadPath = r.getPath();
->> 					ofDirectory dir;
->> 					loadMaxFiles = MAX(dir.listDir(loadPath + "/color"), dir.listDir(loadPath + "/depth"));
->> 					printf("LOAD %i %s %s\n", loadMaxFiles, r.getPath().c_str(), r.getName().c_str());
->> 				} else {
->> 					doLoad = false;
->> 				}
->> 				
->> 			}
->> 			break;
-    */
+     >> 		case 's':
+     >> 			doSave ^= true;
+     >> 			doLoad = false;
+     >> 			if(doSave) {
+     >> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to save to", true);
+     >> 				if(r.bSuccess) {
+     >> 					saveCounter = 0;
+     >> 					savePath = r.getPath();
+     >> 					ofDirectory::createDirectory(savePath + "/color/");
+     >> 					ofDirectory::createDirectory(savePath + "/depth/");
+     >> 					printf("SAVE %s %s\n", r.getPath().c_str(), r.getName().c_str());
+     >> 				} else {
+     >> 					doSave = false;
+     >> 				}
+     >> 				
+     >> 			}
+     >> 			break;
+     >> 			
+     >> 		case 'l':
+     >> 			doLoad ^= true;
+     >> 			doSave = false;
+     >> 			if(doLoad) {
+     >> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to load from", true);
+     >> 				if(r.bSuccess) {
+     >> 					loadCounter = 0;
+     >> 					loadPath = r.getPath();
+     >> 					ofDirectory dir;
+     >> 					loadMaxFiles = MAX(dir.listDir(loadPath + "/color"), dir.listDir(loadPath + "/depth"));
+     >> 					printf("LOAD %i %s %s\n", loadMaxFiles, r.getPath().c_str(), r.getName().c_str());
+     >> 				} else {
+     >> 					doLoad = false;
+     >> 				}
+     >> 				
+     >> 			}
+     >> 			break;
+     */
     
     
 }

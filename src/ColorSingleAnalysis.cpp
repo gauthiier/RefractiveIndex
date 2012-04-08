@@ -525,6 +525,7 @@ void ColorSingleAnalysis::draw()
                     }
                 }
                 
+                //this is where we save the full-frame software output to file... after the vectors, etc. are rendered... 
                 //saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
                 
             }
