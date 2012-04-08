@@ -65,5 +65,8 @@ protected:
     //this is the temporary container to allow us to convert and save out greyscale images
     ofxCvColorImage         cvConvertorImage;
     
+    unsigned char * imagePixels;
+    int vectorCount;
+    ofVec2f * vectorField;
 
 };

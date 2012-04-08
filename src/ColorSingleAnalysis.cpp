@@ -24,11 +24,11 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colorsingle", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME ColorSingleAnalysis " << acq_run_time << endl;
-
+    
     //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 1*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
-                                            // or 10 times per second = every 100 ms
+    // or 10 times per second = every 100 ms
     
     _frame_cnt_max = acq_run_time*ofGetFrameRate();  // e.g.: 30 frames per second * 20 seconds = 600 frames
     
@@ -47,7 +47,7 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     b = 0;
     
     fileNameTag = "";
-
+    
     _show_image = false;
     _image_shown = false;
     
@@ -103,9 +103,9 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 
 void ColorSingleAnalysis::acquire()
 {
-
+    
     Timer* save_timer;
-
+    
     TimerCallback<ColorSingleAnalysis> save_callback(*this, &ColorSingleAnalysis::save_cb);
     
     _run_cnt++;
@@ -115,18 +115,18 @@ void ColorSingleAnalysis::acquire()
     
     // RUN ROUTINE
     //for(int i = 0; i < NUM_RUN; i++) {
-      //  _run_cnt = i;
-        //cout << "RUN NUM = " << i;
-
+    //  _run_cnt = i;
+    //cout << "RUN NUM = " << i;
+    
     save_timer = new Timer(0, DELTA_T_SAVE); // timing interval for saving files
     save_timer->start(save_callback);
-        
-        while(!_RUN_DONE && _state != STATE_STOP)
-            Thread::sleep(3);
-
+    
+    while(!_RUN_DONE && _state != STATE_STOP)
+        Thread::sleep(3);
+    
     save_timer->stop();
-
-  
+    
+    
     // }
 }
 
@@ -152,50 +152,50 @@ void ColorSingleAnalysis::synthesise()
         if(image1.loadImage(_saved_filenames_analysis[i])){
             //cout << "LOADED image1!!!" << endl;
             //if(image5.loadImage(_saved_filenames_analysis[i+1])){
-                
-                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-                
-                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
-                //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
-                
-                cvColorImage1.blur(5);
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.dilate();
-                cvColorImage1.blur(5);
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.erode();
             
-                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-                string file_name;
-                
-                file_name = ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".jpg";
-                
-                
-                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                
-                
-                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                //ofImage image;
-                //image.allocate(cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
-                
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                //image.setUseTexture(false);  
-                
-                //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
-                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
             
-                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-                
-                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+            cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+            //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
             
-                saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
-                _synth_save_cnt++;
+            cvColorImage1.blur(5);
+            cvColorImage1.erode();
+            cvColorImage1.erode();
+            cvColorImage1.dilate();
+            cvColorImage1.blur(5);
+            cvColorImage1.erode();
+            cvColorImage1.erode();
+            cvColorImage1.erode();
+            cvColorImage1.erode();
             
-           // }
+            /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
+            string file_name;
+            
+            file_name = ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".jpg";
+            
+            
+            //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
+            // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
+            
+            
+            //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
+            //ofImage image;
+            //image.allocate(cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
+            
+            //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
+            //image.setUseTexture(false);  
+            
+            //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
+            //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+            
+            //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
+            
+            // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+            
+            saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
+            _synth_save_cnt++;
+            
+            // }
         }
     }
     
@@ -244,7 +244,7 @@ void ColorSingleAnalysis::draw()
             
             if (_frame_cnt < _frame_cnt_max)
             {
-                    
+                
                 float one_third_of_frame_count_max=_frame_cnt_max/3;
                 int _fade_in_frames = one_third_of_frame_count_max/10;
                 
@@ -282,15 +282,15 @@ void ColorSingleAnalysis::draw()
                 }
                 
                 if (_frame_cnt >= (_frame_cnt_max-_fade_in_frames) && _frame_cnt < _frame_cnt_max){
-                   
+                    
                     int fade = ofMap(_fade_cnt, 0, _fade_in_frames, 0, 255);
                     ofSetColor(0, 0, 255-fade);
-        
+                    
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                     _fade_cnt++;
                     fileNameTag = "FADING";
                 }
-            
+                
             } else {
                 //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
@@ -326,7 +326,7 @@ void ColorSingleAnalysis::draw()
                 //ofRotate(ofMap(_anim_cnt/2.0, 0, _anim_cnt_max, 0, 360));
                 
                 if (_anim_cnt < _fade_in_frames) {
-                   // cout << "ColorSingleAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
+                    // cout << "ColorSingleAnalysis STATE_SYNTHESIZING = FADING IN ANIMATION...\n";
                     
                     fade = ofMap(_anim_cnt, 0, _fade_in_frames, 0, 255);
                     
@@ -414,8 +414,8 @@ void ColorSingleAnalysis::draw()
             // display results of the synthesis
             _RUN_DONE = true;
             break;
-
-
+            
+            
         }
             
         default:
