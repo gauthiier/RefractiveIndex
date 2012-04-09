@@ -157,16 +157,29 @@ void AbstractAnalysis::create_dir_allocate_images()
 
 }
 
+bool cmp_file(string f0, string f1)
+{
+    int v0 = atoi(f0.substr(0, f0.find("_")).c_str());
+    int v1 = atoi(f1.substr(0, f1.find("_")).c_str());    
+    return v0 < v1;
+}
+
 void AbstractAnalysis::read_dir_create_list(string folder_path)
 {
     File dir(folder_path);
     
     if(dir.exists() && dir.isDirectory()) {
         vector<string> list;
-        dir.list(list);
+        dir.list(list);   
+        
+        std::sort(list.begin(), list.end(), cmp_file);
+        
         for(int i = 0; i < list.size(); i++) {
             string filepath = folder_path + "/" + list[i]; 
             _saved_filenames_analysis.push_back(filepath);
+                        
+            cout << list[i] << endl; 
+            
         }                
     }
 }
