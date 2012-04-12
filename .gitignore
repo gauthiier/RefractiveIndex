@@ -1,2 +1,8 @@
 
 src/.DS_Store
+.DS_Store
+Project.xcconfig
+bin/
+openFrameworks-Info.plist
+opencvExample.xcodeproj/
+config.refindx
