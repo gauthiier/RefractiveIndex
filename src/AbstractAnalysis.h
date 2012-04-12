@@ -61,6 +61,10 @@ public:
     
     // event
     ofEvent<string> _synthesize_cb;    
+    bool    meshIsComplete;
+    ofMesh  aMesh;
+    string  meshFileName;
+
 
 protected:    
     int             _cam_w, _cam_h;          

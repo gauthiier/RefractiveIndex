@@ -7,8 +7,8 @@
 
 void AbstractAnalysis::setup(int camWidth, int camHeight) {
     
+    meshIsComplete=false;
     _cam_w = camWidth; _cam_h = camHeight;
-    
     if(RefractiveIndex::_mode == MODE_DRAWING) {
         ofFileDialogResult r = ofSystemLoadDialog("choooose da folda", true);
         if(!r.bSuccess) {
@@ -19,7 +19,7 @@ void AbstractAnalysis::setup(int camWidth, int camHeight) {
         _whole_file_path_analysis = r.filePath;
         _whole_file_path_synthesis = r.filePath + "/darwings";        
     }
-    
+
 }
 
 // this is the main threaded loop for a given analysis
@@ -50,6 +50,8 @@ void AbstractAnalysis::do_synthesize() {
             
         case MODE_DRAWING:
         {            
+
+
             ofxFileHelper fileHelperDrawing;
             if(!fileHelperDrawing.doesDirectoryExist(_whole_file_path_synthesis)){
                 fileHelperDrawing.makeDirectory(_whole_file_path_synthesis);
@@ -153,6 +155,7 @@ void AbstractAnalysis::create_dir_allocate_images()
     myGrayImage1.setUseTexture(false);
     myGrayImage1.allocate(RefractiveIndex::_vid_w, RefractiveIndex::_vid_h, OF_IMAGE_GRAYSCALE);
     
+
     //////////////////////////////END ALLOCATE IMAGES //////////////////////////////////////////////////  
 
 }

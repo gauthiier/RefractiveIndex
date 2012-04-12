@@ -19,7 +19,7 @@
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
 
-#define LOCATION            "MIDDLESBOROUGH"
+#define LOCATION            "BRADFORD"
 
 #define ISTATE_UNDEF        0xEEEE
 #define ISTATE_START        0xAAAA
@@ -101,7 +101,7 @@ void RefractiveIndex::setup()
     //void ofPixels::allocate(int w, int h, ofImageType type)    
     _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR); 
     
-    
+ 
     //TODO:  whichever one of these is first - it always runs twice ?
     
     _analysisVector.push_back(new ShadowScapesAnalysis(V)); 
@@ -132,6 +132,9 @@ void RefractiveIndex::setup()
     
     _currentAnalysis = NULL;
     _state = ISTATE_UNDEF;
+    
+     fbo.allocate(_vid_w,_vid_h);
+    _meshRotation=0;
     
 }
 
@@ -211,8 +214,30 @@ void RefractiveIndex::draw()
     // black
     ofBackground(0, 0, 0);
            
-    if(_currentAnalysis)
+    if(_currentAnalysis){
         _currentAnalysis->draw();
+        cout<<_currentAnalysis->meshIsComplete<<endl;
+        if(_currentAnalysis->meshIsComplete){
+            fbo.begin();
+            
+            ofSetColor(0, 0, 0);
+            ofRect(0, 0, fbo.getWidth(), fbo.getHeight());
+            ofPushMatrix();
+            ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
+            ofRotateY(_meshRotation );
+            ofTranslate(-fbo.getWidth()/2, -fbo.getHeight()/2);
+            _meshRotation+=0.5;
+            _currentAnalysis->aMesh.draw();
+             fbo.end();
+            ofPixels pixels;
+            fbo.readToPixels(pixels);
+            cout<<_currentAnalysis->meshFileName<<endl;
+
+            ofSaveImage(pixels,_currentAnalysis->meshFileName, OF_IMAGE_QUALITY_BEST);
+            //saving jpgs doesn't work maybe because of of_image_quality
+
+        }
+    }
 }
 
 void RefractiveIndex::setup_camera()

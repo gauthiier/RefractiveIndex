@@ -25,6 +25,10 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_iresponse", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME IResponseAnalysis " << acq_run_time << endl;
 
+    //flag for main sketch
+    meshIsComplete=false;
+    _gotFirstImage=false;
+    
 
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -125,7 +129,9 @@ void IResponseAnalysis::acquire()
 
 void IResponseAnalysis::synthesise()
 {
+    cout<<"SYNTHESISING IRESPONSE";
     
+ 
     //cout << "IResponseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
     
@@ -147,50 +153,51 @@ void IResponseAnalysis::synthesise()
             if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+                if(!_gotFirstImage){
+                    cout<<"background image is"<< _saved_filenames_analysis[i]<<endl;
+                    _background=image1;
+                    _gotFirstImage=true;
+                }
                 
-                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
-                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
-                
-                cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
-                cvColorImage2.convertToGrayscalePlanarImage(cvGrayImage2, 1);
-                
-                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                cvGrayDiff1.erode();
-                cvGrayDiff1.contrastStretch();
-                //cvGrayDiff1.blur(5);
-                //cvGrayDiff1.dilate();
-                //cvGrayDiff1.contrastStretch();
-                
-                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-                string file_name;
-                
-                file_name = ofToString(_synth_save_cnt, 2)+"_IResponseSynthesis_"+ofToString(_run_cnt,2)+".jpg";
-                               
-                
-                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                
-                
-                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                //ofImage image;
-                //image.allocate(cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
-                
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                //image.setUseTexture(false);  
-                //image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height, OF_IMAGE_GRAYSCALE);
-                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
-                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-                
-                
-                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
-                cvConvertorImage.setFromGrayscalePlanarImages(cvGrayDiff1,cvGrayDiff1,cvGrayDiff1);
-                
-                saveImageSynthesis(file_name, &cvConvertorImage, OF_IMAGE_GRAYSCALE);
-                
-                _synth_save_cnt++;
-                
-        
+                //subtract background begin///////////////
 
+                ofPixels imagePixels1 = image1.getPixelsRef();
+                ofPixels imagePixels2 = image5.getPixelsRef();
+                ofPixels backgroundPixels = _background.getPixelsRef();
+
+                for(int i=0;i<imagePixels1.size();i++){
+                    
+                    unsigned char val=imagePixels1[i];
+                    // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
+                    if(imagePixels1[i]-backgroundPixels[i]>0){
+                        imagePixels1[i]-=backgroundPixels[i];
+                    }
+                    else{
+                        imagePixels1[i]=0;
+                    }
+                    if(imagePixels2[i]-backgroundPixels[i]>0){
+                        imagePixels2[i]-=backgroundPixels[i];
+                    }
+                    else{
+                        imagePixels2[i]=0;
+                    }
+                    
+                }
+                //update the images with their new background subtracted selves
+                image1.setFromPixels(imagePixels1);
+                image5.setFromPixels(imagePixels2);
+                //subtract background end///////////////
+
+                
+                //flag the main app that we aren't read yet
+                meshIsComplete=false;
+                //make a mesh - this mesh will be drawn in the main app
+                setMeshFromPixels(make3DZmap(image1, image5, _background), image1,image5, aMesh);
+                //with jpgs this was refusing to save out
+                meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_IResponseSynthesis_"+ofToString(_run_cnt,2)+".png";
+                //flag that we are finished                
+                meshIsComplete=true;
+                _synth_save_cnt++;
             }
         }
     }
@@ -407,3 +414,95 @@ void IResponseAnalysis::save_cb(Timer& timer)
         
     saveImageAnalysis(file_name);
 }
+
+void IResponseAnalysis::setMeshFromPixels(ofPixels somePixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh){
+    int x=0;
+    int y=0;
+    
+    //get rid of all previous vectors and colours
+    mesh.clear();
+    
+   //unsigned char * thesePixels =currentSecondImage.getPixels();
+    
+    for(int i=0;i<somePixels.size();i+=3){
+        mesh.addVertex(ofVec3f(x,y,- somePixels.getColor(x, y).getBrightness()   ));
+        // add colour from current second image of two - this is a hang over from when i was comparing two images 
+        mesh.addColor(  currentSecondImage.getColor(x, y)   );
+        x++;
+        if(x>=somePixels.getWidth()){
+            x=0;
+            y++;
+        }
+        
+    }
+}
+ofPixels IResponseAnalysis::make3DZmap(ofImage &image1, ofImage &image2, ofImage &backgroundImag){
+    
+    ofPixels imagePixels1 = image1.getPixelsRef();
+    ofPixels imagePixels2 = image2.getPixelsRef();
+    ofPixels backgroundPixels = backgroundImag.getPixelsRef();
+    
+    
+    ofPixels difference;
+    //this unsigned char should be unnecessary - I would have thought - can't you just address the pixel locations in ofPixels directly? 
+    unsigned char * thesePixels = new unsigned char[ imagePixels1.getWidth()*imagePixels1.getHeight()*3];
+    
+    int x=0;
+    int y=0;
+        
+    int chooseComparison=1;
+    //previous versiom which compared two images -now deprecated
+    if(chooseComparison==0){
+    //for each pixel...
+        for(int i=0;i<imagePixels1.size();i+=3){
+        
+            ofColor colourImage1 = imagePixels1.getColor(x, y);
+            ofColor colourImage2 = imagePixels2.getColor(x, y);
+        
+            //the brightness difference at this pixel address for both images
+            int thisDiff=abs(colourImage1.getBrightness()-colourImage2.getBrightness());
+        
+            thesePixels[i]=thisDiff;
+            thesePixels[i+1]=thisDiff;
+            thesePixels[i+2]=thisDiff;
+            x++;
+            if(x>=imagePixels1.getWidth()){
+                x=0;
+                y++;
+            
+            }
+        
+        }
+    }
+    //the current version compares how bright this pixel is with how bright it would be following inverse square fall off from centre
+    if(chooseComparison==1){
+        //for each pixel...
+        float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
+        for(int i=0;i<imagePixels1.size();i+=3){
+            
+            ofColor colourImage1 = imagePixels1.getColor(x, y);
+            ofColor colourImage2 = imagePixels2.getColor(x, y);
+            
+            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
+            float _presumedBrightness=ofMap( sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            
+            int thisDiff=abs(colourImage1.getBrightness()-_presumedBrightness);
+            
+            thesePixels[i]=thisDiff;
+            thesePixels[i+1]=thisDiff;
+            thesePixels[i+2]=thisDiff;
+            x++;
+            if(x>=imagePixels1.getWidth()){
+                x=0;
+                y++;
+                
+            }
+            
+        }
+    }
+    
+    difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
+    return difference;
+    
+}
+

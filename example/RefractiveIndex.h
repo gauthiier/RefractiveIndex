@@ -54,6 +54,8 @@ protected:
     AnalysisAdaptor*            _analysisAdapator;
     vector<AbstractAnalysis*>   _analysisVector;    
     
+    float                         _meshRotation;
+    
 public:    
     // acquisition
     static ofPixels         _pixels;    
@@ -68,5 +70,8 @@ public:
     // this should be in xml
     static string           _location;
     static ofxXmlSettings   XML;  // made this static so we can access RUN_NUM in the analyses 
+    
+    ofFbo fbo;
+    
     
 };
