@@ -19,7 +19,7 @@
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
 
-#define LOCATION            "BRADFORD"
+#define LOCATION            "MANCHESTER"
 
 #define ISTATE_UNDEF        0xEEEE
 #define ISTATE_START        0xAAAA
@@ -216,7 +216,7 @@ void RefractiveIndex::draw()
            
     if(_currentAnalysis){
         _currentAnalysis->draw();
-        cout<<_currentAnalysis->meshIsComplete<<endl;
+        
         if(_currentAnalysis->meshIsComplete){
             fbo.begin();
             
@@ -231,7 +231,7 @@ void RefractiveIndex::draw()
              fbo.end();
             ofPixels pixels;
             fbo.readToPixels(pixels);
-            cout<<_currentAnalysis->meshFileName<<endl;
+            
 
             ofSaveImage(pixels,_currentAnalysis->meshFileName, OF_IMAGE_QUALITY_BEST);
             //saving jpgs doesn't work maybe because of of_image_quality

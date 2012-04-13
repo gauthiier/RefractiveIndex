@@ -195,7 +195,9 @@ void IResponseAnalysis::synthesise()
                 setMeshFromPixels(make3DZmap(image1, image5, _background), image1,image5, aMesh);
                 //with jpgs this was refusing to save out
                 meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_IResponseSynthesis_"+ofToString(_run_cnt,2)+".png";
-                //flag that we are finished                
+                _saved_filenames_synthesis.push_back(meshFileName);
+
+                //flag that we are finished  
                 meshIsComplete=true;
                 _synth_save_cnt++;
             }
@@ -484,10 +486,11 @@ ofPixels IResponseAnalysis::make3DZmap(ofImage &image1, ofImage &image2, ofImage
             ofColor colourImage2 = imagePixels2.getColor(x, y);
             
             float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            float _presumedBrightness=ofMap( sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
-            
+            float _presumedBrightness=ofMap( sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            //float _presumedBrightness=255;
             int thisDiff=abs(colourImage1.getBrightness()-_presumedBrightness);
-            
+            //cout<<thisDiff<< " thisDiff "<<endl;
+
             thesePixels[i]=thisDiff;
             thesePixels[i+1]=thisDiff;
             thesePixels[i+2]=thisDiff;
