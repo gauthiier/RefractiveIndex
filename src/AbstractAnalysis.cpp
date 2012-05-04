@@ -8,6 +8,8 @@
 void AbstractAnalysis::setup(int camWidth, int camHeight) {
     
     meshIsComplete=false;
+    imageForContourAvailable=false;
+    
     _cam_w = camWidth; _cam_h = camHeight;
     if(RefractiveIndex::_mode == MODE_DRAWING) {
         ofFileDialogResult r = ofSystemLoadDialog("choooose da folda", true);

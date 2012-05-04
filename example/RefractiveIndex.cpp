@@ -42,6 +42,9 @@ ofxXmlSettings   RefractiveIndex::XML;
 
 void RefractiveIndex::setup()
 {
+    camDist=1000;
+
+    //camera.setOrientation(ofVec3f(1,-1,1));
     bool save_config = false;
     
     cout << "Loading configuration..." << endl;
@@ -109,7 +112,6 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new ShadowScapesAnalysis(D));
 	    
     _analysisVector.push_back(new RelaxRateAnalysis());
-    
 	
     _analysisVector.push_back(new IResponseAnalysis());
     
@@ -132,9 +134,7 @@ void RefractiveIndex::setup()
     
     _currentAnalysis = NULL;
     _state = ISTATE_UNDEF;
-    
-     fbo.allocate(_vid_w,_vid_h);
-    _meshRotation=0;
+  
     
 }
 
@@ -151,6 +151,16 @@ void RefractiveIndex::start_analysis()
     _analysisAdapator = new AnalysisAdaptor(_currentAnalysis);
     _currentAnalysis->setup(_vid_w, _vid_h);
     _analysisAdapator->start();    
+    
+    
+    //allocate fbo for HD
+    fbo.allocate(1920,1080);
+
+//    fbo.allocate( _currentAnalysis->_mesh_size_multiplier *_vid_w,_currentAnalysis->_mesh_size_multiplier * _vid_h);
+    camera.setPosition(fbo.getWidth()/2, fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500);
+    _meshRotation=0;
+    
+    
 }
 
 void RefractiveIndex::stop_analysis()
@@ -213,30 +223,46 @@ void RefractiveIndex::draw()
     
     // black
     ofBackground(0, 0, 0);
-           
+   
     if(_currentAnalysis){
         _currentAnalysis->draw();
-        
+       
+    
         if(_currentAnalysis->meshIsComplete){
-            fbo.begin();
             
+            fbo.begin();
+            glShadeModel(GL_SMOOTH);  
+            ofClear(0,0,0);
+            
+            camera.begin();
             ofSetColor(0, 0, 0);
-            ofRect(0, 0, fbo.getWidth(), fbo.getHeight());
+            //this is a hack, I don't know how to colour the fbo with black pixels so I'm drawing a massive black rectangle in the  background
             ofPushMatrix();
-            ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
-            ofRotateY(_meshRotation );
-            ofTranslate(-fbo.getWidth()/2, -fbo.getHeight()/2);
-            _meshRotation+=0.5;
+            ofTranslate(0, 0,-500);
+            ofRect(-fbo.getWidth(), -fbo.getHeight(), fbo.getWidth()*3, fbo.getHeight()*3);
+            
+            
+            ofPopMatrix();
+            ofSetColor(255);
+            
+            float xDiff= (fbo.getWidth()- (_currentAnalysis->_mesh_size_multiplier *_vid_w))/2;
+            float yDiff= (fbo.getHeight()- (_currentAnalysis->_mesh_size_multiplier *_vid_h))/2;
+
+            
+            ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
             _currentAnalysis->aMesh.draw();
-             fbo.end();
+            
+            camera.end();
+            fbo.end();
+            
             ofPixels pixels;
             fbo.readToPixels(pixels);
-            
-
+          
             ofSaveImage(pixels,_currentAnalysis->meshFileName, OF_IMAGE_QUALITY_BEST);
-            //saving jpgs doesn't work maybe because of of_image_quality
+            //saving jpgs doesn't work - pngs only!
 
         }
+       
     }
 }
 

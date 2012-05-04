@@ -62,10 +62,20 @@ public:
     // event
     ofEvent<string> _synthesize_cb;    
     bool    meshIsComplete;
+    bool    imageForContourAvailable;
     ofMesh  aMesh;
     string  meshFileName;
-
-
+    //difference between our image size and the size of the fbo
+    float   widthScaleFactor;
+    float   heightScaleFactor;
+    ofImage  contourImage;
+    ofPixels meshPix;
+    ofPixels publicColorImage;
+    float    zPlaneAverage;
+    
+    //added Tom 1/5/12 defines the stretch we make to the mesh to make it fit HD proportions
+    float           _mesh_size_multiplier;
+    
 protected:    
     int             _cam_w, _cam_h;          
     string          _whole_file_path_analysis, _whole_file_path_synthesis;

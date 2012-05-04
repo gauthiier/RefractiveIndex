@@ -10,6 +10,8 @@
 
 #include "ofxOpenCv.h"
 #include "ofxXmlSettings.h"
+#include "ofxOpenCv.h"
+
 
 #define MODE_DRAWING        0xEEFF
 #define MODE_ANALYSING      0xFFEE
@@ -55,7 +57,8 @@ protected:
     vector<AbstractAnalysis*>   _analysisVector;    
     
     float                         _meshRotation;
-    
+    float                           camDist;
+    ofEasyCam                     cam;
 public:    
     // acquisition
     static ofPixels         _pixels;    
@@ -70,8 +73,8 @@ public:
     // this should be in xml
     static string           _location;
     static ofxXmlSettings   XML;  // made this static so we can access RUN_NUM in the analyses 
-    
+    ofCamera    camera;
+    ofPixels    keepOnScreen;
     ofFbo fbo;
-    
-    
+    ofLight light;
 };

@@ -63,9 +63,10 @@ protected:
     ofxCvColorImage         cvConvertorImage;
     
     //mesh making function
-    void setMeshFromPixels(ofPixels somePixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh);
+    void setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh);
     //returns ofPixels but these pixels actually hold depth data.
-    ofPixels make3DZmap(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
+    //ofPixels make3DZmap(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
+    vector<float> _returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
     bool _gotFirstImage;
     ofImage _background;
 };
