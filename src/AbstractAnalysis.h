@@ -64,6 +64,7 @@ public:
     bool    meshIsComplete;
     bool    imageForContourAvailable;
     ofMesh  aMesh;
+    ofLight light; 
     
     string  meshFileName;
     //difference between our image size and the size of the fbo

@@ -50,5 +50,8 @@ protected:
     
     vector<rfiCvContourFinder*>      cvContourFinderVect;
     vector<rfiCvContourFinder*>      cvContourFinderVectDisplay;
+    
+    bool _gotFirstImage;
+    ofImage _background;
 
 };

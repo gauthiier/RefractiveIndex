@@ -222,13 +222,29 @@ void RefractiveIndex::draw()
     ofBackground(0, 0, 0);
    
     if(_currentAnalysis){
+        
         _currentAnalysis->draw();
        
-    
         if(_currentAnalysis->meshIsComplete){
             
             fbo.begin();
-            glShadeModel(GL_SMOOTH);  
+            glShadeModel(GL_SMOOTH); 
+            glEnable(GL_NORMALIZE);  
+            //glEnable(GL_DEPTH_TEST);
+            //light.enable();  
+            //ofEnableSeparateSpecularLight(); 
+            
+            ofEnableSmoothing(); 
+            
+            //ofSetLineWidth(1.0f);
+            //glPointSize(5.0f);
+            
+            //glHint(GL_NICEST);
+            ofEnableBlendMode ( OF_BLENDMODE_ADD );
+            //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
+            //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
+            //ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
+            //ofEnableBlendMode ( OF_BLENDMODE_SCREEN );
             
             ofClear(0,0,0);
             
@@ -243,19 +259,17 @@ void RefractiveIndex::draw()
                     ofPopMatrix();
                 ofSetColor(255);
                 
-                float xDiff= (fbo.getWidth()- (_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
-                float yDiff= (fbo.getHeight()- (_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
+                float xDiff= (fbo.getWidth()- 1.33333*(_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
+                float yDiff= (fbo.getHeight()- 1.0*(_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
                 
                 ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
-                
-                ofEnableBlendMode ( OF_BLENDMODE_ADD ) ;   
+                    ofScale(1.33333,1.0,1.0);
+                    _currentAnalysis->aMesh.drawVertices();
                     _currentAnalysis->aMesh.draw();
-                ofDisableBlendMode( ) ;  
-            
                 
             camera.end();
             fbo.end();
-            
+
             ofPixels pixels;
             fbo.readToPixels(pixels);
           
@@ -263,6 +277,7 @@ void RefractiveIndex::draw()
             //saving jpgs doesn't work - pngs only!
             // PNG is fine - better for Final Cut anyway! 
 
+            ofDisableBlendMode( ) ;  
         }
     }
 }

@@ -64,4 +64,7 @@ protected:
     //this is the temporary container to allow us to convert and save out greyscale images
     ofxCvColorImage         cvConvertorImage;
     
+    bool _gotFirstImage;
+    ofImage _background;
+    
 };

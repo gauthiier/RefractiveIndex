@@ -20,6 +20,12 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     NUM_RUN = RefractiveIndex::XML.getValue("config:analysis_NUM_RUN:NUM_RUN_iresponse", NUMBER_RUNS);
     cout << "NUM_RUN IResponseAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
+
+    //flag for main sketch
+    meshIsComplete=false;
+    _gotFirstImage=false;
+    
+    _mesh_size_multiplier=4;
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_iresponse", ACQUIRE_TIME);
@@ -463,7 +469,7 @@ void IResponseAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage current
                     x=0;
                     y++;
                     //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
-                    if(y>=479){
+                    if(y>=currentSecondImage.getHeight()-1){
                         break;
                     }
                 }

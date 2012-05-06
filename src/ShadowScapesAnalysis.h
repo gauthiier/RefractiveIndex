@@ -67,6 +67,9 @@ protected:
     ofxCvContourFinder      cvContourFinder1;
     
     //this is the temporary container to allow us to convert and save out greyscale images
-    ofxCvColorImage         cvConvertorImage;    
+    ofxCvColorImage         cvConvertorImage; 
+    
+    bool _gotFirstImage;
+    ofImage _background;
 
 };
