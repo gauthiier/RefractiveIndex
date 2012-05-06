@@ -31,7 +31,6 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     
     _mesh_size_multiplier=4;
     
-
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 2*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
@@ -132,7 +131,6 @@ void IResponseAnalysis::acquire()
 void IResponseAnalysis::synthesise()
 {
     cout<<"SYNTHESISING IRESPONSE";
-    
  
     //cout << "IResponseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
@@ -152,7 +150,7 @@ void IResponseAnalysis::synthesise()
         
         if(image1.loadImage(_saved_filenames_analysis[i])){
              //cout << "LOADED image1!!!" << endl;
-            if(image5.loadImage(_saved_filenames_analysis[i+1])){
+            //if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 if(!_gotFirstImage){
@@ -163,13 +161,14 @@ void IResponseAnalysis::synthesise()
                 
                 //subtract background begin///////////////
 
-                ofPixels imagePixels1 = image1.getPixelsRef();
-                ofPixels imagePixels2 = image5.getPixelsRef();
-                ofPixels backgroundPixels = _background.getPixelsRef();
+                ofPixels imagePixels1       = image1.getPixelsRef();
+                //ofPixels imagePixels2       = image5.getPixelsRef();
+                ofPixels backgroundPixels   = _background.getPixelsRef();
 
+                //background subtraction// 
+                
                 for(int i=0;i<imagePixels1.size();i++){
-                    
-                    unsigned char val=imagePixels1[i];
+                    //unsigned char val=imagePixels1[i];
                     // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
                     if(imagePixels1[i]-backgroundPixels[i]>0){
                         imagePixels1[i]-=backgroundPixels[i];
@@ -177,17 +176,16 @@ void IResponseAnalysis::synthesise()
                     else{
                         imagePixels1[i]=0;
                     }
-                  
                 }
                
                 //update the images with their new background subtracted selves
                 image1.setFromPixels(imagePixels1);
 
-                
                 //flag the main app that we aren't read yet
                 meshIsComplete=false;
                 //make a mesh - this mesh will be drawn in the main app
-                setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1,image1, aMesh);
+                setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
+                
                  //meshPix=make3DZmap(image1, image5, _background);
                 //with jpgs this was refusing to save out
                 meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_IResponseSynthesis_"+ofToString(_run_cnt,2)+".png";
@@ -198,14 +196,12 @@ void IResponseAnalysis::synthesise()
                 _synth_save_cnt++;
                 
             }
-        }
+        //}
     }
 
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
-    
-    
 }
 
 
@@ -442,20 +438,21 @@ void IResponseAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage current
     }
          
     if(chooseColour==1){
+        
             for(int i=0;i<sPixels.size();i++){
-                mesh.addColor(  currentSecondImage.getColor(x, y+1)   );
+                mesh.addColor(  currentSecondImage.getColor(x, y+1));
                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
               
-                mesh.addColor(  currentSecondImage.getColor(x, y)   );
+                mesh.addColor(  currentSecondImage.getColor(x, y));
                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
                 
-                mesh.addColor(  currentSecondImage.getColor(x+1, y+1)   );
+                mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
               
-                mesh.addColor(  currentSecondImage.getColor(x+1, y+1)   );
+                mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
               
-                mesh.addColor(  currentSecondImage.getColor(x, y)   );
+                mesh.addColor(  currentSecondImage.getColor(x, y));
                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
                 
                 mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
@@ -470,78 +467,26 @@ void IResponseAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage current
                         break;
                     }
                 }
-             }
+            }
     }
-    /*else{
-           for(int i=0;i<somePixels.getWidth()*(somePixels.getHeight()-1);i++){      
-               
-        
-               ofVec3f U;
-               ofVec3f V;
-                              //tri 1
-               U =ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- somePixels.getColor(x, y).getBrightness() ).operator-  ( ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- somePixels.getColor(x, y).getBrightness()  ) );
-               V =ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- somePixels.getColor(x+1, y+1).getBrightness()   ).operator-(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- somePixels.getColor(x, y).getBrightness()   ));
-               
-               ofVec3f normal;
-               float mult=5.2;
-               normal = ofVec3f( (U.y*V.z)-(U.z-V.y)   , (U.z*V.x)-(U.x*V.z)    , (U.x*V.y)-(U.y*V.x)  );
-               
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- mult*(1+somePixels.getColor(x, y+1).getBrightness() )  ));
-               
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- mult*(1+somePixels.getColor(x, y).getBrightness() )  ));
-
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- mult*(1+somePixels.getColor(x+1, y+1).getBrightness())   ));
-               
-               mesh.addNormal(normal);
-               
-               //tri 2
-               U =ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*y,- somePixels.getColor(x, y).getBrightness()   ).operator-(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- somePixels.getColor(x+1, y+1).getBrightness() )  );
-               V =ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- somePixels.getColor(x+1, y).getBrightness()   ).operator-(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- somePixels.getColor(x+1, y+1).getBrightness() )  );
-               
-               normal = ofVec3f( (U.y*V.z)-(U.z-V.y)   , (U.z*V.x)-(U.x*V.z)    , (U.x*V.y)-(U.y*V.x)  );
-               
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- mult*(1+somePixels.getColor(x+1, y+1).getBrightness())   ));
-                 //       mesh.addColor( ofColor(255,10,10)   );
-
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*y,- mult*(1+somePixels.getColor(x, y).getBrightness() )  ));
-
-                 mesh.addColor(meshColour);
-                 mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,-mult*(1+ somePixels.getColor(x+1, y).getBrightness())   ));
-               
-               mesh.addNormal(normal);
-
-                x++;
-                if(x>=somePixels.getWidth()-1){
-                    x=0;
-                    y++;
-                    if(y>=479){
-                       break;
-                   }
-                }
-             }*/
-         
-     // add colour from current second image of two - this is a hang over from when i was comparing two image
-        
-
 }
+
 vector<float> IResponseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImag){
     
     ofPixels imagePixels1 = image1.getPixelsRef();
-    ofPixels imagePixels2 = image2.getPixelsRef();
+    //ofPixels imagePixels2 = image2.getPixelsRef();
     ofPixels backgroundPixels = backgroundImag.getPixelsRef();
     vector<float> differences;
     
     ofPixels difference;
+    
     //this unsigned char should be unnecessary - I would have thought - can't you just address the pixel locations in ofPixels directly? 
-    unsigned char * thesePixels = new unsigned char[ imagePixels1.getWidth()*imagePixels1.getHeight()*3];
-    for(int i=0;i<imagePixels1.size();i++){
-        thesePixels[i]=0;
-    }
+    unsigned char * thesePixels = new unsigned char[imagePixels1.getWidth()*imagePixels1.getHeight()*3];
+    
+        for(int i=0;i<imagePixels1.size();i++){
+            thesePixels[i]=0;
+        }
+    
     int x=0;
     int y=0;
     
@@ -553,32 +498,36 @@ vector<float> IResponseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIma
         float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
         for(int i=0;i<imagePixels1.size();i+=3){
             
-            ofColor colourImage1 = imagePixels1.getColor(x, y);
+            ofColor imageColor1 = imagePixels1.getColor(x, y);
             //ofColor colourImage2 = imagePixels2.getColor(x, y);
             
             float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            float _presumedBrightness=ofMap( sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            
+            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+           
             //float _presumedBrightness=255;
-            int thisDiff=abs(colourImage1.getBrightness()-_presumedBrightness);
+            
+            int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
+
             //cout<<thisDiff<< " thisDiff "<<endl;
             float multiplier=2.0;
-            differences.push_back(multiplier* thisDiff);
+            
+            differences.push_back(multiplier * thisDiff);
+            
             thesePixels[i]=thisDiff;
             thesePixels[i+1]=thisDiff;
             thesePixels[i+2]=thisDiff;
             x++;
+            
             if(x>=imagePixels1.getWidth()){
                 x=0;
                 y++;
-                
             }
-            
         }
     }
     
     difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
     return differences;
-    
 }
 
 

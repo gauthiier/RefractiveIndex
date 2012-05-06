@@ -107,27 +107,26 @@ void RefractiveIndex::setup()
  
     //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis(V)); 
-    _analysisVector.push_back(new ShadowScapesAnalysis(H));
-    _analysisVector.push_back(new ShadowScapesAnalysis(D));
+    _analysisVector.push_back(new ShadowScapesAnalysis(V));  //1
+    _analysisVector.push_back(new ShadowScapesAnalysis(H));  //2
+    _analysisVector.push_back(new ShadowScapesAnalysis(D));  //3
 	    
-    _analysisVector.push_back(new RelaxRateAnalysis());
+    _analysisVector.push_back(new RelaxRateAnalysis());   //4
 	
-    _analysisVector.push_back(new IResponseAnalysis());
+    _analysisVector.push_back(new IResponseAnalysis());   //5
     
-    _analysisVector.push_back(new ShapeFromShadingAnalysis());
+    _analysisVector.push_back(new ShapeFromShadingAnalysis());   //6
     
-    _analysisVector.push_back(new StrobeAnalysis());
+    _analysisVector.push_back(new StrobeAnalysis());   //7
     
-    _analysisVector.push_back(new CamNoiseAnalysis());
+    _analysisVector.push_back(new CamNoiseAnalysis());    //8
     
-    _analysisVector.push_back(new ColorSingleAnalysis());
+    _analysisVector.push_back(new ColorSingleAnalysis());    //9
     
-    _analysisVector.push_back(new ColorMultiAnalysis());
+    _analysisVector.push_back(new ColorMultiAnalysis());    //0
     
-    _analysisVector.push_back(new DiffNoiseAnalysis());	
+    _analysisVector.push_back(new DiffNoiseAnalysis());	  //Q
     
-
     //_currentAnalysisIndx = 0;
     //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
     //_state = ISTATE_START;
@@ -141,7 +140,6 @@ void RefractiveIndex::setup()
 void RefractiveIndex::analysis_cb(string & analysis)
 {
     assert(analysis == _currentAnalysis->_name);
-    
     _state = ISTATE_STOP;    
 }
 
@@ -159,8 +157,7 @@ void RefractiveIndex::start_analysis()
 //    fbo.allocate( _currentAnalysis->_mesh_size_multiplier *_vid_w,_currentAnalysis->_mesh_size_multiplier * _vid_h);
     camera.setPosition(fbo.getWidth()/2, fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500);
     _meshRotation=0;
-    
-    
+
 }
 
 void RefractiveIndex::stop_analysis()
@@ -232,26 +229,30 @@ void RefractiveIndex::draw()
             
             fbo.begin();
             glShadeModel(GL_SMOOTH);  
+            
             ofClear(0,0,0);
             
             camera.begin();
-            ofSetColor(0, 0, 0);
-            //this is a hack, I don't know how to colour the fbo with black pixels so I'm drawing a massive black rectangle in the  background
-            ofPushMatrix();
-            ofTranslate(0, 0,-500);
-            ofRect(-fbo.getWidth(), -fbo.getHeight(), fbo.getWidth()*3, fbo.getHeight()*3);
             
+                ofSetColor(0, 0, 0);
+                    
+                //this is a hack, I don't know how to colour the fbo with black pixels so I'm drawing a massive black rectangle in the  background
+                ofPushMatrix();
+                    ofTranslate(0, 0,-500);
+                    ofRect(-fbo.getWidth(), -fbo.getHeight(), fbo.getWidth()*3, fbo.getHeight()*3);                
+                    ofPopMatrix();
+                ofSetColor(255);
+                
+                float xDiff= (fbo.getWidth()- (_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
+                float yDiff= (fbo.getHeight()- (_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
+                
+                ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
+                
+                ofEnableBlendMode ( OF_BLENDMODE_ADD ) ;   
+                    _currentAnalysis->aMesh.draw();
+                ofDisableBlendMode( ) ;  
             
-            ofPopMatrix();
-            ofSetColor(255);
-            
-            float xDiff= (fbo.getWidth()- (_currentAnalysis->_mesh_size_multiplier *_vid_w))/2;
-            float yDiff= (fbo.getHeight()- (_currentAnalysis->_mesh_size_multiplier *_vid_h))/2;
-
-            
-            ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
-            _currentAnalysis->aMesh.draw();
-            
+                
             camera.end();
             fbo.end();
             
@@ -260,9 +261,9 @@ void RefractiveIndex::draw()
           
             ofSaveImage(pixels,_currentAnalysis->meshFileName, OF_IMAGE_QUALITY_BEST);
             //saving jpgs doesn't work - pngs only!
+            // PNG is fine - better for Final Cut anyway! 
 
         }
-       
     }
 }
 

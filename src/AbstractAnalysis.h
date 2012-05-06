@@ -64,6 +64,7 @@ public:
     bool    meshIsComplete;
     bool    imageForContourAvailable;
     ofMesh  aMesh;
+    
     string  meshFileName;
     //difference between our image size and the size of the fbo
     float   widthScaleFactor;

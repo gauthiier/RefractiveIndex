@@ -21,6 +21,12 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     cout << "NUM_RUN CamNoiseAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
 
+    //flag for main sketch
+    meshIsComplete=false;
+    _gotFirstImage=false;
+    
+    _mesh_size_multiplier=4;
+        
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_camnoise", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME CamNoiseAnalysis " << acq_run_time << endl;

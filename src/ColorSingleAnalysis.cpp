@@ -21,10 +21,23 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     cout << "NUM_RUN ColorSingleAnalysis " << NUM_RUN << endl;
     //NUM_RUN = 5;
     
+    //flag for main sketch
+    meshIsComplete=false;
+    _gotFirstImage=false;
+    
+    _mesh_size_multiplier=4;
+    
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colorsingle", ACQUIRE_TIME);
     cout << "ACQUIRE_TIME ColorSingleAnalysis " << acq_run_time << endl;
 
+    
+    //flag for main sketch
+    meshIsComplete=false;
+    _gotFirstImage=false;
+    
+    _mesh_size_multiplier=3;
+    
     //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 1*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
@@ -96,14 +109,12 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     
-    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
+    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);    
 }
 
 
 void ColorSingleAnalysis::acquire()
 {
-
     Timer* save_timer;
 
     TimerCallback<ColorSingleAnalysis> save_callback(*this, &ColorSingleAnalysis::save_cb);
@@ -126,8 +137,6 @@ void ColorSingleAnalysis::acquire()
 
     save_timer->stop();
 
-  
-    // }
 }
 
 void ColorSingleAnalysis::synthesise()
@@ -150,49 +159,82 @@ void ColorSingleAnalysis::synthesise()
         } 
         
         if(image1.loadImage(_saved_filenames_analysis[i])){
-            //cout << "LOADED image1!!!" << endl;
-            //if(image5.loadImage(_saved_filenames_analysis[i+1])){
+                //cout << "LOADED image1!!!" << endl;
+                //if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
-                cvColorImage1.blur(5);
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.dilate();
-                cvColorImage1.blur(5);
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.erode();
-                cvColorImage1.erode();
+                //cvColorImage1.blur(1);
+                //cvColorImage1.erode();
+                
+                //cvColorImage1.dilate();
+                //cvColorImage1.dilate();
+                //cvColorImage1.dilate();
+                //cvColorImage1.dilate();
+            
+                //cvFloatImage1 = cvColorImage1;
+                //cvGrayImage1 = cvColorImage1;
+            
+                cvXorS( cvColorImage1.getCvImage(), cvScalarAll(255), cvColorImage1.getCvImage(), 0 );
+                //cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+                //cvCanny(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 100, 100, 3);
+                //cvLaplace(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0);
+            
+                //cvGrayImage1 = cvCreateImage(cvSize(image1.width, image1.height),IPL_DEPTH_16S,1);
+                //cvSobel(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0, 1, 3);
+            
+                // convert the CV image 
+                image1.setFromPixels(cvColorImage1.getPixelsRef()); 
+            
+                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+                if(!_gotFirstImage){
+                    cout<<"background image is"<< _saved_filenames_analysis[i]<<endl;
+                    _background=image1;
+                    _gotFirstImage=true;
+                }
+                
+                //subtract background begin///////////////
+                
+                ofPixels imagePixels1       = image1.getPixelsRef();
+                ofPixels imagePixels2       = image5.getPixelsRef();
+                ofPixels backgroundPixels   = _background.getPixelsRef();
+                
+                for(int i=0;i<imagePixels1.size();i++){
+                    //unsigned char val=imagePixels1[i];
+                    // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
+                    if(imagePixels1[i]-backgroundPixels[i]>0){
+                        imagePixels1[i]-=backgroundPixels[i];
+                    }
+                    else{
+                        imagePixels1[i]=0;
+                    }
+                }
+            
+                //update the images with their new background subtracted selves
+                image1.setFromPixels(imagePixels1);
+                
+                //flag the main app that we aren't read yet
+                meshIsComplete=false;
+        
+                //make a mesh - this mesh will be drawn in the main app
+                setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
+            
+                //setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
             
                 /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-                string file_name;
+                //string file_name;
                 
-                file_name = ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".jpg";
-                
-                
-                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                
-                
-                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                //ofImage image;
-                //image.allocate(cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
-                
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                //image.setUseTexture(false);  
-                
-                //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height,OF_IMAGE_COLOR);
-                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
+                //with jpgs this was refusing to save out
+                meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".png";
+                _saved_filenames_synthesis.push_back(meshFileName);
             
-                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-                
-                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
+                //file_name = ofToString(_synth_save_cnt, 2)+"_ColorSingleAnalysis_"+ofToString(_run_cnt,2)+".jpg";
             
-                saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
+                //flag that we are finished  
+                meshIsComplete=true;
                 _synth_save_cnt++;
             
            // }
@@ -433,3 +475,133 @@ void ColorSingleAnalysis::save_cb(Timer& timer)
     
     saveImageAnalysis(file_name);
 }
+
+
+
+void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh){
+    int x=0;
+    int y=0;
+    
+    //get rid of all previous vectors and colours
+    mesh.clear();
+    mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    
+    ofColor meshColour=ofColor(255,0,0);
+    
+    int chooseColour=1  ;
+    
+    //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
+    float zPlaneAverage=0;
+    
+    for(int i=0;i<sPixels.size();i++){
+        zPlaneAverage+=sPixels[i];
+    }
+    if (sPixels.size()!=0) {
+        zPlaneAverage/=sPixels.size();
+        //cout<<zPlaneAverage<<" zPlaneAverage "<<endl;
+    }
+    
+    else{
+        cout<<"DEPTH FLOAT ARRAY IS EMPTY";
+    }
+    
+    if(chooseColour==1){
+        
+        for(int i=0;i<sPixels.size();i++){
+            mesh.addColor(  currentSecondImage.getColor(x, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x++;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y++;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImag){
+    
+    ofPixels imagePixels1 = image1.getPixelsRef();
+    //ofPixels imagePixels2 = image2.getPixelsRef();
+    ofPixels backgroundPixels = backgroundImag.getPixelsRef();
+    vector<float> differences;
+    
+    ofPixels difference;
+    
+    //this unsigned char should be unnecessary - I would have thought - can't you just address the pixel locations in ofPixels directly? 
+    unsigned char * thesePixels = new unsigned char[imagePixels1.getWidth()*imagePixels1.getHeight()*3];
+    
+    for(int i=0;i<imagePixels1.size();i++){
+        thesePixels[i]=0;
+    }
+    
+    int x=0;
+    int y=0;
+    
+    int chooseComparison=1;
+    
+    //comparison here to find out how close each color is to pure RED / GREEN / BLUE
+    
+    if(chooseComparison==1){
+        //for each pixel...
+        float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
+      
+        for(int i=0;i<imagePixels1.size();i+=3){
+            
+            ofColor imageColor1 = imagePixels1.getColor(x, y);
+            //ofColor colourImage2 = imagePixels2.getColor(x, y);
+            
+            //float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
+            //float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            //float _presumedBrightness=255;
+           
+            //int thisDiff=abs(imageColor1.getHue());
+            int thisDiff=abs(imageColor1.getBrightness());
+
+            //cout<<thisDiff<< " thisDiff "<<endl;
+            
+            //red hue: 0
+            //green hue: 120 
+            //blue hue: 240
+            
+            float multiplier=2.0;
+            
+            differences.push_back(multiplier* thisDiff);
+        
+            thesePixels[i]=thisDiff;
+            thesePixels[i+1]=thisDiff;
+            thesePixels[i+2]=thisDiff;
+            x++;
+            
+            if(x>=imagePixels1.getWidth()){
+                x=0;
+                y++;
+            }
+        }
+    }
+    
+    //difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
+    return differences;
+}
+

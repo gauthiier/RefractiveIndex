@@ -227,7 +227,6 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
 {
     
 #ifdef TARGET_OSX   
-    
 
     ofSaveImage(newPixels->getPixelsRef(), _whole_file_path_synthesis+"/"+filename, OF_IMAGE_QUALITY_BEST);
     
@@ -256,4 +255,3 @@ void AbstractAnalysis::saveImageSynthesis(string filename, ofxCvImage* newPixels
             
     
 }
-
