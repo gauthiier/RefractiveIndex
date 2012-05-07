@@ -76,6 +76,5 @@ public:
     ofCamera    camera;
     ofPixels    keepOnScreen;
     ofFbo fbo;
-    ofLight light;
-    ofLight lightStatic; 
+   
 };

@@ -26,8 +26,11 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    
     _mesh_size_multiplier=4;
+    vertexSubsampling = 5;
+    chooseColour=1;
+    
+
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colorsingle", ACQUIRE_TIME);
@@ -160,31 +163,41 @@ void ColorSingleAnalysis::synthesise()
                 //if(image5.loadImage(_saved_filenames_analysis[i+1])){
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-                
-                if(_saved_filenames_analysis[i].find("RED")>0)
+
+            
+                cout << "_saved_filenames_analysis[i].find(RED): " << _saved_filenames_analysis[i].find("RED") << endl;                
+            
+                if(_saved_filenames_analysis[i].find("RED")<_saved_filenames_analysis[i].length())
                 {
                     fileNameColor = "RED";
                     cout<<"FOUND RED"<<endl;
-                }
-                   
-                if(_saved_filenames_analysis[i].find("BLUE")>0)
-                {
-                    fileNameColor = "BLUE";
-                    cout<<"FOUND BLUE"<<endl;
-                }
-            
-                if(_saved_filenames_analysis[i].find("GREEN")>0)
+                } else if (_saved_filenames_analysis[i].find("GREEN")<_saved_filenames_analysis[i].length())
                 {
                     fileNameColor = "GREEN";
                     cout<<"FOUND GREEN"<<endl;
+                } else if(_saved_filenames_analysis[i].find("BLUE")<_saved_filenames_analysis[i].length())
+                {
+                    fileNameColor = "BLUE";
+                    cout<<"FOUND BLUE"<<endl;
+                } else if(_saved_filenames_analysis[i].find("FADING")<_saved_filenames_analysis[i].length())
+                {
+                    fileNameColor = "FADING";
+                    cout<<"FOUND FADING"<<endl;
                 }
-            
+                          
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
                 cvColorImage1.blur(1);
+            
+                cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+                
+            
                 cvColorImage1.erode();
-                cvColorImage1.erode();
+                
+                cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+            
+                //cvColorImage1.erode();
             
                 //cvColorImage1.dilate();
                 //cvColorImage1.dilate();
@@ -195,7 +208,7 @@ void ColorSingleAnalysis::synthesise()
                 //cvGrayImage1 = cvColorImage1;
             
                 //cvXorS( cvColorImage1.getCvImage(), cvScalarAll(255), cvColorImage1.getCvImage(), 0 );
-                cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+                
                 //cvCanny(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 100, 100, 3);
                 //cvLaplace(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0);
             
@@ -294,12 +307,31 @@ void ColorSingleAnalysis::displayresults()
 
 void ColorSingleAnalysis::draw()
 {
+    ofEnableSmoothing();
+
+    ofEnableLighting(); 
+    ofEnableSeparateSpecularLight();     
+    light.enable();
+	
+    light.setPosition(200,200,-150);
+    lightStatic.enable();
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    //ofSetLineWidth(1.0f);
+    glPointSize(4.0f);
+   
+    ofEnableBlendMode ( OF_BLENDMODE_ADD );
+    //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
+    //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
+    //ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
+    //ofEnableBlendMode ( OF_BLENDMODE_SCREEN );
+    
     
     switch (_state) {
         case STATE_ACQUIRING:
         {
-            
-            
+
             if (_frame_cnt < _frame_cnt_max)
             {
                     
@@ -498,12 +530,19 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
     int x=0;
     int y=0;
     
+   
     //get rid of all previous vectors and colours
     mesh.clear();
+    //mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    //mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+    //mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+    //mesh.setMode(OF_PRIMITIVE_LINES);
+    //mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
+    //mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
     mesh.setMode(OF_PRIMITIVE_POINTS);
-    
+  
     /*
-     OF_PRIMITIVE_TRIANGLES,9
+     OF_PRIMITIVE_TRIANGLES,
      OF_PRIMITIVE_TRIANGLE_STRIP,
      OF_PRIMITIVE_TRIANGLE_FAN,
      OF_PRIMITIVE_LINES,
@@ -513,16 +552,15 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
      
      */
     
-    ofColor meshColour=ofColor(255,0,0);
+    ofColor meshColour=ofColor(255,255,255);
     
-    int chooseColour=2  ;
-    
-    //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
+      //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
     float zPlaneAverage=0;
     
     for(int i=0;i<sPixels.size();i++){
         zPlaneAverage+=sPixels[i];
     }
+    
     if (sPixels.size()!=0) {
         zPlaneAverage/=sPixels.size();
         //cout<<zPlaneAverage<<" zPlaneAverage "<<endl;
@@ -553,10 +591,10 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
             
-            x++;
+            x=x+vertexSubsampling;
             if(x>=currentSecondImage.getWidth()-1){
                 x=0;
-                y++;
+                y=y+vertexSubsampling;
                 //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
                 if(y>=currentSecondImage.getHeight()-1){
                     break;
@@ -593,10 +631,10 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             mesh.addColor(  currentSecondImageColor.getBrightness());
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
             
-            x++;
+            x=x+vertexSubsampling;
             if(x>=currentSecondImage.getWidth()-1){
                 x=0;
-                y++;
+                y=y+vertexSubsampling;
                 //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
                 if(y>=currentSecondImage.getHeight()-1){
                     break;
@@ -609,14 +647,36 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
         
         ofColor currentSecondImageColor;
         
-        if (fileNameColor=="RED")
-        {
-            currentSecondImageColor.r=255;
-            currentSecondImageColor.g=0;
-            currentSecondImageColor.b=0;
-        }
-            
         for(int i=0;i<sPixels.size();i++){
+            
+            if(fileNameColor=="RED")
+            {
+                currentSecondImageColor.r=255;
+                currentSecondImageColor.g=75;
+                currentSecondImageColor.b=75;
+                currentSecondImageColor.a=255;
+                
+            } else if(fileNameColor=="GREEN")
+            {
+                currentSecondImageColor.r=75;
+                currentSecondImageColor.g=255;
+                currentSecondImageColor.b=75;
+                currentSecondImageColor.a=255;
+                
+            } else if(fileNameColor=="BLUE")
+            {
+                currentSecondImageColor.r=75;
+                currentSecondImageColor.g=75;
+                currentSecondImageColor.b=255;
+                currentSecondImageColor.a=255;
+                
+            } else if(fileNameColor=="FADING")
+            {
+                currentSecondImageColor.r= 255;
+                currentSecondImageColor.g= 255;
+                currentSecondImageColor.b= 255;
+                currentSecondImageColor.a= 255;
+            }
                        
             mesh.addColor(  currentSecondImageColor);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
@@ -636,10 +696,12 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             mesh.addColor(  currentSecondImageColor);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
             
-            x++;
+            x=x+vertexSubsampling;
+            //x++;
             if(x>=currentSecondImage.getWidth()-1){
                 x=0;
-                y++;
+                y=y+vertexSubsampling;
+                //y++;
                 //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
                 if(y>=currentSecondImage.getHeight()-1){
                     break;
@@ -647,7 +709,6 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             }
         }
     }
-}
 }
 
 
@@ -689,9 +750,32 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
             //int thisDiff=abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getBrightness());
             //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
+        
+            int thisDiff;
             
-            //int thisDiff=abs(imageColor1.getHue());
-            int thisDiff=abs(imageColor1.getLightness());
+            if(fileNameColor=="RED")
+            {   
+                thisDiff=abs(imageColor1.r);
+
+                //thisDiff=abs(255-imageColor1.r);
+            } else if(fileNameColor=="GREEN")
+            {
+                thisDiff=abs(imageColor1.g);                
+
+                //thisDiff=abs(255-imageColor1.g);  
+                
+            } else if(fileNameColor=="BLUE")
+            {
+                thisDiff=abs(imageColor1.b);
+
+                //thisDiff=abs(255-imageColor1.b);
+            
+            } else if(fileNameColor=="FADING") {
+            
+                thisDiff=imageColor1.getBrightness();
+                //thisDiff=255-imageColor1.getBrightness();
+
+            }
             
             //cout<<thisDiff<< " thisDiff "<<endl;
             
@@ -699,7 +783,7 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=1.0;
+            float multiplier=2.0;
             
             differences.push_back(multiplier* thisDiff);
             

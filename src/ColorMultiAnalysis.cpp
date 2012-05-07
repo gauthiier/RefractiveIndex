@@ -24,8 +24,9 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     meshIsComplete=false;
     _gotFirstImage=false;
     
-    _mesh_size_multiplier=4;
-
+    _mesh_size_multiplier=5;
+    vertexSubsampling = 1;
+    chooseColour=1;
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colormulti", ACQUIRE_TIME);
@@ -269,6 +270,27 @@ void ColorMultiAnalysis::displayresults()
 void ColorMultiAnalysis::draw()
 {
     
+    ofEnableSmoothing();
+    
+    ofEnableLighting(); 
+    ofEnableSeparateSpecularLight();     
+    light.enable();
+	
+    light.setPosition(200,200,-150);
+    lightStatic.enable();
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    ofSetLineWidth(2.0f);
+    //glPointSize(4.0f);
+    
+    ofEnableBlendMode ( OF_BLENDMODE_ADD );
+    //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
+    //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
+    //ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
+    //ofEnableBlendMode ( OF_BLENDMODE_SCREEN );
+
+    
     switch (_state) {
         case STATE_ACQUIRING:
         {
@@ -465,7 +487,14 @@ void ColorMultiAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curren
     
     //get rid of all previous vectors and colours
     mesh.clear();
-    mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
+    
+    mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    //mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+    //mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+    //mesh.setMode(OF_PRIMITIVE_LINES);
+    //mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
+    //mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
+    //mesh.setMode(OF_PRIMITIVE_POINTS);
     
     /*
      OF_PRIMITIVE_TRIANGLES,
@@ -478,9 +507,9 @@ void ColorMultiAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curren
      
      */
     
-    ofColor meshColour=ofColor(255,0,0);
+    ofColor meshColour=ofColor(255,255,255);
     
-    int chooseColour=1  ;
+   
     
     //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
     float zPlaneAverage=0;
@@ -518,10 +547,10 @@ void ColorMultiAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curren
             mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
             
-            x++;
+            x=x+vertexSubsampling;
             if(x>=currentSecondImage.getWidth()-1){
                 x=0;
-                y++;
+                y=y+vertexSubsampling;
                 //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
                 if(y>=currentSecondImage.getHeight()-1){
                     break;
@@ -572,8 +601,8 @@ vector<float> ColorMultiAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIm
             //int thisDiff=abs(imageColor1.getBrightness());
             //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
             
-            //int thisDiff=abs(imageColor1.getHue());
-            int thisDiff=abs(imageColor1.getLightness());
+            int thisDiff=255-abs(imageColor1.getHue());
+            //int thisDiff=abs(imageColor1.getLightness());
             
             //cout<<thisDiff<< " thisDiff "<<endl;
             
@@ -581,7 +610,7 @@ vector<float> ColorMultiAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIm
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=4.0;
+            float multiplier=5.0;
             
             differences.push_back(multiplier* thisDiff);
             

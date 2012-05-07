@@ -75,6 +75,9 @@ protected:
     //depth map function
     vector<float> _returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
     
+    int vertexSubsampling;
+    int chooseColour;
+    
     bool _gotFirstImage;
     ofImage _background;
 

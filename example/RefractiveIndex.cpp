@@ -43,7 +43,7 @@ ofxXmlSettings   RefractiveIndex::XML;
 void RefractiveIndex::setup()
 {
     camDist=1000;
-
+    ofBackground(0, 0, 0);
     //camera.setOrientation(ofVec3f(1,-1,1));
     bool save_config = false;
     
@@ -228,40 +228,15 @@ void RefractiveIndex::draw()
         if(_currentAnalysis->meshIsComplete){
             
             fbo.begin();
-            ofEnableSmoothing();
-            //glShadeModel(GL_SMOOTH); 
-            //glFogf(GL_FOG_END, -200);
-
-            //glHint(GL_NICEST, GL_DONT_CARE);         
-            
-            //glEnable(GL_NORMALIZE);  
-            //glEnable(GL_DEPTH_TEST);
-            //ofEnableSeparateSpecularLight(); 
-            
-            //ofEnableLighting();  
-            //light.setPosition(ofVec3f(fbo.getWidth()/2, fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500));  
-            //lightStatic.setPosition(ofVec3f(20,50,100));  
-            //ofEnableSeparateSpecularLight();  
-            //ofGetLightingEnabled(); 
-            
-            //ofSetLineWidth(1.0f);
-            //glPointSize(5.0f);
-       
-            //ofEnableBlendMode ( OF_BLENDMODE_ADD );
-            //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
-            //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
-            ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
-            //ofEnableBlendMode ( OF_BLENDMODE_SCREEN );
-            
+            glShadeModel(GL_SMOOTH);  
             ofClear(0,0,0);
             
             camera.begin();
             
-                ofSetColor(0, 0, 0);
-                    
                 //this is a hack, I don't know how to colour the fbo with black pixels so I'm drawing a massive black rectangle in the  background
                 ofPushMatrix();
                     ofTranslate(0, 0,-500);
+                    ofSetColor(0, 0, 0);
                     ofRect(-fbo.getWidth(), -fbo.getHeight(), fbo.getWidth()*3, fbo.getHeight()*3);                
                     ofPopMatrix();
                 ofSetColor(255);
@@ -271,7 +246,8 @@ void RefractiveIndex::draw()
                 
                 ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
                     ofScale(1.33333,1.0,1.0);
-                    _currentAnalysis->aMesh.drawVertices();
+                    //_currentAnalysis->aMesh.drawVertices();     // TODO: tom - why do you have the vertices drawing here? 
+                    _currentAnalysis->aMesh.drawFaces();
                     _currentAnalysis->aMesh.draw();
                 
             camera.end();
@@ -284,7 +260,7 @@ void RefractiveIndex::draw()
             //saving jpgs doesn't work - pngs only!
             // PNG is fine - better for Final Cut anyway! 
 
-            ofDisableBlendMode( ) ;  
+            ofDisableBlendMode() ;  
         }
     }
 }
