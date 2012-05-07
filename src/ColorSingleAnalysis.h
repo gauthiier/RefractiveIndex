@@ -32,6 +32,7 @@ protected:
 
     bool    _RUN_DONE;
     string  fileNameTag;
+    string  fileNameColor;
     float   r,g,b;
     
     int     _run_cnt, _save_cnt, _fade_cnt, _synth_save_cnt, _anim_cnt;

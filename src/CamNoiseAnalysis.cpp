@@ -163,7 +163,7 @@ void CamNoiseAnalysis::synthesise()
             //added by tom we weren't actually setting cvgrayimage1 anywhere
            // cvGrayImage1.setFromPixels(cvColorImage1.getPixels(),cvColorImage1.width,cvColorImage1.height);
             //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-//cvGrayImage1=cvColorImage1;
+            //cvGrayImage1=cvColorImage1;
 
             cvGrayImage1.erode();
             cvGrayImage1.erode();

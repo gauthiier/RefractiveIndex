@@ -228,22 +228,29 @@ void RefractiveIndex::draw()
         if(_currentAnalysis->meshIsComplete){
             
             fbo.begin();
-            glShadeModel(GL_SMOOTH); 
-            glEnable(GL_NORMALIZE);  
+            ofEnableSmoothing();
+            //glShadeModel(GL_SMOOTH); 
+            //glFogf(GL_FOG_END, -200);
+
+            //glHint(GL_NICEST, GL_DONT_CARE);         
+            
+            //glEnable(GL_NORMALIZE);  
             //glEnable(GL_DEPTH_TEST);
-            //light.enable();  
             //ofEnableSeparateSpecularLight(); 
             
-            ofEnableSmoothing(); 
+            //ofEnableLighting();  
+            //light.setPosition(ofVec3f(fbo.getWidth()/2, fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500));  
+            //lightStatic.setPosition(ofVec3f(20,50,100));  
+            //ofEnableSeparateSpecularLight();  
+            //ofGetLightingEnabled(); 
             
             //ofSetLineWidth(1.0f);
             //glPointSize(5.0f);
-            
-            //glHint(GL_NICEST);
-            ofEnableBlendMode ( OF_BLENDMODE_ADD );
+       
+            //ofEnableBlendMode ( OF_BLENDMODE_ADD );
             //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
             //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
-            //ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
+            ofEnableBlendMode ( OF_BLENDMODE_ALPHA );
             //ofEnableBlendMode ( OF_BLENDMODE_SCREEN );
             
             ofClear(0,0,0);

@@ -1,8 +1,10 @@
 #include "ColorSingleAnalysis.h"
 #include "ofMain.h"
-
 #include "Poco/Timer.h"
 #include "Poco/Thread.h"
+
+#include <string>
+#include <iostream>
 
 #include "RefractiveIndex.h"
 
@@ -32,12 +34,6 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     cout << "ACQUIRE_TIME ColorSingleAnalysis " << acq_run_time << endl;
 
     
-    //flag for main sketch
-    meshIsComplete=false;
-    _gotFirstImage=false;
-    
-    _mesh_size_multiplier=3;
-    
     //int acq_run_time = 25;   // 20 seconds of acquiring per run
     
     DELTA_T_SAVE = 1*(10*acq_run_time/2); // for 20 seconds, we want this to be around 200 files
@@ -60,7 +56,8 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     b = 0;
     
     fileNameTag = "";
-
+    fileNameColor = "";
+    
     _show_image = false;
     _image_shown = false;
     
@@ -164,12 +161,31 @@ void ColorSingleAnalysis::synthesise()
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 
+                if(_saved_filenames_analysis[i].find("RED")>0)
+                {
+                    fileNameColor = "RED";
+                    cout<<"FOUND RED"<<endl;
+                }
+                   
+                if(_saved_filenames_analysis[i].find("BLUE")>0)
+                {
+                    fileNameColor = "BLUE";
+                    cout<<"FOUND BLUE"<<endl;
+                }
+            
+                if(_saved_filenames_analysis[i].find("GREEN")>0)
+                {
+                    fileNameColor = "GREEN";
+                    cout<<"FOUND GREEN"<<endl;
+                }
+            
                 cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
-                //cvColorImage1.blur(1);
-                //cvColorImage1.erode();
-                
+                cvColorImage1.blur(1);
+                cvColorImage1.erode();
+                cvColorImage1.erode();
+            
                 //cvColorImage1.dilate();
                 //cvColorImage1.dilate();
                 //cvColorImage1.dilate();
@@ -178,8 +194,8 @@ void ColorSingleAnalysis::synthesise()
                 //cvFloatImage1 = cvColorImage1;
                 //cvGrayImage1 = cvColorImage1;
             
-                cvXorS( cvColorImage1.getCvImage(), cvScalarAll(255), cvColorImage1.getCvImage(), 0 );
-                //cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+                //cvXorS( cvColorImage1.getCvImage(), cvScalarAll(255), cvColorImage1.getCvImage(), 0 );
+                cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
                 //cvCanny(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 100, 100, 3);
                 //cvLaplace(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0);
             
@@ -484,11 +500,22 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
     
     //get rid of all previous vectors and colours
     mesh.clear();
-    mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    mesh.setMode(OF_PRIMITIVE_POINTS);
+    
+    /*
+     OF_PRIMITIVE_TRIANGLES,9
+     OF_PRIMITIVE_TRIANGLE_STRIP,
+     OF_PRIMITIVE_TRIANGLE_FAN,
+     OF_PRIMITIVE_LINES,
+     OF_PRIMITIVE_LINE_STRIP,
+     OF_PRIMITIVE_LINE_LOOP,
+     OF_PRIMITIVE_POINTS
+     
+     */
     
     ofColor meshColour=ofColor(255,0,0);
     
-    int chooseColour=1  ;
+    int chooseColour=2  ;
     
     //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
     float zPlaneAverage=0;
@@ -537,6 +564,90 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             }
         }
     }
+    
+    if(chooseColour==2){
+                
+        for(int i=0;i<sPixels.size();i++){
+            ofColor currentSecondImageColor = currentSecondImage.getColor(x, y+1);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+             
+            currentSecondImageColor = currentSecondImage.getColor(x, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+      
+            currentSecondImageColor =  currentSecondImage.getColor(x+1, y+1);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x+1, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x++;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y++;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(chooseColour==3){
+        
+        ofColor currentSecondImageColor;
+        
+        if (fileNameColor=="RED")
+        {
+            currentSecondImageColor.r=255;
+            currentSecondImageColor.g=0;
+            currentSecondImageColor.b=0;
+        }
+            
+        for(int i=0;i<sPixels.size();i++){
+                       
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+           
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            mesh.addColor( currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x++;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y++;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+}
 }
 
 
@@ -566,29 +677,32 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
     if(chooseComparison==1){
         //for each pixel...
         float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
-      
+        
         for(int i=0;i<imagePixels1.size();i+=3){
             
             ofColor imageColor1 = imagePixels1.getColor(x, y);
             //ofColor colourImage2 = imagePixels2.getColor(x, y);
             
-            //float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            //float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
-            //float _presumedBrightness=255;
-           
+            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
+            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            
             //int thisDiff=abs(imageColor1.getHue());
-            int thisDiff=abs(imageColor1.getBrightness());
-
+            //int thisDiff=abs(imageColor1.getBrightness());
+            //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
+            
+            //int thisDiff=abs(imageColor1.getHue());
+            int thisDiff=abs(imageColor1.getLightness());
+            
             //cout<<thisDiff<< " thisDiff "<<endl;
             
             //red hue: 0
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=2.0;
+            float multiplier=1.0;
             
             differences.push_back(multiplier* thisDiff);
-        
+            
             thesePixels[i]=thisDiff;
             thesePixels[i+1]=thisDiff;
             thesePixels[i+2]=thisDiff;
@@ -604,4 +718,3 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
     //difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
     return differences;
 }
-
