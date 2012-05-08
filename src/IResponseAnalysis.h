@@ -59,9 +59,6 @@ protected:
     
     ofxCvContourFinder      cvContourFinder1;
     
-    //this is the temporary container to allow us to convert and save out greyscale images
-    ofxCvColorImage         cvConvertorImage;
-    
     //mesh making function
     void setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh);
     //returns ofPixels but these pixels actually hold depth data.

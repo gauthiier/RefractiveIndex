@@ -43,7 +43,10 @@ ofxXmlSettings   RefractiveIndex::XML;
 void RefractiveIndex::setup()
 {
     camDist=1000;
+    
     ofBackground(0, 0, 0);
+    ofSetBackgroundAuto(false);
+    
     //camera.setOrientation(ofVec3f(1,-1,1));
     bool save_config = false;
     
@@ -104,7 +107,6 @@ void RefractiveIndex::setup()
     //void ofPixels::allocate(int w, int h, ofImageType type)    
     _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR); 
     
- 
     //TODO:  whichever one of these is first - it always runs twice ?
     
     _analysisVector.push_back(new ShadowScapesAnalysis(V));  //1
@@ -149,7 +151,6 @@ void RefractiveIndex::start_analysis()
     _analysisAdapator = new AnalysisAdaptor(_currentAnalysis);
     _currentAnalysis->setup(_vid_w, _vid_h);
     _analysisAdapator->start();    
-    
     
     //allocate fbo for HD
     fbo.allocate(1920,1080);
@@ -228,19 +229,23 @@ void RefractiveIndex::draw()
         if(_currentAnalysis->meshIsComplete){
             
             fbo.begin();
-            glShadeModel(GL_SMOOTH);  
             ofClear(0,0,0);
+
+            glShadeModel(GL_SMOOTH);  
+            
             
             camera.begin();
             
                 //this is a hack, I don't know how to colour the fbo with black pixels so I'm drawing a massive black rectangle in the  background
+                /*
                 ofPushMatrix();
                     ofTranslate(0, 0,-500);
                     ofSetColor(0, 0, 0);
                     ofRect(-fbo.getWidth(), -fbo.getHeight(), fbo.getWidth()*3, fbo.getHeight()*3);                
                     ofPopMatrix();
                 ofSetColor(255);
-                
+                */
+            
                 float xDiff= (fbo.getWidth()- 1.33333*(_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
                 float yDiff= (fbo.getHeight()- 1.0*(_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
                 

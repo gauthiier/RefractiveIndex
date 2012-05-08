@@ -90,9 +90,7 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.clear();
 	cvGrayImage2.clear();
     cvGrayDiff2.clear();
-    
-    cvConvertorImage.clear();    
-    
+     
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
@@ -100,15 +98,10 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
-    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
 }
-
 
 void IResponseAnalysis::acquire()
 {
-
     Timer* save_timer;
     TimerCallback<IResponseAnalysis> save_callback(*this, &IResponseAnalysis::save_cb);
 
@@ -205,6 +198,14 @@ void IResponseAnalysis::synthesise()
         //}
     }
 
+    // TOM'S fix of why the last file gets overwritten again and again - but seems to prevent the files being written to the screen.
+    /*
+     _RUN_DONE = true;
+     */
+    
+    meshIsComplete=false;
+    _synth_save_cnt=0;
+    
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);

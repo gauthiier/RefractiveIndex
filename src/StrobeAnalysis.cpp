@@ -24,8 +24,24 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
+    _mesh_size_multiplier   = 1;
+    vertexSubsampling       = 2;
+    chooseColour            = 2;
+    multiplier              = 0.5;
     
-    _mesh_size_multiplier=4;
+    //blendMode = OF_BLENDMODE_ADD;
+    //blendMode = OF_BLENDMODE_MULTIPLY;
+    blendMode = OF_BLENDMODE_SUBTRACT;
+    //blendMode = OF_BLENDMODE_ALPHA;
+    //blendMode = OF_BLENDMODE_SCREEN;
+    
+    //meshMode = OF_PRIMITIVE_TRIANGLES;
+    //meshMode = OF_PRIMITIVE_TRIANGLE_STRIP;
+    //meshMode = OF_PRIMITIVE_TRIANGLE_FAN;
+    meshMode = OF_PRIMITIVE_LINES;
+    //meshMode = OF_PRIMITIVE_LINE_STRIP;
+    //meshMode = OF_PRIMITIVE_POINTS;
+
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_strobe", ACQUIRE_TIME);
@@ -87,7 +103,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 	cvGrayImage2.clear();
     cvGrayDiff2.clear();
     
-    cvConvertorImage.clear();    
+   
     
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
@@ -97,7 +113,6 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
 	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     
-    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 
 }
 
@@ -151,60 +166,150 @@ void StrobeAnalysis::synthesise()
         } 
         
         if(image1.loadImage(_saved_filenames_analysis[i])){
-    //        cout << "LOADED image1!!!" << endl;
+            //cout << "LOADED image1!!!" << endl;
             if(image5.loadImage(_saved_filenames_analysis[i+1])){
-                
-                ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-                
-                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
-                cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
             
-                cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
-                cvColorImage2.convertToGrayscalePlanarImage(cvGrayImage2, 1);
-                
-                cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
-                cvGrayDiff1.dilate();
-                cvGrayDiff1.dilate();
-                cvGrayDiff1.contrastStretch();
-               
-                /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-                string file_name;
-                
-                file_name = ofToString(_synth_save_cnt, 2)+"_StrobeAnalysis_"+ofToString(_run_cnt,2)+".jpg";
-                
-        
-                //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-                // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-                
-                
-                //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-                //ofImage image;
-                //image.allocate(cvGrayImage1.width, cvGrayImage1.height, OF_IMAGE_GRAYSCALE);    
+            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
             
-                //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-                //image.setUseTexture(false);  
+            cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+            cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
+            
+            //cvColorImage1.erode();
+            //cvColorImage1.erode();
+                //cvColorImage1.dilate();
+            
+            cvColorImage1.blur(1);
+            cvColorImage2.blur(1);
+            
+            //cvXorS( cvColorImage1.getCvImage(), cvScalarAll(150), cvColorImage1.getCvImage(), 0 );
+            //cvXorS( cvColorImage2.getCvImage(), cvScalarAll(150), cvColorImage1.getCvImage(), 0 );
                 
-                //image.setFromPixels(cvGrayDiff1.getPixels(), cvGrayDiff1.width, cvGrayDiff1.height,OF_IMAGE_GRAYSCALE);
-                //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
-                
-                //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-              
-                
-                
-                // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
-                cvConvertorImage.setFromGrayscalePlanarImages(cvGrayDiff1,cvGrayDiff1,cvGrayDiff1);
-                
-                saveImageSynthesis(file_name, &cvConvertorImage, OF_IMAGE_GRAYSCALE);
-                _synth_save_cnt++;
-                
-                
+            cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
+            cvColorImage2.convertToGrayscalePlanarImage(cvGrayImage2, 1);
+            
+            //cvGrayImage1.convertToRange(0.0, 255.0);
+            //cvGrayImage2.convertToRange(0.0, 255.0);
+            
+            //cvGrayImage1.adaptiveThreshold( 200, 0);
+            //cvGrayImage2.adaptiveThreshold( 200, 0);
+            
+            //cvGrayImage1.contrastStretch();
+            //cvGrayImage2.contrastStretch();
+            
+            cvGrayDiff1.absDiff(cvGrayImage1, cvGrayImage2);
+
+            cvGrayDiff1.brightnessContrast(1.0,0.5);
+            
+            //cvGrayImage1.brightnessContrast(1.0,0.5);
+            //cvGrayImage2.brightnessContrast(1.0,0.5);
+            
+            cvColorImage1.setFromGrayscalePlanarImages(cvGrayImage1, cvGrayImage1, cvGrayImage1);
+            //cvColorImage2.setFromGrayscalePlanarImages(cvGrayImage2, cvGrayImage2, cvGrayImage2);
+            
+            //cvPyrMeanShiftFiltering(cvColorImage1.getCvImage(), cvColorImage1.getCvImage(), 1, 1);
+            //cvPyrMeanShiftFiltering(cvColorImage2.getCvImage(), cvColorImage2.getCvImage(), 1, 1);
+            
+            //cvFloatImage1 = cvColorImage1;
+            //cvGrayImage1 = cvColorImage1;
+            
+           
+            //cvSmooth( cvColorImage1.getCvImage(), cvColorImage1.getCvImage(), CV_GAUSSIAN, 5, 5);
+            //cvSmooth( cvColorImage2.getCvImage(), cvColorImage2.getCvImage(), CV_GAUSSIAN, 5, 5);
+            
+            //cvCanny(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 100, 100, 3);
+            //cvLaplace(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0);
+            
+            //cvGrayImage1 = cvCreateImage(cvSize(image1.width, image1.height),IPL_DEPTH_16S,1);
+            //cvSobel(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0, 1, 3);
+            
+            // convert the CV image 
+            image1.setFromPixels(cvColorImage1.getPixelsRef()); 
+            image5.setFromPixels(cvColorImage2.getPixelsRef()); 
+            
+            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
+            if(!_gotFirstImage){
+                cout<<"background image is"<< _saved_filenames_analysis[i]<<endl;
+                _background=image1;
+                _gotFirstImage=true;
             }
+            
+            //subtract background begin///////////////
+            
+            ofPixels imagePixels1       = image1.getPixelsRef();
+            ofPixels imagePixels2       = image5.getPixelsRef();
+            ofPixels backgroundPixels   = _background.getPixelsRef();
+            
+            //DIFFERENCING SUBSEQUENT IMAGES
+            /*
+             for(int i=0;i<imagePixels1.size();i++){
+             //unsigned char val=imagePixels1[i];
+             // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
+             if(imagePixels1[i]-imagePixels2[i]>0){
+             imagePixels1[i]-=imagePixels2[i];
+             }
+             else{
+             imagePixels1[i]=0;
+             }
+             }
+            */ 
+             
+            //DIFFERENCING THE BACKGROUND
+            
+             for(int i=0;i<imagePixels1.size();i++){
+             //unsigned char val=imagePixels1[i];
+             // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
+             if(imagePixels1[i]-backgroundPixels[i]>0){
+             imagePixels1[i]-=backgroundPixels[i];
+             }
+             else{
+             imagePixels1[i]=0;
+             }
+             }
+            
+            //update the images with their new background subtracted selves
+            image1.setFromPixels(imagePixels1);
+            
+            //flag the main app that we aren't read yet
+            meshIsComplete=false;
+            
+            //make a mesh - this mesh will be drawn in the main app
+            setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
+            
+            //setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
+            
+            /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
+            //string file_name;
+            
+            //with jpgs this was refusing to save out
+            meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_StrobeAnalysis_"+ofToString(_run_cnt,2)+".png";
+            _saved_filenames_synthesis.push_back(meshFileName);
+            
+            //file_name = ofToString(_synth_save_cnt, 2)+"_ColorMultiAnalysis_"+ofToString(_run_cnt,2)+".jpg";
+            
+            //flag that we are finished  
+            meshIsComplete=true;
+            _synth_save_cnt++;
+            
+            }
+        } else {
+            cout<<"couldn't load image from "<<_saved_filenames_analysis[i]<<endl;
         }
+        
     }
     
+    // TOM'S fix of why the last file gets overwritten again and again - but seems to prevent the files being written to the screen.
+    /*
+     _RUN_DONE = true;
+     */
+    
+    meshIsComplete=false;
+    _synth_save_cnt=0;
+    
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
+    
     while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3); 
+        Thread::sleep(10);
+
 }
 
 void StrobeAnalysis::displayresults()
@@ -241,6 +346,27 @@ void StrobeAnalysis::displayresults()
 void StrobeAnalysis::draw()
 {
     
+    ofEnableSmoothing();
+    
+    ofEnableLighting(); 
+    ofEnableSeparateSpecularLight();         
+    light.setPointLight();
+    
+    light.enable();	
+    lightStatic.enable();
+    
+    light.setPosition(ofGetWidth()/2,ofGetHeight()/2,5);
+    
+    lightStatic.setPosition(ofGetWidth()/2,ofGetHeight()/2,-1);
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    ofSetLineWidth(1.0f);
+    glPointSize(5.0f);
+    
+    ofEnableBlendMode(blendMode);
+
+    
     switch (_state) {
         case STATE_ACQUIRING:
         {
@@ -258,8 +384,7 @@ void StrobeAnalysis::draw()
                     ofSetColor(aColour);
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                     //cout <<  "FADE IN STROBE TIME " << endl;
-                    
-                    
+
                 }
                 
                 if (_frame_cnt >= _fade_in_frames && _frame_cnt < (_frame_cnt_max-_fade_in_frames)){
@@ -289,8 +414,9 @@ void StrobeAnalysis::draw()
                     ofRect(0, 0, ofGetWidth(), ofGetHeight());
                     // cout <<  "FADE OUT STROBE TIME " << endl;
                 }         
-            
+    
                 ofDisableAlphaBlending();
+                
             } else {
                 //_state = STATE_SYNTHESISING;
                 _RUN_DONE = true;
@@ -433,3 +559,408 @@ void StrobeAnalysis::save_cb(Timer& timer)
     
     saveImageAnalysis(file_name);
 }
+
+void StrobeAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh){
+    int x=0;
+    int y=0;
+    
+    //get rid of all previous vectors and colours
+    mesh.clear();
+    mesh.setMode(meshMode);
+    
+    ofColor meshColour=ofColor(255,255,255);
+    
+    //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
+    float zPlaneAverage=0;
+    
+    for(int i=0;i<sPixels.size();i++){
+        zPlaneAverage+=sPixels[i];
+    }
+    if (sPixels.size()!=0) {
+        zPlaneAverage/=sPixels.size();
+        //cout<<zPlaneAverage<<" zPlaneAverage "<<endl;
+    }
+    
+    else{
+        cout<<"DEPTH FLOAT ARRAY IS EMPTY";
+    }
+    
+    if(chooseColour==1){
+        
+        for(int i=0;i<sPixels.size();i++){
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x=x+vertexSubsampling;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y=y+vertexSubsampling;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(chooseColour==2){
+        
+        for(int i=0;i<sPixels.size();i++){
+            ofColor currentSecondImageColor = currentSecondImage.getColor(x, y+1);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x+1, y+1);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x+1, y);
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x=x+vertexSubsampling;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y=y+vertexSubsampling;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(chooseColour==3){
+        
+        for(int i=0;i<sPixels.size();i++){
+            ofColor currentSecondImageColor;
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            mesh.addColor(  currentSecondImageColor);
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x=x+vertexSubsampling;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y=y+vertexSubsampling;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(chooseColour==4){
+        
+        for(int i=0;i<sPixels.size();i++){
+            ofColor currentSecondImageColor;
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            int randomJitter = ofRandom(0,5);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+randomJitter),_mesh_size_multiplier*(y+randomJitter+1),- sPixels[ (currentSecondImage.getWidth()*(y+randomJitter+1))+(x+randomJitter)    ]   ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+randomJitter),_mesh_size_multiplier*(y+randomJitter),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x+randomJitter)+1),_mesh_size_multiplier*((y+randomJitter)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1 ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x+randomJitter)+1),_mesh_size_multiplier*((y+randomJitter)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1]   ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+randomJitter),_mesh_size_multiplier*(y+randomJitter),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) ]  ));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            mesh.addColor(  currentSecondImageColor.getBrightness());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x+randomJitter)+1),_mesh_size_multiplier*(y+randomJitter),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) +1 ]));
+            
+            ofSeedRandom();
+            
+            currentSecondImageColor.r = ofRandom(0,255);
+            currentSecondImageColor.g = ofRandom(0,255);
+            currentSecondImageColor.b = ofRandom(0,255);
+            
+            randomJitter = ofRandom(0,5);
+            
+            x=x+vertexSubsampling;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y=y+vertexSubsampling;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(chooseColour==5){
+        
+        for(int i=0;i<sPixels.size();i++){
+            
+            int randomJitter2 = 0;
+            int randomJitter = 0;
+            
+            ofColor currentSecondImageColor;
+            ofColor currentSecondImageBW;
+            
+            currentSecondImageColor = currentSecondImage.getColor(x, y+1);
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor( currentSecondImageBW.clamp());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*((y)+1),- sPixels[ (currentSecondImage.getWidth()*(y+randomJitter+1))+(x+randomJitter) ] ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x, y);
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor(currentSecondImageBW.clamp());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*(y),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) ] ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor(currentSecondImageBW.clamp());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x)+1),_mesh_size_multiplier*((y)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1 ]  ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);            
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor( currentSecondImageBW.clamp() );
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x)+1),_mesh_size_multiplier*((y)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1]   ));
+            
+            currentSecondImageColor =  currentSecondImage.getColor(x, y);            
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor(  currentSecondImageBW.clamp());
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*(y),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) ]  ));
+            
+            currentSecondImageColor = currentSecondImage.getColor(x+1, y);
+            currentSecondImageBW.r = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
+            currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
+            
+            mesh.addColor(  currentSecondImageBW.clamp() ); 
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x)+1),_mesh_size_multiplier*(y),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter)+1 ]));
+            
+            x=x+vertexSubsampling;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y=y+vertexSubsampling;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+    
+}
+
+
+vector<float> StrobeAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImag){
+    
+    ofPixels imagePixels1 = image1.getPixelsRef();
+    //ofPixels imagePixels2 = image2.getPixelsRef();
+    ofPixels backgroundPixels = backgroundImag.getPixelsRef();
+    vector<float> differences;
+    
+    ofPixels difference;
+    
+    //this unsigned char should be unnecessary - I would have thought - can't you just address the pixel locations in ofPixels directly? 
+    unsigned char * thesePixels = new unsigned char[imagePixels1.getWidth()*imagePixels1.getHeight()*3];
+    
+    for(int i=0;i<imagePixels1.size();i++){
+        thesePixels[i]=0;
+    }
+    
+    int x=0;
+    int y=0;
+    
+    int chooseComparison=1;
+    
+    //comparison here to find out how close each color is to pure RED / GREEN / BLUE
+    
+    if(chooseComparison==1){
+        //for each pixel...
+        float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
+        
+        for(int i=0;i<imagePixels1.size();i+=3){
+            
+            ofColor imageColor1 = imagePixels1.getColor(x, y);
+            //ofColor colourImage2 = imagePixels2.getColor(x, y);
+            
+            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
+            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            
+            //int thisDiff=abs(imageColor1.getHue());
+            //int thisDiff=abs(imageColor1.getBrightness());
+            //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
+            
+            int thisDiff=-abs(imageColor1.getBrightness());
+            //int thisDiff=abs(imageColor1.getLightness());
+            //int thisDiff=-abs(imageColor1.r);
+            
+            //cout<<thisDiff<< " thisDiff "<<endl;
+            
+            //red hue: 0
+            //green hue: 120 
+            //blue hue: 240
+            
+            differences.push_back(multiplier * thisDiff);
+            
+            thesePixels[i]=thisDiff;
+            thesePixels[i+1]=thisDiff;
+            thesePixels[i+2]=thisDiff;
+            x++;
+            
+            if(x>=imagePixels1.getWidth()){
+                x=0;
+                y++;
+            }
+        }
+    }
+    
+    //difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
+    return differences;
+}
+

@@ -270,7 +270,16 @@ void ColorSingleAnalysis::synthesise()
         }
     }
     
+    // TOM'S fix of why the last file gets overwritten again and again - but seems to prevent the files being written to the screen.
+    /*
+     _RUN_DONE = true;
+     */
+    
+    meshIsComplete=false;
+    _synth_save_cnt=0;
+    
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
+    
     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
     
