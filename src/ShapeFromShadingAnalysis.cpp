@@ -24,23 +24,52 @@ void ShapeFromShadingAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    _mesh_size_multiplier   = 10;
+    _mesh_size_multiplier   = 15;
     vertexSubsampling       = 1;
     chooseColour            = 5;
     multiplier              = 4.0;
     
+    ofSetLineWidth(5.0f);
+    glPointSize(5.0f);
+
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;
     //blendMode = OF_BLENDMODE_SUBTRACT;
-    //blendMode = OF_BLENDMODE_ALPHA;
+    blendMode = OF_BLENDMODE_ALPHA;
     //blendMode = OF_BLENDMODE_SCREEN;
     
-    meshMode = OF_PRIMITIVE_TRIANGLES;
+    //meshMode = OF_PRIMITIVE_TRIANGLES;
     //meshMode = OF_PRIMITIVE_TRIANGLE_STRIP;
     //meshMode = OF_PRIMITIVE_TRIANGLE_FAN;
-    //meshMode = OF_PRIMITIVE_LINES;
+    meshMode = OF_PRIMITIVE_LINES;
     //meshMode = OF_PRIMITIVE_LINE_STRIP;
     //meshMode = OF_PRIMITIVE_POINTS;
+    
+    ///setup light    
+    ofEnableLighting();    
+    GLfloat light_ambient[] = {0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_diffuse[] = { 0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_specular[] = { 0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };  
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);  
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);  
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);  
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);  
+    
+    glEnable(GL_LIGHT0);  
+    
+    GLfloat light_ambient1[] = { 0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_diffuse1[] = { 0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_specular1[] = { 0.5, 0.5, 0.5, 0.5 };  
+    GLfloat light_position1[] = { -1.0, 1.0, 1.0, 0.0 };  
+    
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient1);  
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse1);  
+    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1);  
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
+    
+    glEnable(GL_LIGHT1);  
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_shapefromshading", ACQUIRE_TIME);
@@ -204,8 +233,6 @@ void ShapeFromShadingAnalysis::synthesise()
                     fileNameQuad = "QUAD4";
                     cout<<"FOUND QUAD4"<<endl;
                 }
-
-                
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 
@@ -217,12 +244,10 @@ void ShapeFromShadingAnalysis::synthesise()
                 
                 //cvGrayDiff1.absDiff(cvGrayImage2, cvGrayImage1);
                 //cvGrayDiff1.erode();
-                cvGrayImage1.contrastStretch();
+                
                 cvGrayImage1.dilate();
                 cvGrayImage1.blur(5);
-                
-                //cvGrayDiff1.dilate();
-                //cvGrayDiff1.contrastStretch();
+                cvGrayImage1.contrastStretch();
                 
                 /////////////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
                 cvColorImage1.setFromGrayscalePlanarImages(cvGrayImage1, cvGrayImage1, cvGrayImage1);
@@ -247,8 +272,6 @@ void ShapeFromShadingAnalysis::synthesise()
                 // convert the CV image 
                 image1.setFromPixels(cvColorImage1.getPixelsRef()); 
                 image5.setFromPixels(cvColorImage2.getPixelsRef());  
-                
-            
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 if(!_gotFirstImage){
@@ -278,7 +301,7 @@ void ShapeFromShadingAnalysis::synthesise()
                  */ 
                 
                 //DIFFERENCING THE BACKGROUND
-                
+                /*
                 for(int i=0;i<imagePixels1.size();i++){
                     //unsigned char val=imagePixels1[i];
                     // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
@@ -289,6 +312,7 @@ void ShapeFromShadingAnalysis::synthesise()
                         imagePixels1[i]=0;
                     }
                 }
+                */
                 
                 //update the images with their new background subtracted selves
                 image1.setFromPixels(imagePixels1);
@@ -319,23 +343,20 @@ void ShapeFromShadingAnalysis::synthesise()
                    meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_ShapeFromShadingAnalysis_"+fileNameQuad+"_"+ofToString(_run_cnt,2)+".png";
                     _saved_filenames_synthesis.push_back(meshFileName);
                     
-                    
                 } else if(fileNameQuad=="QUAD3")
                 {
                     
                     //with jpgs this was refusing to save out
                    meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_ShapeFromShadingAnalysis_"+fileNameQuad+"_"+ofToString(_run_cnt,2)+".png";
                     _saved_filenames_synthesis.push_back(meshFileName);
-                    
-                    
+                
                 } else if(fileNameQuad=="QUAD4") {
                     
                     
                     //with jpgs this was refusing to save out
                     meshFileName = _whole_file_path_synthesis+"/"+ofToString(_synth_save_cnt, 2)+"_ShapeFromShadingAnalysis_"+fileNameQuad+"_"+ofToString(_run_cnt,2)+".png";
                     _saved_filenames_synthesis.push_back(meshFileName);
-                    
-                    
+        
                 }
 
                 //file_name = ofToString(_synth_save_cnt, 2)+"_ColorMultiAnalysis_"+ofToString(_run_cnt,2)+".jpg";
@@ -387,41 +408,47 @@ void ShapeFromShadingAnalysis::displayresults()
 void ShapeFromShadingAnalysis::draw()
 {
     
-    ofEnableSmoothing();
-    
-    ofEnableLighting(); 
-    ofEnableSeparateSpecularLight();         
-    light.enable();	
-    lightStatic.enable();    
-   
-    glEnable(GL_DEPTH_TEST);
-    
-    ofSetLineWidth(5.0f);
-    glPointSize(5.0f);
-    
-    ofEnableBlendMode(blendMode);    
+    //rotate light around origin ofviewspace    
+    float xx=cos(ofGetElapsedTimef()*0.4)*150;    
+    float yy=sin(ofGetElapsedTimef()*0.4)*150;    
+    float zz=0;
     
     if(fileNameQuad=="QUAD1")
     {       
-        light.setPosition(ofGetWidth(),ofGetHeight()/2,1);
-        lightStatic.setPosition(ofGetWidth(),ofGetHeight()/2,1);
+        
+        GLfloat light_position[] = { 1000, 1000, 20, 0.0 };  
+        GLfloat light_position1[] = { 1000, 1000, 20, 0.0 };  
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);  
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
         
     } else if(fileNameQuad=="QUAD2")
     {
-        light.setPosition(ofGetWidth()/2,ofGetHeight(),1);
-        lightStatic.setPosition(ofGetWidth()/2,ofGetHeight(),1);
+    
+        GLfloat light_position[] = { 1000, -1000, 20, 0.0 };  
+        GLfloat light_position1[] = { 1000, -1000, 20, 0.0 };  
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);  
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
+
         
     } else if(fileNameQuad=="QUAD3")
     {
-        light.setPosition(0,ofGetHeight()/2,5);
-        lightStatic.setPosition(ofGetWidth()/2,ofGetHeight()/2,5);
+      
+        GLfloat light_position[] = {-1000, 1000, 20, 0.0 };  
+        GLfloat light_position1[] = { -1000, 1000, 20, 0.0 };  
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);  
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
+
         
     } else if(fileNameQuad=="QUAD4") 
     {
-        light.setPosition(ofGetWidth()/2,0,5);
-        lightStatic.setPosition(ofGetWidth()/2,ofGetHeight()/2,5);
+        GLfloat light_position[] = { -1000, -1000, 20, 0.0 };  
+        GLfloat light_position1[] = { -1000, -1000, 20, 0.0 };  
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);  
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
+
     }
 
+    
     
     switch (_state) {
         case STATE_ACQUIRING:
@@ -1053,7 +1080,7 @@ void ShapeFromShadingAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage 
             currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
             currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
             
-            mesh.addColor( currentSecondImageBW.clamp());
+            mesh.addColor( currentSecondImageBW);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*((y)+1),- sPixels[ (currentSecondImage.getWidth()*(y+randomJitter+1))+(x+randomJitter) ] ));
             
             currentSecondImageColor = currentSecondImage.getColor(x, y);
@@ -1061,7 +1088,7 @@ void ShapeFromShadingAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage 
             currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
             currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
             
-            mesh.addColor(currentSecondImageBW.clamp());
+            mesh.addColor(currentSecondImageBW);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x),_mesh_size_multiplier*(y),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)))+(x+randomJitter) ] ));
             
             currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);
@@ -1069,7 +1096,7 @@ void ShapeFromShadingAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage 
             currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
             currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
             
-            mesh.addColor(currentSecondImageBW.clamp());
+            mesh.addColor(currentSecondImageBW);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x)+1),_mesh_size_multiplier*((y)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1 ]  ));
             
             currentSecondImageColor = currentSecondImage.getColor(x+1, y+1);            
@@ -1077,7 +1104,7 @@ void ShapeFromShadingAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage 
             currentSecondImageBW.g = currentSecondImageColor.getBrightness()+randomJitter2;
             currentSecondImageBW.b = currentSecondImageColor.getBrightness()+randomJitter2;
             
-            mesh.addColor( currentSecondImageBW.clamp() );
+            mesh.addColor( currentSecondImageBW);
             mesh.addVertex(ofVec3f(_mesh_size_multiplier*((x)+1),_mesh_size_multiplier*((y)+1),- sPixels[(currentSecondImage.getWidth()*((y+randomJitter)+1))+(x+randomJitter)+1]   ));
             
             currentSecondImageColor =  currentSecondImage.getColor(x, y);            
@@ -1141,16 +1168,18 @@ vector<float> ShapeFromShadingAnalysis::_returnDepthsAtEachPixel(ofImage &image1
         for(int i=0;i<imagePixels1.size();i+=3){
             
             ofColor imageColor1 = imagePixels1.getColor(x, y);
-            //ofColor colourImage2 = imagePixels2.getColor(x, y);
             
-            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            ofColor imageColor2 = imagePixels1.getColor(x+1, y+1);
+            
+            ofColor imageColor3 = imagePixels1.getColor(x+2, y+2);
+            
+            //ofColor colourImage2 = imagePixels2.getColor(x, y);
             
             //int thisDiff=abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getBrightness());
             //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
-            
-            int thisDiff=-abs(imageColor1.getBrightness());
+        
+            int thisDiff=-abs(imageColor1.getBrightness()+ofRandom(-50,50));
             //int thisDiff=abs(imageColor1.getLightness());
             //int thisDiff=-abs(imageColor1.r);
             
