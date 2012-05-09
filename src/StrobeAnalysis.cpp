@@ -102,9 +102,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     cvColorImage2.clear();
 	cvGrayImage2.clear();
     cvGrayDiff2.clear();
-    
-   
-    
+
     cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
 	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
     cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);

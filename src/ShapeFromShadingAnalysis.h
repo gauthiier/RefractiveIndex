@@ -31,6 +31,8 @@ public:
 protected:
     
     string quad;
+    string fileNameQuad;
+    
     bool    _RUN_DONE;
     float     _flip, _level;
     int _animation_cnt1;
@@ -81,6 +83,19 @@ protected:
     
     //this is the temporary container to allow us to convert and save out greyscale images
     ofxCvColorImage         cvConvertorImage;
+    
+    
+    //mesh making function
+    void setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh);
+    
+    //depth map function
+    vector<float> _returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
+    
+    int vertexSubsampling;
+    int chooseColour;
+    ofPrimitiveMode meshMode;
+    ofBlendMode blendMode;
+    float multiplier;
     
     bool _gotFirstImage;
     ofImage _background;

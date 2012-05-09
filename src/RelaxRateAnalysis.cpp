@@ -356,9 +356,7 @@ void RelaxRateAnalysis::draw()
     
     light.enable();	
     lightStatic.enable();
-    
     light.setPosition(ofGetWidth()/2,ofGetHeight()/2,5);
-    
     lightStatic.setPosition(ofGetWidth()/2,ofGetHeight()/2,-1);
     
     glEnable(GL_DEPTH_TEST);
