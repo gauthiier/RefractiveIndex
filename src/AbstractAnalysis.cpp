@@ -177,9 +177,6 @@ void AbstractAnalysis::read_dir_create_list(string folder_path)
         for(int i = 0; i < list.size(); i++) {
             string filepath = folder_path + "/" + list[i]; 
             _saved_filenames_analysis.push_back(filepath);
-                        
-            cout << list[i] << endl; 
-            
         }                
     }
 }
