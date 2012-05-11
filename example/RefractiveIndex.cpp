@@ -46,8 +46,6 @@ void RefractiveIndex::setup()
     
     ofBackground(0, 0, 0);
     ofSetBackgroundAuto(false);
-    
-    //camera.setOrientation(ofVec3f(1,-1,1));
     bool save_config = false;
     
     cout << "Loading configuration..." << endl;
@@ -155,8 +153,11 @@ void RefractiveIndex::start_analysis()
     //allocate fbo for HD
     fbo.allocate(1920,1080);
 
-//    fbo.allocate( _currentAnalysis->_mesh_size_multiplier *_vid_w,_currentAnalysis->_mesh_size_multiplier * _vid_h);
-    camera.setPosition(fbo.getWidth()/2, fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500);
+    //    fbo.allocate( _currentAnalysis->_mesh_size_multiplier *_vid_w,_currentAnalysis->_mesh_size_multiplier * _vid_h);
+    //camera.setPosition((fbo.getWidth()/2), fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500);
+    camera.setPosition(0, (fbo.getHeight()/2)+250,  _currentAnalysis->_mesh_size_multiplier*500);
+    camera.setFov(65.0);
+    camera.setOrientation(ofVec3f(-2,0,0));
     _meshRotation=0;
 
 }
@@ -245,12 +246,12 @@ void RefractiveIndex::draw()
                     ofPopMatrix();
                 ofSetColor(255);
                 */
-            
+                //float xDiff= (fbo.getWidth()- 1.55*(_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
                 float xDiff= (fbo.getWidth()- 1.33333*(_currentAnalysis->_mesh_size_multiplier * _vid_w))/2;
-                float yDiff= (fbo.getHeight()- 1.0*(_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
+                float yDiff= (fbo.getHeight()-(_currentAnalysis->_mesh_size_multiplier * _vid_h))/2;
                 
                 ofTranslate(xDiff,yDiff,-_currentAnalysis->zPlaneAverage );
-                    ofScale(1.33333,1.0,1.0);
+                    //ofScale(1.33333,1.0,1.0);
                     //_currentAnalysis->aMesh.drawVertices();     // TODO: tom - why do you have the vertices drawing here? 
                     _currentAnalysis->aMesh.drawFaces();
                     _currentAnalysis->aMesh.draw();

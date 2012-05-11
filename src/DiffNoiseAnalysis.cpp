@@ -25,10 +25,10 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    _mesh_size_multiplier   = 2;
+    _mesh_size_multiplier   = 10;
     vertexSubsampling       = 1;
     chooseColour            = 5;
-    multiplier              = 0.8;
+    multiplier              = 4.0;
 
     blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;

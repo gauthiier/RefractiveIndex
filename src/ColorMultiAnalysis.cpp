@@ -24,7 +24,7 @@ void ColorMultiAnalysis::setup(int camWidth, int camHeight)
     meshIsComplete=false;
     _gotFirstImage=false;
     
-    _mesh_size_multiplier=5;
+    _mesh_size_multiplier=8;
     vertexSubsampling = 1;
     chooseColour=1;
     
@@ -170,8 +170,8 @@ void ColorMultiAnalysis::synthesise()
             //cvFloatImage1 = cvColorImage1;
             //cvGrayImage1 = cvColorImage1;
 
-            cvSmooth( cvColorImage1.getCvImage(), cvColorImage1.getCvImage(), CV_GAUSSIAN, 9, 9);
-            cvXorS( cvColorImage1.getCvImage(), cvScalarAll(1), cvColorImage1.getCvImage(), 0 );
+            cvSmooth( cvColorImage1.getCvImage(), cvColorImage1.getCvImage(), CV_GAUSSIAN, 15, 15);
+            cvXorS( cvColorImage1.getCvImage(), cvScalarAll(2), cvColorImage1.getCvImage(), 0 );
             
             //cvCanny(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 100, 100, 3);
             //cvLaplace(cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), 0);
@@ -596,21 +596,21 @@ vector<float> ColorMultiAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIm
     
     if(chooseComparison==1){
         //for each pixel...
-        float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
+        //float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
         
         for(int i=0;i<imagePixels1.size();i+=3){
             
             ofColor imageColor1 = imagePixels1.getColor(x, y);
             //ofColor colourImage2 = imagePixels2.getColor(x, y);
             
-            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
+            //float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
+            //float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
             
             //int thisDiff=abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getBrightness());
             //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
             
-            int thisDiff=255-abs(imageColor1.getHue());
+            int thisDiff=-abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getLightness());
             
             //cout<<thisDiff<< " thisDiff "<<endl;
@@ -619,7 +619,7 @@ vector<float> ColorMultiAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIm
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=5.0;
+            float multiplier=15.0*((thisDiff)/255.0);
             
             differences.push_back(multiplier* thisDiff);
             

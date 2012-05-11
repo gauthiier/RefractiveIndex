@@ -24,10 +24,10 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    _mesh_size_multiplier   = 1;
-    vertexSubsampling       = 2;
+    _mesh_size_multiplier   = 8;
+    vertexSubsampling       = 3;
     chooseColour            = 2;
-    multiplier              = 0.5;
+    multiplier              = 2.0;
     
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;

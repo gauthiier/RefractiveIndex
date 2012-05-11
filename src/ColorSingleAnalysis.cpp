@@ -26,11 +26,9 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    _mesh_size_multiplier=4;
-    vertexSubsampling = 5;
+    _mesh_size_multiplier=8;
+    vertexSubsampling = 1;
     chooseColour=1;
-    
-
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_colorsingle", ACQUIRE_TIME);
@@ -190,9 +188,8 @@ void ColorSingleAnalysis::synthesise()
                 
                 cvColorImage1.blur(1);
             
-                cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
+                //cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 9, 9 );
                 
-            
                 cvColorImage1.erode();
                 
                 cvSmooth( cvGrayImage1.getCvImage(), cvGrayImage1.getCvImage(), CV_GAUSSIAN, 3, 3 );
@@ -327,9 +324,9 @@ void ColorSingleAnalysis::draw()
     
     glEnable(GL_DEPTH_TEST);
     
-    //ofSetLineWidth(1.0f);
-    glPointSize(4.0f);
-   
+    ofSetLineWidth(1.0f);
+    // glPointSize(4.0f);
+    
     ofEnableBlendMode ( OF_BLENDMODE_ADD );
     //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
     //ofEnableBlendMode ( OF_BLENDMODE_SUBTRACT );
@@ -545,10 +542,10 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
     //mesh.setMode(OF_PRIMITIVE_TRIANGLES);
     //mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
     //mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-    //mesh.setMode(OF_PRIMITIVE_LINES);
+    mesh.setMode(OF_PRIMITIVE_LINES);
     //mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
     //mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-    mesh.setMode(OF_PRIMITIVE_POINTS);
+    //mesh.setMode(OF_PRIMITIVE_POINTS);
   
     /*
      OF_PRIMITIVE_TRIANGLES,
@@ -661,21 +658,21 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
             if(fileNameColor=="RED")
             {
                 currentSecondImageColor.r=255;
-                currentSecondImageColor.g=75;
-                currentSecondImageColor.b=75;
+                currentSecondImageColor.g=0;
+                currentSecondImageColor.b=0;
                 currentSecondImageColor.a=255;
                 
             } else if(fileNameColor=="GREEN")
             {
-                currentSecondImageColor.r=75;
+                currentSecondImageColor.r=0;
                 currentSecondImageColor.g=255;
-                currentSecondImageColor.b=75;
+                currentSecondImageColor.b=0;
                 currentSecondImageColor.a=255;
                 
             } else if(fileNameColor=="BLUE")
             {
-                currentSecondImageColor.r=75;
-                currentSecondImageColor.g=75;
+                currentSecondImageColor.r=0;
+                currentSecondImageColor.g=0;
                 currentSecondImageColor.b=255;
                 currentSecondImageColor.a=255;
                 
@@ -792,7 +789,7 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=2.0;
+            float multiplier=3.0;
             
             differences.push_back(multiplier* thisDiff);
             
