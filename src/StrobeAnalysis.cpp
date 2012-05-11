@@ -27,7 +27,7 @@ void StrobeAnalysis::setup(int camWidth, int camHeight)
     _mesh_size_multiplier   = 8;
     vertexSubsampling       = 3;
     chooseColour            = 2;
-    multiplier              = 2.0;
+    multiplier              = 4.0;
     
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;

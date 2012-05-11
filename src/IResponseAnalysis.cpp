@@ -35,7 +35,7 @@ void IResponseAnalysis::setup(int camWidth, int camHeight)
     meshIsComplete=false;
     _gotFirstImage=false;
     
-    _mesh_size_multiplier=4;
+    _mesh_size_multiplier=8;
     
     //int acq_run_time = 20;   // 20 seconds of acquiring per run
     
@@ -517,7 +517,7 @@ vector<float> IResponseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofIma
             int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
 
             //cout<<thisDiff<< " thisDiff "<<endl;
-            float multiplier=2.0;
+            float multiplier=4.0;
             
             differences.push_back(multiplier * thisDiff);
             

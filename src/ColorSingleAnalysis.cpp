@@ -27,7 +27,7 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     meshIsComplete=false;
     _gotFirstImage=false;
     _mesh_size_multiplier=8;
-    vertexSubsampling = 1;
+    vertexSubsampling = 2;
     chooseColour=1;
     
     int acq_run_time;   // 10 seconds of acquiring per run
@@ -325,7 +325,7 @@ void ColorSingleAnalysis::draw()
     glEnable(GL_DEPTH_TEST);
     
     ofSetLineWidth(1.0f);
-    // glPointSize(4.0f);
+    glPointSize(1.0f);
     
     ofEnableBlendMode ( OF_BLENDMODE_ADD );
     //ofEnableBlendMode ( OF_BLENDMODE_MULTIPLY );
@@ -542,10 +542,10 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
     //mesh.setMode(OF_PRIMITIVE_TRIANGLES);
     //mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
     //mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-    mesh.setMode(OF_PRIMITIVE_LINES);
+    //mesh.setMode(OF_PRIMITIVE_LINES);
     //mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
     //mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-    //mesh.setMode(OF_PRIMITIVE_POINTS);
+    mesh.setMode(OF_PRIMITIVE_POINTS);
   
     /*
      OF_PRIMITIVE_TRIANGLES,
@@ -558,7 +558,7 @@ void ColorSingleAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage curre
      
      */
     
-    ofColor meshColour=ofColor(255,255,255);
+    ofColor meshColour=ofColor(255,255,255, 255);
     
       //the average z position of the matrix - used later to centre the mesh on the z axis when drawing
     float zPlaneAverage=0;
