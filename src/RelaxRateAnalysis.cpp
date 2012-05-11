@@ -28,9 +28,9 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     _gotFirstImage=false;
     _mesh_size_multiplier   = 8;
     vertexSubsampling_x       = 1; //must be at least '1'
-    vertexSubsampling_y       = 7; //must be at least '1'
+    vertexSubsampling_y       = 5; //must be at least '1'
     chooseColour            = 2;
-    multiplier              = 3.0;
+    multiplier              = 4.0;
     
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;

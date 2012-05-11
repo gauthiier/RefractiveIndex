@@ -28,13 +28,14 @@ void ShadowScapesAnalysis::setup(int camWidth, int camHeight)
     //flag for main sketch
     meshIsComplete=false;
     _gotFirstImage=false;
-    _mesh_size_multiplier   = 15;
+    _mesh_size_multiplier   = 8;
     vertexSubsampling       = 1;
     chooseColour            = 5;
     multiplier              = 4.0;
     
     ofSetLineWidth(5.0f);
     glPointSize(5.0f);
+    glEnable(GL_DEPTH_TEST);
     
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;

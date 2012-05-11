@@ -155,7 +155,7 @@ void RefractiveIndex::start_analysis()
 
     //    fbo.allocate( _currentAnalysis->_mesh_size_multiplier *_vid_w,_currentAnalysis->_mesh_size_multiplier * _vid_h);
     //camera.setPosition((fbo.getWidth()/2), fbo.getHeight()/2,_currentAnalysis->_mesh_size_multiplier *500);
-    camera.setPosition(0, (fbo.getHeight()/2)+250,  _currentAnalysis->_mesh_size_multiplier*500);
+    camera.setPosition(0, (fbo.getHeight()/2)+150,  _currentAnalysis->_mesh_size_multiplier*500);
     camera.setFov(65.0);
     camera.setOrientation(ofVec3f(-2,0,0));
     _meshRotation=0;
