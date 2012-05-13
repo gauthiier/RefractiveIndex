@@ -27,7 +27,7 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     _gotFirstImage=false;
     _mesh_size_multiplier   = 8;
     vertexSubsampling       = 1;
-    chooseColour            = 5;
+    chooseColour            = 6;
     multiplier              = 4.0;
     
     ofSetLineWidth(5.0f);
@@ -36,15 +36,15 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;
     //blendMode = OF_BLENDMODE_SUBTRACT;
-    blendMode = OF_BLENDMODE_ALPHA;
-    //blendMode = OF_BLENDMODE_SCREEN;
+    //blendMode = OF_BLENDMODE_ALPHA;
+    blendMode = OF_BLENDMODE_SCREEN;
     
     //meshMode = OF_PRIMITIVE_TRIANGLES;
     //meshMode = OF_PRIMITIVE_TRIANGLE_STRIP;
     //meshMode = OF_PRIMITIVE_TRIANGLE_FAN;
-    meshMode = OF_PRIMITIVE_LINES;
+   // meshMode = OF_PRIMITIVE_LINES;
     //meshMode = OF_PRIMITIVE_LINE_STRIP;
-    //meshMode = OF_PRIMITIVE_POINTS;
+    meshMode = OF_PRIMITIVE_POINTS;
     
     ///setup light    
     ofEnableLighting();    
@@ -71,7 +71,9 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     glLightfv(GL_LIGHT1, GL_POSITION, light_position1);  
     
     glEnable(GL_LIGHT1);     
-    
+    glPointSize(9.0f);
+    glEnable(GL_POINT_SMOOTH);
+    glCullFace(GL_BACK);
     
     int acq_run_time;   // 10 seconds of acquiring per run
     acq_run_time = RefractiveIndex::XML.getValue("config:analysis_time:acquiretime_camnoise", ACQUIRE_TIME);
@@ -177,11 +179,26 @@ void CamNoiseAnalysis::synthesise()
 {
     //cout << "CamNoiseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
-
+    
+    _returnAveragePixelValues();
+    vector<vector<float> > averagePixelBrightnessesForEachLevel = averagePixelValuesForAllLevels;
+    float lightLevel=0;
+    float pLightLevel=0;
+    cout<<_listOfLightLevels.size()<<" "<<averagePixelBrightnessesForEachLevel.size()<<" these should be the same";
+    
     for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
-
+        vector<string> fileNameParts= ofSplitString(_saved_filenames_analysis[i], "_");
+        
+        lightLevel = ofToFloat(fileNameParts[fileNameParts.size()-2]);
         //cout << "CamNoiseAnalysis::synthesis FOR LOOP...\n";
-
+        
+        //find which list of average pixel values is for THIS light level
+        int _averagePixelVectorIndex;
+        for (int j=0; j<_listOfLightLevels.size(); j+=3) {
+            if(lightLevel==_listOfLightLevels[j]){
+                _averagePixelVectorIndex=j;
+            }
+        }
         //cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
 
         if(_state == STATE_STOP) return;
@@ -197,7 +214,7 @@ void CamNoiseAnalysis::synthesise()
                 
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 
-                cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
+             /*   cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
                 cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
                 
                 cvColorImage1.convertToGrayscalePlanarImage(cvGrayImage1, 1);
@@ -233,7 +250,7 @@ void CamNoiseAnalysis::synthesise()
                 // convert the CV image 
                 image1.setFromPixels(cvColorImage1.getPixelsRef()); 
                 image5.setFromPixels(cvColorImage2.getPixelsRef());  
-                
+                */
                 ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
                 if(!_gotFirstImage){
                     cout<<"background image is"<< _saved_filenames_analysis[i]<<endl;
@@ -282,7 +299,7 @@ void CamNoiseAnalysis::synthesise()
                 meshIsComplete=false;
                 
                 //make a mesh - this mesh will be drawn in the main app
-                setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
+                setMeshFromPixels(_returnDepthsAtEachPixel(image1, averagePixelBrightnessesForEachLevel[_averagePixelVectorIndex], _background), image1, image1, aMesh);
                 
                 //setMeshFromPixels(_returnDepthsAtEachPixel(image1, image1, _background), image1, image1, aMesh);
                 
@@ -543,6 +560,9 @@ void CamNoiseAnalysis::save_cb(Timer& timer)
 void CamNoiseAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh){
     int x=0;
     int y=0;
+    
+    //to do 
+    
     
     //get rid of all previous vectors and colours
     mesh.clear();
@@ -873,11 +893,43 @@ void CamNoiseAnalysis::setMeshFromPixels(vector<float> sPixels, ofImage currentF
             }
         }
     }
-    
+    if(chooseColour==6){
+        
+        for(int i=0;i<sPixels.size();i++){
+            mesh.addColor(  currentSecondImage.getColor(x, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*(y+1),- sPixels[ (currentSecondImage.getWidth()*(y+1))+x    ]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1 ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y+1));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*(y+1),- sPixels[(currentSecondImage.getWidth()*(y+1))+x+1]   ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x, y));
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*x,_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x ]  ));
+            
+            mesh.addColor(  currentSecondImage.getColor(x+1, y)   );
+            mesh.addVertex(ofVec3f(_mesh_size_multiplier*(x+1),_mesh_size_multiplier*y,- sPixels[(currentSecondImage.getWidth()*(y))+x +1 ]));
+            
+            x++;
+            if(x>=currentSecondImage.getWidth()-1){
+                x=0;
+                y++;
+                //something is going badly wrong with my maths for me to need this HELP TODO fix this - why am I running over the end of the vector?
+                if(y>=currentSecondImage.getHeight()-1){
+                    break;
+                }
+            }
+        }
+    }
+
 }
 
 
-vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImag){
+vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, vector<float> averageDepths, ofImage &backgroundImag){
     
     ofPixels imagePixels1 = image1.getPixelsRef();
     //ofPixels imagePixels2 = image2.getPixelsRef();
@@ -899,7 +951,7 @@ vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImag
     int chooseComparison=1;
     
     //comparison here to find out how close each color is to pure RED / GREEN / BLUE
-    
+    int inc=0;
     if(chooseComparison==1){
         //for each pixel...
         float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
@@ -917,8 +969,12 @@ vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImag
             //int thisDiff=abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getBrightness());
             //int thisDiff=abs(imageColor1.getBrightness()-_presumedBrightness);
-            
-            int thisDiff=-abs(imageColor1.getBrightness()+ofRandom(-50,50));
+            if(i<100){
+                
+              //  cout<<" average: "<<averageDepths[inc]<<" actual: "<<imageColor1.getBrightness()<<" ";
+            }
+           // int thisDiff=imageColor1.getBrightness();
+            int thisDiff=-(imageColor1.getBrightness() - averageDepths[inc] );
             //int thisDiff=abs(imageColor1.getLightness());
             //int thisDiff=-abs(imageColor1.r);
             
@@ -939,9 +995,91 @@ vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofImag
                 x=0;
                 y++;
             }
+            inc++;
         }
     }
     
     //difference.setFromPixels(thesePixels,imagePixels1.getWidth(),imagePixels1.getHeight(), 3);
     return differences;
+}
+
+
+void CamNoiseAnalysis:: _returnAveragePixelValues(){
+    
+    
+    //second number in 15_204.00_2.jpg is the light level
+    
+    float lightLevel=0;
+    float pLightLevel=0;
+    float numberOfImagesActuallyLoaded=0;
+    vector<float> averagePixelValuesForOneLevel;
+
+    for (int j=0; j<RefractiveIndex::_vid_w*RefractiveIndex::_vid_h; j++) {
+        averagePixelValuesForOneLevel.push_back(0.0);
+    }
+    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
+        
+        
+        if(_state == STATE_STOP) return;
+        
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        }
+        
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+
+            //split file name by under score
+            vector<string> fileNameParts= ofSplitString(_saved_filenames_analysis[i], "_");
+            
+            lightLevel = ofToFloat(fileNameParts[fileNameParts.size()-2]);
+           // cout<<" lightLevel "<<lightLevel;
+
+            ofPixels image1Pixels=image1.getPixelsRef();
+            
+            int x=0;
+            int y=0;
+            int inc=0;
+            for (int j=0; j<image1Pixels.size(); j+=3) {
+                ofColor color=image1Pixels.getColor(x, y);
+                averagePixelValuesForOneLevel[inc]+= color.getBrightness();
+                x++;
+                inc++;
+                if(x>=image1Pixels.getWidth()){ 
+                    x=0;
+                    y++;
+                }
+            }
+           // _listOfLightLevels}
+            numberOfImagesActuallyLoaded++;
+            
+            //if this is a new light level advance
+            if (lightLevel!=pLightLevel) {
+                
+                ///check that this light level is not already in our list
+                
+                
+             _listOfLightLevels.push_back(lightLevel);
+                
+                for (int j=0; j<averagePixelValuesForOneLevel.size(); j++) {
+                    averagePixelValuesForOneLevel[j]/=numberOfImagesActuallyLoaded;
+                    //cout<<" "<<averagePixelValuesForOneLevel[j]<<" ";
+                }
+                averagePixelValuesForAllLevels.push_back(averagePixelValuesForOneLevel);
+                for (int j=0; j<averagePixelValuesForOneLevel.size(); j++) {
+                    averagePixelValuesForOneLevel[j]=0;
+                }
+
+                pLightLevel=lightLevel;
+                numberOfImagesActuallyLoaded=0;
+
+            }
+
+        }
+    }
+    
+    for(int j=0;j<_listOfLightLevels.size();j++){
+        //cout<<_listOfLightLevels[j]<<" lightlevel ";
+    }
+    
 }

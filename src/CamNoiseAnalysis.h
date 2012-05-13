@@ -66,9 +66,17 @@ protected:
     void setMeshFromPixels(vector<float> sPixels, ofImage currentFirstImage, ofImage currentSecondImage, ofMesh & mesh);
     
     //depth map function
-    vector<float> _returnDepthsAtEachPixel(ofImage &image1, ofImage &image2, ofImage &backgroundImage);
+    vector<float> _returnDepthsAtEachPixel(ofImage &image1, vector<float> averageDepths, ofImage &backgroundImage);
+    
+    //returns a vector of floats for each distinct light level
+   void _returnAveragePixelValues();
+    //this vector of vectors will be returned
+    vector<vector<float> > averagePixelValuesForAllLevels;
+    
+    vector<float> _listOfLightLevels;
     
     int vertexSubsampling;
+    
     int chooseColour;
     ofPrimitiveMode meshMode;
     ofBlendMode blendMode;
