@@ -27,7 +27,7 @@ void ColorSingleAnalysis::setup(int camWidth, int camHeight)
     meshIsComplete=false;
     _gotFirstImage=false;
     _mesh_size_multiplier=8;
-    vertexSubsampling = 2;
+    vertexSubsampling = 1;
     chooseColour=1;
     
     int acq_run_time;   // 10 seconds of acquiring per run
@@ -743,15 +743,11 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
     
     if(chooseComparison==1){
         //for each pixel...
-        float _maxPossibleDistanceToCentre=ofDist(0,0,imagePixels1.getWidth()/2, imagePixels1.getHeight()/2);
         
         for(int i=0;i<imagePixels1.size();i+=3){
             
             ofColor imageColor1 = imagePixels1.getColor(x, y);
             //ofColor colourImage2 = imagePixels2.getColor(x, y);
-            
-            float _distanceToCentre=ofDist(imagePixels1.getWidth()/2, imagePixels1.getHeight()/2, x, y);
-            float _presumedBrightness=ofMap(sqrt(_maxPossibleDistanceToCentre)-sqrt(_distanceToCentre), 0,  sqrt(_maxPossibleDistanceToCentre), 0, 255);
             
             //int thisDiff=abs(imageColor1.getHue());
             //int thisDiff=abs(imageColor1.getBrightness());
@@ -761,25 +757,25 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
             
             if(fileNameColor=="RED")
             {   
-                thisDiff=abs(imageColor1.r);
+                //thisDiff=abs(imageColor1.r);
 
-                //thisDiff=abs(255-imageColor1.r);
+                thisDiff=abs(255-imageColor1.r);
             } else if(fileNameColor=="GREEN")
             {
-                thisDiff=abs(imageColor1.g);                
+                //thisDiff=abs(imageColor1.g);                
 
-                //thisDiff=abs(255-imageColor1.g);  
+                thisDiff=abs(255-imageColor1.g);  
                 
             } else if(fileNameColor=="BLUE")
             {
-                thisDiff=abs(imageColor1.b);
+                //thisDiff=abs(imageColor1.b);
 
-                //thisDiff=abs(255-imageColor1.b);
+                thisDiff=abs(255-imageColor1.b);
             
             } else if(fileNameColor=="FADING") {
             
-                thisDiff=imageColor1.getBrightness();
-                //thisDiff=255-imageColor1.getBrightness();
+                //thisDiff=imageColor1.getBrightness();
+                thisDiff=255-imageColor1.getBrightness();
 
             }
             
@@ -789,7 +785,7 @@ vector<float> ColorSingleAnalysis::_returnDepthsAtEachPixel(ofImage &image1, ofI
             //green hue: 120 
             //blue hue: 240
             
-            float multiplier=3.0;
+            float multiplier=8.0;
             
             differences.push_back(multiplier* thisDiff);
             

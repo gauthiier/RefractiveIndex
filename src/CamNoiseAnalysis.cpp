@@ -33,6 +33,8 @@ void CamNoiseAnalysis::setup(int camWidth, int camHeight)
     ofSetLineWidth(5.0f);
     glPointSize(5.0f);
     
+    glEnable(GL_DEPTH_TEST);
+    
     //blendMode = OF_BLENDMODE_ADD;
     //blendMode = OF_BLENDMODE_MULTIPLY;
     //blendMode = OF_BLENDMODE_SUBTRACT;
@@ -974,6 +976,7 @@ vector<float> CamNoiseAnalysis::_returnDepthsAtEachPixel(ofImage &image1, vector
               //  cout<<" average: "<<averageDepths[inc]<<" actual: "<<imageColor1.getBrightness()<<" ";
             }
            // int thisDiff=imageColor1.getBrightness();
+            
             int thisDiff=-(imageColor1.getBrightness() - averageDepths[inc] );
             //int thisDiff=abs(imageColor1.getLightness());
             //int thisDiff=-abs(imageColor1.r);

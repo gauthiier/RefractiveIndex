@@ -165,7 +165,7 @@ void IResponseAnalysis::synthesise()
                 ofPixels backgroundPixels   = _background.getPixelsRef();
 
                 //background subtraction// 
-                
+                /*
                 for(int i=0;i<imagePixels1.size();i++){
                     //unsigned char val=imagePixels1[i];
                     // cout<<(int)backgroundPixels[i]<< " thesePixels[i] "<<(int)imagePixels1[i]<<endl;
@@ -176,7 +176,7 @@ void IResponseAnalysis::synthesise()
                         imagePixels1[i]=0;
                     }
                 }
-               
+               */
                 //update the images with their new background subtracted selves
                 image1.setFromPixels(imagePixels1);
 
