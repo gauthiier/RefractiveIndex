@@ -15,6 +15,11 @@
 
 #include "ofxXmlSettings.h"
 
+#include "ofxArcBall.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
 #define CAMERA_ID           0
 #define CAMERA_ACQU_WIDTH   640
 #define CAMERA_ACQU_HEIGHT  480
@@ -26,6 +31,22 @@
 #define ISTATE_STOP         0xBBBB
 #define ISTATE_TRANSITION   0xCCCC
 #define ISTATE_END          0xDDDD
+
+static const int subdiv_pixels = 4;
+
+static const int VID_W = 640, VID_H = 480;
+static const int VERTICES_X = VID_W / subdiv_pixels, VERTICES_Y = VID_W / subdiv_pixels;
+static const int TRI_W = 1000;
+
+int draw_style = FACE;
+
+#define ALGO_1  1
+#define ALGO_2  2
+#define ALGO_3  3
+#define ALGO_4  4
+
+int             algo = ALGO_2;
+float           scale = 1.f;
 
 
 int _state = ISTATE_UNDEF;
@@ -40,8 +61,64 @@ string           RefractiveIndex::_location;
 
 ofxXmlSettings   RefractiveIndex::XML;
 
+ofShader        RefractiveIndex::_shader;
+ofVboMesh       RefractiveIndex::_mesh_vbo;
+
+ofxArcBall      RefractiveIndex::cam;
+
+string          msg;
+
+void RefractiveIndex::setup_shader_vbo()
+{
+    
+    int vertices_per_frame = XML.getValue("config:algorithms:vertices_per_frame", TRI_W);
+    int pixel_per_vertex = XML.getValue("config:algorithms:pixel_per_vertex", subdiv_pixels);
+    
+    int vertices_X = _vid_w / pixel_per_vertex, vertices_Y = _vid_h / pixel_per_vertex;
+    
+    // VBO        
+    for(int i = 0; i < vertices_X; i++){
+        for(int j = 0; j < vertices_Y; j++) {
+            _verts.push_back(ofVec3f((i / (float)vertices_X) * vertices_per_frame, (j / (float) vertices_Y) * vertices_per_frame, 0.0f));
+            _tex.push_back(ofVec2f(i / (float)vertices_X * _vid_w, j / (float) vertices_Y * _vid_h));
+			if( ( i + 1 < vertices_X ) && ( j + 1 < vertices_Y ) ) {                
+                //triangle #1
+                _ind.push_back( (i+0) * vertices_Y + (j+0) );
+                _ind.push_back( (i+1) * vertices_Y + (j+0) );
+                _ind.push_back( (i+1) * vertices_Y + (j+1) );
+                
+                //triangle #2
+                _ind.push_back( (i+1) * vertices_Y + (j+1) );
+                _ind.push_back( (i+0) * vertices_Y + (j+1) );
+                _ind.push_back( (i+0) * vertices_Y + (j+0) );
+			}
+        }
+    }
+    
+    //ofEnableNormalizedTexCoords();
+    
+    _mesh_vbo.addVertices(_verts);
+    _mesh_vbo.addTexCoords(_tex);
+    _mesh_vbo.addIndices(_ind);
+    
+    _mesh_vbo.setMode(OF_PRIMITIVE_TRIANGLES);
+        
+    // geometry shader
+    
+	_shader.setGeometryInputType(GL_TRIANGLES);
+	_shader.setGeometryOutputType(GL_TRIANGLES);
+	_shader.setGeometryOutputCount(3);
+    _shader.load("dviid/rfi.vert.glsl", "dviid/rfi.frag.glsl", "dviid/rfi.geom.glsl"); 	
+	printf("Maximum number of output vertices support is: %i\n", _shader.getGeometryMaxOutputCount());    
+}
+
+
 void RefractiveIndex::setup()
 {
+    ofSetLogLevel(OF_LOG_VERBOSE);
+    
+    ofHideCursor();
+    
     bool save_config = false;
     
     cout << "Loading configuration..." << endl;
@@ -99,16 +176,24 @@ void RefractiveIndex::setup()
 
     //getting a warning from the OFlog that the pixels aren't allocated
     //void ofPixels::allocate(int w, int h, ofImageType type)    
-    _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR); 
+    _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR_ALPHA); 
+    
+    
+    setup_shader_vbo();
     
     
     //TODO:  whichever one of these is first - it always runs twice ?
     
-    _analysisVector.push_back(new ShadowScapesAnalysis(V)); 
+    
+    //_analysisVector.push_back(new ShadowScapesAnalysis(V)); 
     _analysisVector.push_back(new ShadowScapesAnalysis(H));
+    
+    /*
     _analysisVector.push_back(new ShadowScapesAnalysis(D));
-	    
+	 
+    */
     _analysisVector.push_back(new RelaxRateAnalysis());
+    /*
     
 	
     _analysisVector.push_back(new IResponseAnalysis());
@@ -120,18 +205,23 @@ void RefractiveIndex::setup()
     _analysisVector.push_back(new CamNoiseAnalysis());
     
     _analysisVector.push_back(new ColorSingleAnalysis());
+     
+     */
     
     _analysisVector.push_back(new ColorMultiAnalysis());
     
-    _analysisVector.push_back(new DiffNoiseAnalysis());	
+    //_analysisVector.push_back(new DiffNoiseAnalysis());	
     
 
-    //_currentAnalysisIndx = 0;
-    //_currentAnalysis = _analysisVector.at(_currentAnalysisIndx++); 
-    //_state = ISTATE_START;
+    _currentAnalysisIndx = 1;
+    _state = ISTATE_TRANSITION;
+
+    // to be idle at the beginning of the program (i.e. press keys to )
+    //_currentAnalysis = NULL;
+    //_state = ISTATE_UNDEF;
     
-    _currentAnalysis = NULL;
-    _state = ISTATE_UNDEF;
+    
+    ofSetEscapeQuitsApp(false);
     
 }
 
@@ -173,7 +263,6 @@ void RefractiveIndex::state_analysis()
                 _currentAnalysisIndx = 0;
                 _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
                 _state = ISTATE_START;                
-                //_state = ISTATE_END;
             } else {
                 _currentAnalysis = _analysisVector.at(_currentAnalysisIndx++);
                 _state = ISTATE_START;
@@ -204,10 +293,7 @@ void RefractiveIndex::update()
 }
 
 void RefractiveIndex::draw()
-{
-    // refractive mauve - this doesn't work... looks weird in various places.
-    //ofBackground(113, 110, 136);
-    
+{    
     // black
     ofBackground(0, 0, 0);
            
@@ -246,8 +332,21 @@ void RefractiveIndex::stop_camera()
 
 void RefractiveIndex::keyPressed  (int key)
 {
+    
+    std::stringstream out;
+    out << (char)key;
+    msg.append(out.str());
+    if(msg.find("kcuf") != string::npos) {
+        cout << "alright" << endl;
+        exitApp();
+        ::exit(1);
+    }
+    
+    
+    /*
     if( key =='f')
         ofToggleFullscreen();
+     */
     
     /*  TODO:  complete the below... would be good to trigger the Analysis from keypresses if needed... */
     // currently this doesn't work... the save_cb's in the individual 
@@ -255,6 +354,7 @@ void RefractiveIndex::keyPressed  (int key)
     
     // i.e.: ask david how to shut off the prior Analysis if it's not finished running from here? 
     
+    /*
     if(key == 'x')
     {
         if(_currentAnalysis)
@@ -361,6 +461,7 @@ void RefractiveIndex::keyPressed  (int key)
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
     }
+     */
     
     /*
      TO DO:  add a file dialog so we can save images to another hard drive...

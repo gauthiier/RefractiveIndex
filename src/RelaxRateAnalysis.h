@@ -23,7 +23,6 @@ public:
     void acquire();
     void synthesise(); 
     void displayresults();
-    void cleanup();
 
     void draw();
     
@@ -31,8 +30,6 @@ public:
     
 protected:
     
-    void clearcfindervect();
-    void clearcfindervectdisplay();
     
     bool    _RUN_DONE;
     float     _flip, _level;
@@ -44,11 +41,13 @@ protected:
     
     bool _show_image, _image_shown;
     
-    ofImage                 image1;    
-    ofxCvColorImage         cvColorImage1;    
-    ofxCvGrayscaleImage 	cvGrayDiff1;
+    ofImage         image1;
+    ofImage         image2; 
     
-    vector<rfiCvContourFinder*>      cvContourFinderVect;
-    vector<rfiCvContourFinder*>      cvContourFinderVectDisplay;
+    int algo;
+    int scale;
+    int draw_style;   
+    float line_width;
+    float point_size;
 
 };

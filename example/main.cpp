@@ -10,8 +10,8 @@ int main() {
    
     bool fullscreen;
     
-    //fullscreen = true; 
-    fullscreen = false;
+    fullscreen = true; 
+    //fullscreen = false;
     
     cout << "> display configuration" << endl;
     cout << "* fullscreen: " << (fullscreen ? "yes" : "no") << endl;

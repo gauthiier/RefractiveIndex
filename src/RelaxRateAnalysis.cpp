@@ -15,6 +15,12 @@ using Poco::Thread;
 #define TRESHOLD        80
 #define MAXBLOBS        15
 
+const int algo_default = 1;
+const int scale_default = 500;
+const int draw_style_default = 3;
+const int line_width_default = 0.5f;
+const float point_size_default = 0.5f;
+
 void RelaxRateAnalysis::setup(int camWidth, int camHeight)
 {
     AbstractAnalysis::setup(camWidth, camHeight);
@@ -57,18 +63,24 @@ void RelaxRateAnalysis::setup(int camWidth, int camHeight)
     _image_shown = false;
     
     image1.clear();
+    image2.clear();
+    
+    //  images use for drawing the synthesized files to the screen ///
     image1.setUseTexture(false);  // the non texture image that is needed to first load the image
+    image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
+    
     image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
+    image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
     
-    // clear() apparently fixes the "OF_WARNING: in allocate, reallocating a ofxCvImage" 
-    // that we're getting in OSX/Windows and is maybe crashing Windows
-    // http://forum.openframeworks.cc/index.php?topic=1867.0
-    cvColorImage1.clear();
-    cvGrayDiff1.clear();
     
-    cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-        
+    ////---------
+    
+    algo = RefractiveIndex::XML.getValue("config:algorithms:relaxrate:algo", algo_default);
+    scale = RefractiveIndex::XML.getValue("config:algorithms:relaxrate:scale", scale_default);
+    draw_style = RefractiveIndex::XML.getValue("config:algorithms:relaxrate:draw_style", draw_style_default);
+    line_width = RefractiveIndex::XML.getValue("config:algorithms:relaxrate:line_width", line_width_default);        
+    point_size = RefractiveIndex::XML.getValue("config:algorithms:relaxrate:point_size", point_size_default);
+    
 }
 
 
@@ -104,73 +116,43 @@ void RelaxRateAnalysis::synthesise()
     //cout << "IResponseAnalysis::saving synthesis...\n";
     if(_state == STATE_STOP) return;
     
-    cvContourFinderVect.clear();    
-    
-    
-    for(float i=1;i<_saved_filenames_analysis.size();i++){
-                
-        if(_state == STATE_STOP) return;
-                
-        if(image1.loadImage(_saved_filenames_analysis[i])){
-                
-            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-            
-            cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);            
-            cvColorImage1.convertToGrayscalePlanarImage(cvGrayDiff1, 1);
-            
-            cvGrayDiff1.threshold(_treshold);
-            
-            rfiCvContourFinder* cf = new rfiCvContourFinder();
-            
-            cf->findContours(cvGrayDiff1, 20, (image1.width * image1.height) / 4, _maxblobs, true);
-            
-            cvContourFinderVect.push_back(cf);
-            
-        }
-    }
+    _RUN_DONE = false;
     
     // _saved_filenames_synthesis has processed all the files in the analysis images folder
     while(!_RUN_DONE && _state != STATE_STOP)
         Thread::sleep(3);
+
     
 }
 
 void RelaxRateAnalysis::displayresults()
 {
         
-    //cvContourFinderVectDisplay.clear();
-    clearcfindervectdisplay();
-    
-    for(int i=1;i<cvContourFinderVect.size();i++){
+    for(float i=1;i<_saved_filenames_analysis.size();i++){
         
-        if(_state == STATE_STOP){
-            clearcfindervectdisplay();
-            clearcfindervect();
-            return;
-        }        
-        
+        if(_state == STATE_STOP) return;
         
         //cout << "_saved_filenames_analysis[i] - " << _saved_filenames_synthesis[i] << endl;
         
         while(!_image_shown){
             Thread::sleep(2);
-            if(_state == STATE_STOP) return;
             //cout << "!_image_shown" << endl;
         }
         
-        cvContourFinderVectDisplay.push_back(cvContourFinderVect[i]);    
-        _show_image = true;
-        _image_shown = false;
+        _show_image = false;
         
-    }     
-    
-    clearcfindervectdisplay();
-    clearcfindervect();
-    
         
-    //cvContourFinderVectDisplay.clear();
-    //cvContourFinderVect.clear();
-    
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
+            //couldn't load image
+            cout << "didn't load image" << endl;
+        } 
+        
+        if(image1.loadImage(_saved_filenames_analysis[i])){
+            //cout << "_show_image = true;" << endl;
+            _show_image = true;
+            _image_shown = false;
+        }
+    }        
     
 }
 
@@ -311,17 +293,49 @@ void RelaxRateAnalysis::draw()
             }
             
             _frame_cnt++;
+                        
+            ofEnableAlphaBlending();
+            glShadeModel(GL_SMOOTH);
+            glLineWidth(line_width);
+            glPointSize(point_size);
+            glEnable(GL_POINT_SMOOTH);
+            
+            RefractiveIndex::cam.begin();
+            
+            ofTranslate(tx, ty, tz);
+            ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
+            glScalef(1.5, 1, 1);
             
             if (_show_image)
-            {  
-                for(int i=0;i<cvContourFinderVectDisplay.size();i++){
-                    cvContourFinderVectDisplay[i]->draw(0,0, ofGetWidth(), ofGetHeight());
-                }
-
+                image2.setFromPixels(image1.getPixels(), image1.width, image1.height, OF_IMAGE_COLOR);
+            
+            image2.bind();        
+            
+            RefractiveIndex::_shader.begin();
+            
+            RefractiveIndex::_shader.setUniform1i("algo", algo);
+            RefractiveIndex::_shader.setUniform1f("scale", scale);
+            RefractiveIndex::_shader.setUniform1i("tex0", 0);
+            
+            switch (draw_style) {
+                case VERTS:
+                    RefractiveIndex::_mesh_vbo.drawVertices();
+                    break;
+                case WIRE:
+                    RefractiveIndex::_mesh_vbo.drawWireframe();
+                    break;
+                case FACE:
+                    RefractiveIndex::_mesh_vbo.drawFaces();
+                    break;            
             }
             
-            // display results of the synthesis
-            _RUN_DONE = true;
+            RefractiveIndex::_shader.end();                
+            
+            image2.unbind();
+            
+            RefractiveIndex::cam.end();    
+            
+            //_RUN_DONE = true;
             break;
         
         }
@@ -342,29 +356,5 @@ void RelaxRateAnalysis::save_cb(Timer& timer)
     saveImageAnalysis(file_name);
     
     
-}
-
-void RelaxRateAnalysis::cleanup()
-{
-}
-
-
-void RelaxRateAnalysis::clearcfindervect()
-{
-    for(int i = 0; i < cvContourFinderVect.size(); i++) {
-        rfiCvContourFinder* f = cvContourFinderVect[i];
-
-        // maybe it's erase here?  http://forum.openframeworks.cc/index.php/topic,3016.0.html
-        // cvContourFinderVect.erase(i);
-        
-        delete f;        
-    }
-    cvContourFinderVect.clear();
-    
-}
-
-void RelaxRateAnalysis::clearcfindervectdisplay()
-{
-    cvContourFinderVectDisplay.clear();
 }
 

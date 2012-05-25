@@ -11,8 +11,14 @@
 #include "ofxOpenCv.h"
 #include "ofxXmlSettings.h"
 
+#include "ofxArcBall.h"
+
 #define MODE_DRAWING        0xEEFF
 #define MODE_ANALYSING      0xFFEE
+
+#define VERTS   1
+#define WIRE    2
+#define FACE    3
 
 class RefractiveIndex : public ofBaseApp
 {
@@ -31,6 +37,8 @@ public:
     void start_analysis();
     void stop_analysis();
     void state_analysis();
+    
+    void setup_shader_vbo();
     
     // ofx
     void keyPressed  (int key);
@@ -68,5 +76,17 @@ public:
     // this should be in xml
     static string           _location;
     static ofxXmlSettings   XML;  // made this static so we can access RUN_NUM in the analyses 
+    
+    
+    static ofVboMesh       _mesh_vbo;
+    
+    vector<ofVec3f> _verts;
+    vector<ofVec2f> _tex;
+    vector<unsigned int> _ind;
+    
+    static ofxArcBall cam;
+    
+    static ofShader        _shader;
+    
     
 };

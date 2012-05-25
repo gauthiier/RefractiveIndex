@@ -20,6 +20,16 @@ void AbstractAnalysis::setup(int camWidth, int camHeight) {
         _whole_file_path_synthesis = r.filePath + "/darwings";        
     }
     
+    // viewport
+    
+    tx = RefractiveIndex::XML.getValue("config:viewport:tx", 200.0);
+    ty = RefractiveIndex::XML.getValue("config:viewport:ty", 50.0);
+    tz = RefractiveIndex::XML.getValue("config:viewport:tz", -500.0);
+    
+    rx = RefractiveIndex::XML.getValue("config:viewport:rx", 0.0);
+    ry = RefractiveIndex::XML.getValue("config:viewport:ry", 0.0);
+    rz = RefractiveIndex::XML.getValue("config:viewport:rz", 0.0);
+    
 }
 
 // this is the main threaded loop for a given analysis
@@ -39,13 +49,14 @@ void AbstractAnalysis::do_synthesize() {
                 _state = STATE_ACQUIRING;
                 acquire();
                 if(_state == STATE_STOP) goto exit;
-                _state = STATE_SYNTHESISING;
-                synthesise();
-                if(_state == STATE_STOP) goto exit;
+                //_state = STATE_SYNTHESISING;
+                //synthesise();
+                //if(_state == STATE_STOP) goto exit;
                 _state = STATE_DISPLAY_RESULTS;
                 displayresults();
-                cleanup();
-            }                    
+            }       
+            
+            break;
         }
             
         case MODE_DRAWING:
@@ -60,13 +71,15 @@ void AbstractAnalysis::do_synthesize() {
             synthesise();
             if(_state == STATE_STOP) goto exit;
             _state = STATE_DISPLAY_RESULTS;
-            displayresults();
-            cleanup();            
+            displayresults();   
+            
+            break;
         }
     }
     
 exit:    
     cleanup();
+    ofxFileHelper::deleteFolder(_whole_file_path_analysis);
     ofNotifyEvent(_synthesize_cb, _name);    
     
 }
@@ -95,7 +108,7 @@ void AbstractAnalysis::create_dir_allocate_images()
     }
 
     ofxFileHelper fileHelperAnalysis;
-    ofxFileHelper fileHelperSynthesis;
+    //ofxFileHelper fileHelperSynthesis;
     
     _whole_file_path_analysis = ANALYSIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime ;
   
@@ -118,6 +131,7 @@ void AbstractAnalysis::create_dir_allocate_images()
         
     }
     
+    /*
     _whole_file_path_synthesis = SYNTHESIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime;
     
     if(!fileHelperSynthesis.doesDirectoryExist(_whole_file_path_synthesis)){
@@ -135,6 +149,7 @@ void AbstractAnalysis::create_dir_allocate_images()
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
         
     }
+     */
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////  
     
     
@@ -189,6 +204,7 @@ void AbstractAnalysis::saveImageAnalysis(string filename)
     if (RefractiveIndex::_vidGrabber.isFrameNew())
     {
         RefractiveIndex::_pixels = RefractiveIndex::_vidGrabber.getPixelsRef(); //get ofPixels from the camera
+        
     } else {
         return;
     }

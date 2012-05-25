@@ -79,7 +79,11 @@ protected:
     float           DELTA_T_SAVE;
     int             NUM_PHASE;
     int             NUM_RUN;
-    int             NUM_SAVE_PER_RUN;    
+    int             NUM_SAVE_PER_RUN;  
+    
+    //viewport
+    
+    float tx, ty, tz, rx, ry, rz;    
     
     friend class AnalysisAdaptor;
 };

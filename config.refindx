@@ -1,7 +1,7 @@
 <!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
 
 <config>
-    <mode>drawing</mode>
+    <mode>analysis</mode>
 	<camera>
 		<id>1</id>
 		<width>640</width>
@@ -11,7 +11,7 @@
 		<fps>30</fps>
     </display>
 	<locale>
-		<name>SWANSEA</name>
+		<name>FUTURE</name>
 	</locale>
 
     <analysis_NUM_RUN>
@@ -34,9 +34,29 @@
         <acquiretime_strobe>            30      </acquiretime_strobe>
         <acquiretime_camnoise>          30      </acquiretime_camnoise>
         <acquiretime_colorsingle>       40      </acquiretime_colorsingle>
-        <acquiretime_colormulti>        40      </acquiretime_colormulti>
+        <acquiretime_colormulti>        10      </acquiretime_colormulti>
         <acquiretime_diffnoise>         30      </acquiretime_diffnoise>
     </analysis_time>
+    
+    <algorithms>
+        <vertices_per_frame>1000</vertices_per_frame>
+        <pixel_per_vertex>4</pixel_per_vertex>
+        <colormulti>
+            <algo>2</algo>
+            <scale>4</scale>
+            <draw_style>2</draw_style>
+        </colormulti>
+        <relaxrate>
+            <algo>1</algo>
+            <scale>500</scale>
+            <draw_style>1</draw_style>
+        </relaxrate>
+        <shadowscapes>
+            <algo>3</algo>
+            <scale>1</scale>        
+            <draw_style>1</draw_style>
+        </shadowscapes>        
+    </algorithms>
     
     <relaxrate>
         <treshold>51</treshold>
