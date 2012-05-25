@@ -102,15 +102,20 @@ void ShadowScapesAnalysis::acquire()
 
 void ShadowScapesAnalysis::synthesise()
 {
-    //cout << "ShadowScapesAnalysis::saving synthesis...\n";
+    // we don't need to synthesise
+    return;
     
-    if(_state == STATE_STOP) return;
-    
-    _RUN_DONE = false;
-    
-    // _saved_filenames_synthesis has processed all the files in the analysis images folder
-    while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3);
+    /*
+     
+     //cout << "IResponseAnalysis::saving synthesis...\n";
+     if(_state == STATE_STOP) return;
+     
+     _RUN_DONE = false;
+     
+     // _saved_filenames_synthesis has processed all the files in the analysis images folder
+     while(!_RUN_DONE && _state != STATE_STOP)
+     Thread::sleep(3);
+     */
 }
 
 

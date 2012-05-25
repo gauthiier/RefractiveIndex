@@ -13,6 +13,12 @@ using Poco::Thread;
 #define NUMBER_RUNS     1
 #define ACQUIRE_TIME    20
 
+const int algo_default = 1;
+const int scale_default = 500;
+const int draw_style_default = 3;
+const int line_width_default = 0.5f;
+const float point_size_default = 0.5f;
+
 void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
 {
     AbstractAnalysis::setup(camWidth, camHeight);
@@ -47,50 +53,22 @@ void DiffNoiseAnalysis::setup(int camWidth, int camHeight)
     
     image1.clear();
     image2.clear();
-    image3.clear();  
-    image4.clear();
-    image5.clear();
     
     //  images use for drawing the synthesized files to the screen ///
     image1.setUseTexture(false);  // the non texture image that is needed to first load the image
     image2.setUseTexture(true);   // the image that needs to get written to the screen which takes the content of image1
     
-    //  images used for re-loading and saving out the synthesized files ///
-    image3.setUseTexture(false);  
-    image4.setUseTexture(false);
-    image5.setUseTexture(false);
-    
     image1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
     image2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image3.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);  
-    image4.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
-    image5.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h,  OF_IMAGE_COLOR);
     
-    //cout << "RefractiveIndex::_vid_w " << RefractiveIndex::_vid_w << endl;
-    //cout << "RefractiveIndex::_vid_h " << RefractiveIndex::_vid_h << endl;
     
-    // clear() apparently fixes the "OF_WARNING: in allocate, reallocating a ofxCvImage" 
-    // that we're getting in OSX/Windows and is maybe crashing Windows
-    // http://forum.openframeworks.cc/index.php?topic=1867.0
-    cvColorImage1.clear();
-	cvGrayImage1.clear();
-    cvGrayDiff1.clear();
+    ////---------
     
-    cvColorImage2.clear();
-	cvGrayImage2.clear();
-    cvGrayDiff2.clear();
-    
-    cvConvertorImage.clear();    
-    
-    cvColorImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-	cvGrayImage1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    cvGrayDiff1.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
-    cvColorImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-	cvGrayImage2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    cvGrayDiff2.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
-    
-    cvConvertorImage.allocate(RefractiveIndex::_vid_w,RefractiveIndex::_vid_h);
+    algo = RefractiveIndex::XML.getValue("config:algorithms:diffnoise:algo", algo_default);
+    scale = RefractiveIndex::XML.getValue("config:algorithms:diffnoise:scale", scale_default);
+    draw_style = RefractiveIndex::XML.getValue("config:algorithms:diffnoise:draw_style", draw_style_default);
+    line_width = RefractiveIndex::XML.getValue("config:algorithms:diffnoise:line_width", line_width_default);        
+    point_size = RefractiveIndex::XML.getValue("config:algorithms:diffnoise:point_size", point_size_default);
     
 }
 
@@ -126,79 +104,27 @@ void DiffNoiseAnalysis::acquire()
 void DiffNoiseAnalysis::synthesise()
 {   
     
-    //cout << "DiffNoiseAnalysis::saving synthesis...\n";
-    if(_state == STATE_STOP) return;
+    // we don't need to synthesise
+    return;
     
-    for(float i=1;i<_saved_filenames_analysis.size()-1;i++){
-        
-        //cout << "DiffNoiseAnalysis::synthesis FOR LOOP...\n";
-        
-        //cout << "_saved_filenames_analysis[i]" << _saved_filenames_analysis[i] << endl;
-        
-        if(_state == STATE_STOP) return;
-        
-        if(!image1.loadImage(_saved_filenames_analysis[i])){
-            //couldn't load image
-            cout << "didn't load image" << endl;
-        } 
-        
-        if(image1.loadImage(_saved_filenames_analysis[i])){
-            //cout << "LOADED image1!!!" << endl;
-            //if(image5.loadImage(_saved_filenames_analysis[i+1])){
-            
-            ///////////////////////// PROCESS THE SAVED CAMERA IMAGES OF SHIT TO THE IMAGES //////////////////////////
-            
-            cvColorImage1.setFromPixels(image1.getPixels(), image1.width, image1.height);
-            //cvColorImage2.setFromPixels(image5.getPixels(), image5.width, image5.height);
-        
-            cvColorImage1.invert();
-            cvColorImage1.blur(5);
-            cvColorImage1.erode();
-            cvColorImage1.erode();
-            cvColorImage1.blur(5);
-            cvColorImage1.erode();
-            cvColorImage1.erode();
-            
-            //////////////////////////// SAVE TO DISK IN THE SYNTHESIS FOLDER ////////////////////////////////
-            string file_name;
-            
-            file_name = ofToString(_synth_save_cnt, 2)+"_DiffNoiseAnalysis_"+ofToString(_run_cnt,2)+".jpg";
-            
-            
-            //<---- THE OLD WAY OF SAVING - works on OSX but generates BLACK FRAMES on WINDOWS ---->
-            // ofSaveImage(cvGrayImage1.getPixelsRef(),_whole_file_path_synthesis+"/"+file_name, OF_IMAGE_QUALITY_BEST);
-            
-            
-            //<---- NEW SAVING - seems to fix WINDOWS saving out BLACK FRAMES PROBLEM ---->
-            //ofImage image;
-            //image.allocate(cvColorImage1.width, cvGrayImage1.height, OF_IMAGE_COLOR);
-            
-            //*** This needs to be here for OSX of we get a BAD ACCESS ERROR. DOES IT BREAK WINDOWS? ***//
-            //image.setUseTexture(false);  
-            
-            //image.setFromPixels(cvColorImage1.getPixels(), cvColorImage1.width, cvColorImage1.height, OF_IMAGE_COLOR);
-            //image.saveImage(_whole_file_path_synthesis+"/"+file_name);
-            
-            //_saved_filenames_synthesis.push_back(_whole_file_path_synthesis+"/"+file_name);
-            
-            // <--- REALLY NEW SAVING METHOD --- 26 feb 2012 --- consolidated the save function into Abstract Analysis> ///
-            saveImageSynthesis(file_name, &cvColorImage1, OF_IMAGE_COLOR);
-            _synth_save_cnt++;
-            
-            // }
-        }
-    }
-    
-    // _saved_filenames_synthesis has processed all the files in the analysis images folder
-    while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3);
+    /*
+     
+     //cout << "IResponseAnalysis::saving synthesis...\n";
+     if(_state == STATE_STOP) return;
+     
+     _RUN_DONE = false;
+     
+     // _saved_filenames_synthesis has processed all the files in the analysis images folder
+     while(!_RUN_DONE && _state != STATE_STOP)
+     Thread::sleep(3);
+     */
     
 }
 
 void DiffNoiseAnalysis::displayresults()
 {
     
-    for(float i=1;i<_saved_filenames_synthesis.size();i++){
+    for(float i=1;i<_saved_filenames_analysis.size();i++){
         
         if(_state == STATE_STOP) return;
         
@@ -209,19 +135,20 @@ void DiffNoiseAnalysis::displayresults()
             //cout << "!_image_shown" << endl;
         }
         
-        if(!image3.loadImage(_saved_filenames_synthesis[i])){
+        _show_image = false;
+        
+        
+        if(!image1.loadImage(_saved_filenames_analysis[i])){
             //couldn't load image
             cout << "didn't load image" << endl;
         } 
         
-        if(image3.loadImage(_saved_filenames_synthesis[i])){
-            image3.loadImage(_saved_filenames_synthesis[i]);
+        if(image1.loadImage(_saved_filenames_analysis[i])){
             //cout << "_show_image = true;" << endl;
             _show_image = true;
             _image_shown = false;
         }
-    }    
-    
+    }         
     
 }
 
@@ -392,9 +319,6 @@ void DiffNoiseAnalysis::draw()
             
         case STATE_DISPLAY_RESULTS:
         {
-            //cout << "STATE_DISPLAY_RESULTS...\n" << endl;
-            
-            
             if (_frame_cnt > 2)
             {
                 _image_shown = true;
@@ -403,22 +327,47 @@ void DiffNoiseAnalysis::draw()
             
             _frame_cnt++;
             
+            ofEnableAlphaBlending();
+            glShadeModel(GL_SMOOTH);
+            glLineWidth(line_width);
+            glPointSize(point_size);
+            glEnable(GL_POINT_SMOOTH);
+            
+            RefractiveIndex::cam.begin();
+            
+            ofTranslate(tx, ty, tz);
+            ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
+            glScalef(1.5, 1, 1);
+            
             if (_show_image)
-            {  
-                //cout << "_show_image...\n" << endl;
-                
-                ofEnableAlphaBlending();
-                
-                ofSetColor(255, 255, 255);
-                image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_COLOR);
-                //image2.setFromPixels(image3.getPixels(),image3.width,image3.height, OF_IMAGE_GRAYSCALE);
-                image2.draw(0,0, ofGetWidth(), ofGetHeight());
-                
-                ofDisableAlphaBlending();
+                image2.setFromPixels(image1.getPixels(), image1.width, image1.height, OF_IMAGE_COLOR);
+            
+            image2.bind();        
+            
+            RefractiveIndex::_shader.begin();
+            
+            RefractiveIndex::_shader.setUniform1i("algo", algo);
+            RefractiveIndex::_shader.setUniform1f("scale", scale);
+            RefractiveIndex::_shader.setUniform1i("tex0", 0);
+            
+            switch (draw_style) {
+                case VERTS:
+                    RefractiveIndex::_mesh_vbo.drawVertices();
+                    break;
+                case WIRE:
+                    RefractiveIndex::_mesh_vbo.drawWireframe();
+                    break;
+                case FACE:
+                    RefractiveIndex::_mesh_vbo.drawFaces();
+                    break;            
             }
             
-            // display results of the synthesis
-            _RUN_DONE = true;
+            RefractiveIndex::_shader.end();                
+            
+            image2.unbind();
+            
+            RefractiveIndex::cam.end();    
+            
             break;
             
         }

@@ -1,7 +1,7 @@
 <!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
 
 <config>
-    <mode>analysis</mode>
+    <mode>analysing</mode>
 	<camera>
 		<id>1</id>
 		<width>640</width>
@@ -15,52 +15,101 @@
 	</locale>
 
     <analysis_NUM_RUN>
-        <NUM_RUN_shadowscapes>          3      </NUM_RUN_shadowscapes>
-        <NUM_RUN_relaxrate>             3      </NUM_RUN_relaxrate>
-        <NUM_RUN_iresponse>             3      </NUM_RUN_iresponse>
-        <NUM_RUN_shapefromshading>      3      </NUM_RUN_shapefromshading>
-        <NUM_RUN_strobe>                5      </NUM_RUN_strobe>
-        <NUM_RUN_camnoise>              5      </NUM_RUN_camnoise>
-        <NUM_RUN_colorsingle>           5      </NUM_RUN_colorsingle>
-        <NUM_RUN_colormulti>            5      </NUM_RUN_colormulti>
-        <NUM_RUN_diffnoise>             3      </NUM_RUN_diffnoise>
+        <NUM_RUN_shadowscapes>          1      </NUM_RUN_shadowscapes>
+        <NUM_RUN_relaxrate>             1      </NUM_RUN_relaxrate>
+        <NUM_RUN_iresponse>             1      </NUM_RUN_iresponse>
+        <NUM_RUN_shapefromshading>      1      </NUM_RUN_shapefromshading>
+        <NUM_RUN_strobe>                1      </NUM_RUN_strobe>
+        <NUM_RUN_camnoise>              1      </NUM_RUN_camnoise>
+        <NUM_RUN_colorsingle>           1      </NUM_RUN_colorsingle>
+        <NUM_RUN_colormulti>            1      </NUM_RUN_colormulti>
+        <NUM_RUN_diffnoise>             1      </NUM_RUN_diffnoise>
     </analysis_NUM_RUN>
 
     <analysis_time>
-        <acquiretime_shadowscapes>      30      </acquiretime_shadowscapes>
-        <acquiretime_relaxrate>         30      </acquiretime_relaxrate>
-        <acquiretime_iresponse>         30      </acquiretime_iresponse>
-        <acquiretime_shapefromshading>  30      </acquiretime_shapefromshading>
-        <acquiretime_strobe>            30      </acquiretime_strobe>
-        <acquiretime_camnoise>          30      </acquiretime_camnoise>
-        <acquiretime_colorsingle>       40      </acquiretime_colorsingle>
-        <acquiretime_colormulti>        10      </acquiretime_colormulti>
-        <acquiretime_diffnoise>         30      </acquiretime_diffnoise>
+        <acquiretime_shadowscapes>      5      </acquiretime_shadowscapes>
+        <acquiretime_relaxrate>         5      </acquiretime_relaxrate>
+        <acquiretime_iresponse>         5      </acquiretime_iresponse>
+        <acquiretime_shapefromshading>  5      </acquiretime_shapefromshading>
+        <acquiretime_strobe>            5      </acquiretime_strobe>
+        <acquiretime_camnoise>          5      </acquiretime_camnoise>
+        <acquiretime_colorsingle>       5      </acquiretime_colorsingle>
+        <acquiretime_colormulti>        5      </acquiretime_colormulti>
+        <acquiretime_diffnoise>         5      </acquiretime_diffnoise>
     </analysis_time>
+    
+    <viewport>
+        <tx>0</tx>
+        <ty>-20</ty>
+        <tz>-400</tz>
+        <rx>-10</rx>
+        <ry>0</ry>
+        <rz>0</rz>        
+    </viewport>
     
     <algorithms>
         <vertices_per_frame>1000</vertices_per_frame>
         <pixel_per_vertex>4</pixel_per_vertex>
         <colormulti>
             <algo>2</algo>
-            <scale>4</scale>
+            <scale>1</scale>
             <draw_style>2</draw_style>
+            <line_width>0.5</line_width>
         </colormulti>
+        <colorsingle>
+            <algo>2</algo>
+            <scale>1</scale>
+            <draw_style>2</draw_style>
+            <line_width>0.5</line_width>
+        </colorsingle>        
         <relaxrate>
             <algo>1</algo>
             <scale>500</scale>
             <draw_style>1</draw_style>
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
         </relaxrate>
-        <shadowscapes>
-            <algo>3</algo>
-            <scale>1</scale>        
+        <diffnoise>
+            <algo>1</algo>
+            <scale>500</scale>
             <draw_style>1</draw_style>
-        </shadowscapes>        
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
+        </diffnoise>        
+        <shapeshade>
+            <algo>1</algo>
+            <scale>500</scale>
+            <draw_style>1</draw_style>
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
+        </shapeshade>        
+        <strobe>
+            <algo>1</algo>
+            <scale>500</scale>
+            <draw_style>1</draw_style>
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
+        </strobe>                
+        <camnoise>
+            <algo>1</algo>
+            <scale>500</scale>
+            <draw_style>1</draw_style>
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
+        </camnoise>                        
+        <shadowscapes>
+            <algo>4</algo>
+            <scale>500</scale>        
+            <draw_style>2</draw_style>
+            <line_width>2</line_width>
+        </shadowscapes>   
+        <iresponse>
+            <algo>1</algo>
+            <scale>500</scale>
+            <draw_style>1</draw_style>
+            <line_width>2</line_width>
+            <point_size>2</point_size>            
+        </iresponse>             
     </algorithms>
-    
-    <relaxrate>
-        <treshold>51</treshold>
-        <maxblobs>25</maxblobs>
-    </relaxrate>
     
 </config>

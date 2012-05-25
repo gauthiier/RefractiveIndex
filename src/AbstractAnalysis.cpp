@@ -49,9 +49,9 @@ void AbstractAnalysis::do_synthesize() {
                 _state = STATE_ACQUIRING;
                 acquire();
                 if(_state == STATE_STOP) goto exit;
-                //_state = STATE_SYNTHESISING;
-                //synthesise();
-                //if(_state == STATE_STOP) goto exit;
+                _state = STATE_SYNTHESISING;
+                synthesise();
+                if(_state == STATE_STOP) goto exit;
                 _state = STATE_DISPLAY_RESULTS;
                 displayresults();
             }       
@@ -108,7 +108,7 @@ void AbstractAnalysis::create_dir_allocate_images()
     }
 
     ofxFileHelper fileHelperAnalysis;
-    //ofxFileHelper fileHelperSynthesis;
+    ofxFileHelper fileHelperSynthesis;
     
     _whole_file_path_analysis = ANALYSIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime ;
   
@@ -131,7 +131,7 @@ void AbstractAnalysis::create_dir_allocate_images()
         
     }
     
-    /*
+    
     _whole_file_path_synthesis = SYNTHESIS_PATH + RefractiveIndex::_location + "/" + _name + "/"+replaceTime;
     
     if(!fileHelperSynthesis.doesDirectoryExist(_whole_file_path_synthesis)){
@@ -149,7 +149,7 @@ void AbstractAnalysis::create_dir_allocate_images()
         fileHelperSynthesis.makeDirectory(SYNTHESIS_PATH+RefractiveIndex::_location+"/"+_name+"/"+replaceTime);
         
     }
-     */
+    
     //////////////////////////////END DIRECTORY CREATION //////////////////////////////////////////////////  
     
     

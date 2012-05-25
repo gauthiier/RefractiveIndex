@@ -101,14 +101,20 @@ void ColorMultiAnalysis::acquire()
 void ColorMultiAnalysis::synthesise()
 {
     
-    //cout << "ColorMultiAnalysis::saving synthesis...\n";
-    if(_state == STATE_STOP) return;
-
-    _RUN_DONE = false;
+    // we don't need to synthesise
+    return;
     
-    // _saved_filenames_synthesis has processed all the files in the analysis images folder
-    while(!_RUN_DONE && _state != STATE_STOP)
-        Thread::sleep(3);
+    /*
+     
+     //cout << "IResponseAnalysis::saving synthesis...\n";
+     if(_state == STATE_STOP) return;
+     
+     _RUN_DONE = false;
+     
+     // _saved_filenames_synthesis has processed all the files in the analysis images folder
+     while(!_RUN_DONE && _state != STATE_STOP)
+     Thread::sleep(3);
+     */
 }
 
 void ColorMultiAnalysis::displayresults()

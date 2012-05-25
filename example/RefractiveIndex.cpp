@@ -174,54 +174,31 @@ void RefractiveIndex::setup()
 
     _analysisAdapator = NULL;
 
-    //getting a warning from the OFlog that the pixels aren't allocated
-    //void ofPixels::allocate(int w, int h, ofImageType type)    
     _pixels.allocate(_vid_w, _vid_h, OF_IMAGE_COLOR_ALPHA); 
     
     
     setup_shader_vbo();
     
     
-    //TODO:  whichever one of these is first - it always runs twice ?
+    //TODO:  whichever one of these is first - it always runs twice ?    
     
+    _analysisVector.push_back(new ShadowScapesAnalysis(V)); //1
+    _analysisVector.push_back(new ShadowScapesAnalysis(H)); //2
+    _analysisVector.push_back(new ShadowScapesAnalysis(D)); //3
+    _analysisVector.push_back(new RelaxRateAnalysis());     //4
+    _analysisVector.push_back(new IResponseAnalysis());     //5
+    _analysisVector.push_back(new ShapeFromShadingAnalysis()); //6   
+    _analysisVector.push_back(new StrobeAnalysis());        //7
+    _analysisVector.push_back(new CamNoiseAnalysis());      //8
+    _analysisVector.push_back(new ColorSingleAnalysis());   //9
+    _analysisVector.push_back(new ColorMultiAnalysis());    //10
+    _analysisVector.push_back(new DiffNoiseAnalysis());	    //11
     
-    //_analysisVector.push_back(new ShadowScapesAnalysis(V)); 
-    _analysisVector.push_back(new ShadowScapesAnalysis(H));
+    _currentAnalysis = NULL;
+    _state = ISTATE_UNDEF;
     
-    /*
-    _analysisVector.push_back(new ShadowScapesAnalysis(D));
-	 
-    */
-    _analysisVector.push_back(new RelaxRateAnalysis());
-    /*
-    
-	
-    _analysisVector.push_back(new IResponseAnalysis());
-    
-    _analysisVector.push_back(new ShapeFromShadingAnalysis());
-    
-    _analysisVector.push_back(new StrobeAnalysis());
-    
-    _analysisVector.push_back(new CamNoiseAnalysis());
-    
-    _analysisVector.push_back(new ColorSingleAnalysis());
-     
-     */
-    
-    _analysisVector.push_back(new ColorMultiAnalysis());
-    
-    //_analysisVector.push_back(new DiffNoiseAnalysis());	
-    
-
-    _currentAnalysisIndx = 1;
-    _state = ISTATE_TRANSITION;
-
-    // to be idle at the beginning of the program (i.e. press keys to )
-    //_currentAnalysis = NULL;
-    //_state = ISTATE_UNDEF;
-    
-    
-    ofSetEscapeQuitsApp(false);
+    // disbale <ESC> ?
+    //ofSetEscapeQuitsApp(false);
     
 }
 
@@ -333,28 +310,9 @@ void RefractiveIndex::stop_camera()
 void RefractiveIndex::keyPressed  (int key)
 {
     
-    std::stringstream out;
-    out << (char)key;
-    msg.append(out.str());
-    if(msg.find("kcuf") != string::npos) {
-        cout << "alright" << endl;
-        exitApp();
-        ::exit(1);
-    }
-    
-    
-    /*
     if( key =='f')
         ofToggleFullscreen();
-     */
     
-    /*  TODO:  complete the below... would be good to trigger the Analysis from keypresses if needed... */
-    // currently this doesn't work... the save_cb's in the individual 
-    // tried to add a  stop_analysis(); call but it blocks the whole programme
-    
-    // i.e.: ask david how to shut off the prior Analysis if it's not finished running from here? 
-    
-    /*
     if(key == 'x')
     {
         if(_currentAnalysis)
@@ -460,50 +418,7 @@ void RefractiveIndex::keyPressed  (int key)
         _currentAnalysisIndx = 10;
         if(!_currentAnalysis)
             _state = ISTATE_TRANSITION;            
-    }
-     */
-    
-    /*
-     TO DO:  add a file dialog so we can save images to another hard drive...
-     e.g.: http://dev.openframeworks.cc/pipermail/of-dev-openframeworks.cc/2011-April/003125.html
-     
->> 		case 's':
->> 			doSave ^= true;
->> 			doLoad = false;
->> 			if(doSave) {
->> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to save to", true);
->> 				if(r.bSuccess) {
->> 					saveCounter = 0;
->> 					savePath = r.getPath();
->> 					ofDirectory::createDirectory(savePath + "/color/");
->> 					ofDirectory::createDirectory(savePath + "/depth/");
->> 					printf("SAVE %s %s\n", r.getPath().c_str(), r.getName().c_str());
->> 				} else {
->> 					doSave = false;
->> 				}
->> 				
->> 			}
->> 			break;
->> 			
->> 		case 'l':
->> 			doLoad ^= true;
->> 			doSave = false;
->> 			if(doLoad) {
->> 				ofFileDialogResult r = ofSystemLoadDialog("Select path to load from", true);
->> 				if(r.bSuccess) {
->> 					loadCounter = 0;
->> 					loadPath = r.getPath();
->> 					ofDirectory dir;
->> 					loadMaxFiles = MAX(dir.listDir(loadPath + "/color"), dir.listDir(loadPath + "/depth"));
->> 					printf("LOAD %i %s %s\n", loadMaxFiles, r.getPath().c_str(), r.getName().c_str());
->> 				} else {
->> 					doLoad = false;
->> 				}
->> 				
->> 			}
->> 			break;
-    */
-    
+    }    
     
 }
 

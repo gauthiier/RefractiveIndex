@@ -41,31 +41,14 @@ protected:
     float   c, _frame_cnt, _frame_cnt_max, _anim_cnt_max;
     
     bool _show_image, _image_shown;
+    
     ofImage         image1;
     ofImage         image2; 
-    ofImage         image3;
-    ofImage         image4;
-    ofImage         image5; 
-    ofImage         image6; 
     
-    ofxCvColorImage         cvColorImage1;
-    ofxCvColorImage         cvColorImage2;
-    ofxCvColorImage         cvColorImage3;
-    ofxCvColorImage         cvColorImage4;
-    ofxCvColorImage         cvColorImage5;
-    ofxCvColorImage         cvColorImage6;
-    
-    ofxCvGrayscaleImage 	cvGrayDiff1;
-    ofxCvGrayscaleImage 	cvGrayDiff2;
-    
-    ofxCvGrayscaleImage 	cvGrayImage1;
-    ofxCvGrayscaleImage 	cvGrayImage2;
-    ofxCvGrayscaleImage 	cvGrayImage3;
-    ofxCvGrayscaleImage 	cvGrayImage4;
-    
-    ofxCvContourFinder      cvContourFinder1;
-    
-    //this is the temporary container to allow us to convert and save out greyscale images
-    ofxCvColorImage         cvConvertorImage;    
+    int algo;
+    int scale;
+    int draw_style;   
+    float line_width;
+    float point_size; 
 
 };
