@@ -64,7 +64,7 @@ ofxXmlSettings   RefractiveIndex::XML;
 ofShader        RefractiveIndex::_shader;
 ofVboMesh       RefractiveIndex::_mesh_vbo;
 
-ofxArcBall      RefractiveIndex::cam;
+//ofxArcBall      RefractiveIndex::cam;
 
 string          msg;
 

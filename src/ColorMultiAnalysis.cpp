@@ -309,7 +309,7 @@ void ColorMultiAnalysis::draw()
             glShadeModel(GL_SMOOTH);
             glLineWidth(line_width);              
                 
-                RefractiveIndex::cam.begin();
+                //RefractiveIndex::cam.begin();
                 
                 ofTranslate(tx, ty, tz);
                 ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
@@ -342,7 +342,7 @@ void ColorMultiAnalysis::draw()
                 
                 image2.unbind();
                 
-                RefractiveIndex::cam.end();    
+                //RefractiveIndex::cam.end();    
                 
                 _RUN_DONE = true;
                 break;

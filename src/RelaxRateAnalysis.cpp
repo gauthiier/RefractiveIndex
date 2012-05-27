@@ -295,7 +295,7 @@ void RelaxRateAnalysis::draw()
             glPointSize(point_size);
             glEnable(GL_POINT_SMOOTH);
             
-            RefractiveIndex::cam.begin();
+            //RefractiveIndex::cam.begin();
             
             ofTranslate(tx, ty, tz);
             ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
@@ -328,7 +328,7 @@ void RelaxRateAnalysis::draw()
             
             image2.unbind();
             
-            RefractiveIndex::cam.end();    
+            //RefractiveIndex::cam.end();    
             
             break;
         
