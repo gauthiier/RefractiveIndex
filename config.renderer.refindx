@@ -1,0 +1,31 @@
+<!-- THIS FILE NEEDS TO GO IN THE APPLICATION /data/ folder -->
+
+<config>
+    <display>
+        <fps>30</fps>
+    </display>
+    <locale>
+		<name>DRAWING</name>
+	</locale>
+    
+    <viewport>
+        <tx>0</tx>
+        <ty>-0</ty>
+        <tz>-0</tz>
+        <rx>0</rx>
+        <ry>0</ry>
+        <rz>0</rz>        
+    </viewport>
+    
+    <renderer>
+        <edit>true</edit>
+        <vertices_per_frame>1000</vertices_per_frame>
+        <pixel_per_vertex>1</pixel_per_vertex>
+        <algorithm>
+            <algo>3</algo>
+            <scale>0.71</scale>
+            <draw_style>3</draw_style>
+            <line_width>0.1</line_width>
+        </algorithm>    
+    </renderer>    
+</config>

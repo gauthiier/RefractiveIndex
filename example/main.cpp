@@ -1,8 +1,9 @@
 #include "ofAppGlutWindow.h"
 #include "RefractiveIndex.h"
+#include "RefractiveIndexRenderer.h"
 
-#define SCREEN_WIDTH        800
-#define SCREEN_HEIGHT       600
+#define SCREEN_WIDTH        1280
+#define SCREEN_HEIGHT       800
 
 int main() {
     
@@ -10,8 +11,8 @@ int main() {
    
     bool fullscreen;
     
-    fullscreen = true; 
-    //fullscreen = false;
+    //fullscreen = true; 
+    fullscreen = false;
     
     cout << "> display configuration" << endl;
     cout << "* fullscreen: " << (fullscreen ? "yes" : "no") << endl;
@@ -22,6 +23,8 @@ int main() {
     }
     
 	ofSetupOpenGL(&window, SCREEN_WIDTH, SCREEN_HEIGHT, (fullscreen ? OF_FULLSCREEN : OF_WINDOW));
-	ofRunApp(new RefractiveIndex());
+	//ofRunApp(new RefractiveIndex());
+    ofRunApp(new RefractiveIndexRenderer());
 
+    
 }
