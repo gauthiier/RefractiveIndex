@@ -156,7 +156,8 @@ void RefractiveIndexRenderer::draw(){
     
     
     ofTranslate(tx, ty, tz);
-    ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
+    ofRotateX(rx+1.5*cos(ofGetElapsedTimef())); ofRotateY(ry+1.5*sin(ofGetElapsedTimef())); ofRotateZ(rz);
+    //ofRotateX(rx); ofRotateY(ry); ofRotateZ(rz);
     glScalef(1.5, 1, 1);
         
     glClear(GL_COLOR_BUFFER_BIT);
@@ -290,11 +291,17 @@ void RefractiveIndexRenderer::setup_vbo(int img_width, int img_height){
 void RefractiveIndexRenderer::setup_shader(){
     
     // TODO: INTEGRATE JAMIE CODE
-    
-	_shader.setGeometryInputType(GL_TRIANGLES);
-	_shader.setGeometryOutputType(GL_TRIANGLES);
+/*    
+    _shader.setGeometryOutputCount(3);
+    _shader.load("rfi.vert", "rfi.frag", "rfi.geom"); 	
+    _shader.setGeometryInputType(GL_TRIANGLES);
+    _shader.setGeometryOutputType(GL_TRIANGLES);    
+*/    
 	_shader.setGeometryOutputCount(3);
     _shader.load("dviid/rfi.vert.glsl", "dviid/rfi.frag.glsl", "dviid/rfi.geom.glsl"); 	
+	_shader.setGeometryInputType(GL_TRIANGLES);
+	_shader.setGeometryOutputType(GL_TRIANGLES);
+    
 	printf("Maximum number of output vertices support is: %i\n", _shader.getGeometryMaxOutputCount());        
         
 }
